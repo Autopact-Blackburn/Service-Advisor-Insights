@@ -1,0 +1,2446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Blackburn Kia Nissan GWM – Advisor Performance Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- PapaParse for CSV loading -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #050510;
+      --bg-alt: #0b0b1a;
+      --card: #141527;
+      --accent: #00bcd4;
+      --accent-soft: #00bcd466;
+      --text: #f5f5f5;
+      --muted: #9ea4c6;
+      --border: #262a40;
+      --danger: #ff5252;
+      --success: #4caf50;
+      --warning: #ffc107;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.9);
+      --bg-body: radial-gradient(circle at top left, #111827 0, #020617 55%);
+      --card-soft: radial-gradient(circle at top left, #1f2933 0, #141527 45%);
+    }
+
+    body.light {
+      --bg: #f3f4f6;
+      --bg-alt: #e5e7eb;
+      --card: #ffffff;
+      --accent: #0284c7;
+      --accent-soft: #0284c766;
+      --text: #0f172a;
+      --muted: #6b7280;
+      --border: #d1d5db;
+      --danger: #b91c1c;
+      --success: #16a34a;
+      --warning: #d97706;
+      --shadow: 0 8px 20px rgba(148, 163, 184, 0.45);
+      --bg-body: radial-gradient(circle at top left, #e5e7eb 0, #f9fafb 55%);
+      --card-soft: radial-gradient(circle at top left, #e5e7eb 0, #ffffff 45%);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg-body);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    .shell {
+      width: min(1120px, 96%);
+      margin: 24px auto 40px;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent-soft);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(20px, 2.4vw, 26px);
+      font-weight: 600;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .header-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    select, input[type="date"], input[type="text"], input[type="number"], textarea {
+      background: #020617;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+      min-width: 130px;
+    }
+
+    body.light select,
+    body.light input[type="date"],
+    body.light input[type="text"],
+    body.light input[type="number"],
+    body.light textarea {
+      background: #ffffff;
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    textarea {
+      border-radius: 12px;
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      font-size: 12px;
+      padding: 8px 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #020617;
+      color: var(--text);
+      border: 1px solid var(--border);
+      transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease, color 0.18s ease;
+    }
+
+    body.light button {
+      background: #ffffff;
+      color: var(--text);
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, var(--accent), #38bdf8);
+      border-color: transparent;
+      color: #020617;
+      font-weight: 600;
+      box-shadow: 0 8px 18px rgba(0, 188, 212, 0.35);
+    }
+
+    button.primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0, 188, 212, 0.5);
+    }
+
+    button:hover {
+      background: #020617;
+    }
+
+    body.light button:hover {
+      background: #e5e7eb;
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      justify-content: center;
+      padding: 0;
+      font-size: 16px;
+    }
+
+    .upload-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      border-radius: 14px;
+      background: radial-gradient(circle at top left, #1f2937 0, #020617 70%);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      box-shadow: var(--shadow);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    body.light .upload-bar {
+      background: radial-gradient(circle at top left, #e5e7eb 0, #f9fafb 70%);
+      border-color: #e5e7eb;
+    }
+
+    .upload-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .upload-title {
+      font-size: 12px;
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    body.light .upload-title {
+      color: #111827;
+    }
+
+    .upload-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .status-pill {
+      font-size: 10px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #64748b;
+    }
+
+    .status-pill.good .status-dot { background: #22c55e; }
+    .status-pill.bad .status-dot { background: #ef4444; }
+
+    .status-pill.good {
+      border-color: rgba(34, 197, 94, 0.7);
+      color: #bbf7d0;
+    }
+
+    .status-pill.bad {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: #fecaca;
+    }
+
+    body.light .status-pill {
+      background: #ffffff;
+      border-color: var(--border);
+      color: var(--muted);
+    }
+    .main-tabs {
+      display: inline-flex;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 4px;
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+
+    body.light .main-tabs {
+      background: #e5e7eb;
+      border-color: #d1d5db;
+    }
+
+    .main-tab {
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--muted);
+      border: none;
+      background: transparent;
+      transition: background 0.18s ease, color 0.18s ease;
+    }
+
+    .main-tab.active {
+      background: linear-gradient(135deg, #1e293b, #020617);
+      color: #e5e7eb;
+    }
+
+    body.light .main-tab.active {
+      background: #ffffff;
+      color: #111827;
+    }
+
+    .tabs {
+      display: inline-flex;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 4px;
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    body.light .tabs {
+      background: #e5e7eb;
+      border-color: #d1d5db;
+    }
+
+    .tab {
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--muted);
+      border: none;
+      background: transparent;
+      transition: background 0.18s ease, color 0.18s ease;
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, #1e293b, #020617);
+      color: #e5e7eb;
+    }
+
+    body.light .tab.active {
+      background: #ffffff;
+      color: #111827;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .header-controls {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .grid { grid-template-columns: minmax(0, 1fr); }
+      .upload-bar { align-items: flex-start; }
+    }
+
+    .card {
+      background: var(--card-soft);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 12px 12px 14px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card h3 {
+      margin: 0 0 2px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .metric-main {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .metric-target {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .pill {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--muted);
+    }
+
+    .pill.good {
+      border-color: rgba(34, 197, 94, 0.7);
+      color: #bbf7d0;
+      background: rgba(22, 163, 74, 0.18);
+    }
+
+    .pill.bad {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: #fecaca;
+      background: rgba(239, 68, 68, 0.16);
+    }
+
+    .gauge {
+      width: 100%;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.95);
+      overflow: hidden;
+      margin: 6px 0 2px;
+      border: 1px solid rgba(30, 64, 175, 0.7);
+    }
+
+    body.light .gauge {
+      background: #e5e7eb;
+      border-color: #cbd5f5;
+    }
+
+    .gauge-fill {
+      height: 100%;
+      width: var(--value, 40%);
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #22c55e);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+    }
+
+    .gauge-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .section-title {
+      margin: 18px 0 8px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+
+    .summary-row {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .summary-row strong {
+      color: var(--text);
+    }
+
+    .advisor-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .advisor-card {
+      background: #020617;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 10px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    body.light .advisor-card {
+      background: #ffffff;
+      border-color: #e5e7eb;
+    }
+
+    .advisor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .advisor-name {
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .advisor-rank {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .advisor-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .chip {
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(51, 65, 85, 0.9);
+    }
+
+    body.light .chip {
+      background: #f3f4f6;
+      border-color: #d1d5db;
+    }
+
+    .leaderboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .lb-card {
+      background: #020617;
+      border-radius: 16px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      padding: 10px 11px;
+      font-size: 11px;
+    }
+
+    body.light .lb-card {
+      background: #ffffff;
+      border-color: #d1d5db;
+    }
+
+    .lb-title {
+      font-size: 11px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .lb-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+
+    .lb-row span:first-child { color: var(--muted); }
+
+    .hidden { display: none !important; }
+
+    .loading {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .error {
+      font-size: 11px;
+      color: #fecaca;
+      margin-top: 4px;
+    }
+
+    /* Modal */
+    #insightsModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.82);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+    }
+
+    .modal {
+      width: min(520px, 92%);
+      background: radial-gradient(circle at top left, #1f2933 0, #020617 55%);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      padding: 14px 16px 14px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.95);
+    }
+
+    body.light .modal {
+      background: radial-gradient(circle at top left, #e5e7eb 0, #ffffff 55%);
+      border-color: #e5e7eb;
+      box-shadow: 0 18px 45px rgba(148, 163, 184, 0.9);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .pill-soft {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--muted);
+    }
+
+    body.light .pill-soft {
+      background: #ffffff;
+      border-color: #d1d5db;
+    }
+
+    .modal-body {
+      font-size: 11px;
+      color: var(--muted);
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    .insight-item {
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed rgba(51, 65, 85, 0.7);
+    }
+
+    .insight-item:last-child { border-bottom: none; }
+
+    .insight-tag {
+      font-size: 10px;
+      color: #bfdbfe;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .insight-text { margin-top: 3px; }
+
+    /* Settings page */
+    #page-settings { margin-top: 10px; }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .settings-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .settings-card {
+      background: #020617;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      font-size: 11px;
+    }
+
+    body.light .settings-card {
+      background: #ffffff;
+      border-color: #e5e7eb;
+    }
+
+    .settings-card h3 {
+      margin: 0 0 6px;
+      font-size: 13px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .field-group label {
+      font-size: 11px;
+      color: var(--muted);
+      min-width: 120px;
+    }
+
+    .field-group small {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .inline-note {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .policy-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .policy-table th,
+    .policy-table td {
+      border-bottom: 1px solid rgba(51, 65, 85, 0.7);
+      padding: 4px 4px;
+      text-align: left;
+    }
+
+    body.light .policy-table th,
+    body.light .policy-table td {
+      border-color: #e5e7eb;
+    }
+
+    .policy-table th {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .policy-table input[type="text"],
+    .policy-table input[type="number"] {
+      width: 100%;
+      min-width: 0;
+      border-radius: 8px;
+      font-size: 11px;
+      padding: 4px 8px;
+    }
+
+    .pill-outline {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    body.light .pill-outline {
+      border-color: #d1d5db;
+    }
+
+    /* Leaderboard side panel */
+    #leaderboardPanel {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: flex-end;
+      align-items: stretch;
+      background: rgba(15, 23, 42, 0.65);
+      z-index: 45;
+    }
+
+    .lb-panel-inner {
+      width: min(360px, 90%);
+      background: #020617;
+      border-left: 1px solid var(--border);
+      box-shadow: -12px 0 30px rgba(15, 23, 42, 0.9);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    body.light .lb-panel-inner {
+      background: #ffffff;
+      box-shadow: -12px 0 30px rgba(148, 163, 184, 0.8);
+    }
+
+    .lb-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .lb-panel-header h2 {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .lb-panel-body {
+      font-size: 11px;
+      color: var(--muted);
+      overflow-y: auto;
+      max-height: calc(100vh - 80px);
+    }
+
+    .lb-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-top: 8px;
+      margin-bottom: 4px;
+      color: var(--muted);
+    }
+
+    .lb-list-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+
+    .lb-list-row span:first-child {
+      color: var(--muted);
+    }
+
+    .lb-summary {
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="title-block">
+        <div class="badge">
+          <span class="pulse-dot"></span>
+          BLACKBURN KIA NISSAN GWM
+        </div>
+        <h1>Advisor Performance – Service Dashboard</h1>
+        <div class="subtitle">
+          One export only: Total Advisor Performance. CustomerClosedDate drives advisor metrics;
+          Internal/Warranty open ROs are flagged separately.
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <input type="date" id="datePicker" />
+        <select id="advisorFilter">
+          <option value="all">All Advisors</option>
+        </select>
+        <button id="leaderboardToggle">🏆 Leaderboard</button>
+        <button id="insightsBtn">✨ Insights</button>
+        <button id="themeToggleBtn" class="icon-btn" title="Toggle theme">🌓</button>
+        <button id="reloadOnlineBtn">🔄 Reload Online Data</button>
+      </div>
+    </header>
+    <!-- MAIN TABS -->
+    <div class="main-tabs">
+      <button class="main-tab active" data-page="dashboard">Dashboard</button>
+      <button class="main-tab" data-page="settings">Settings</button>
+    </div>
+
+    <!-- UPLOAD CONTROL BAR -->
+    <div class="upload-bar">
+      <div class="upload-left">
+        <div class="upload-title">Step 1 – Load Total Performance data</div>
+        <div>
+          Primary source can be an online CSV (e.g. Google Sheets/Drive export URL) from the Settings page,
+          with manual CSV upload as backup.
+        </div>
+      </div>
+      <div class="upload-controls">
+        <button id="btnUploadTotal" class="primary">Total Performance CSV</button>
+        <button id="btnOnlineLoad">🌐 Load Online CSV</button>
+        <div id="statusTotal" class="status-pill bad">
+          <span class="status-dot"></span>
+          <span>Total performance: Not loaded</span>
+        </div>
+      </div>
+    </div>
+
+    <input type="file" id="fileTotal" accept=".csv" class="hidden" />
+
+    <!-- DASHBOARD PAGE -->
+    <div id="page-dashboard">
+      <div class="tabs">
+        <button class="tab active" data-view="daily">Daily Scorecard</button>
+        <button class="tab" data-view="mtd">MTD + Alignment</button>
+      </div>
+
+      <!-- DAILY VIEW -->
+      <section id="view-daily">
+        <div class="section-title">Today – At a glance</div>
+        <div id="dailyRoSummary" class="summary-row">
+          Load data to see today’s RO breakdown.
+        </div>
+        <div class="grid" id="dailyGauges">
+          <div class="loading">Load Total Performance to see today’s gauges.</div>
+        </div>
+
+        <div class="section-title">Advisor cards</div>
+        <div class="advisor-list" id="dailyAdvisorCards">
+          <div class="loading">Advisor performance will appear here once data is loaded.</div>
+        </div>
+
+        <div class="section-title">Daily leaderboards & open ROs</div>
+        <div class="leaderboard" id="dailyLeaderboards">
+          <div class="lb-card">
+            <div class="lb-title">Top Gross · Today</div>
+            <div class="lb-row"><span>Waiting for data…</span><span>–</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MTD VIEW -->
+      <section id="view-mtd" class="hidden">
+        <div class="section-title">Month to date summary</div>
+        <div id="mtdRoSummary" class="summary-row">
+          Load data to see MTD RO breakdown.
+        </div>
+        <div class="grid" id="mtdGauges">
+          <div class="loading">Load Total Performance to see MTD summary.</div>
+        </div>
+
+        <div class="section-title">Advisor MTD summary</div>
+        <div class="advisor-list" id="mtdAdvisorCards">
+          <div class="loading">MTD advisor details will appear here once data is loaded.</div>
+        </div>
+
+        <div class="section-title">Alignment & adjustments</div>
+        <div class="leaderboard" id="alignmentCards">
+          <div class="lb-card">
+            <div class="lb-title">Hours – Tech vs Billed (MTD)</div>
+            <div class="lb-row"><span>Waiting for data…</span><span>–</span></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div id="page-settings" class="hidden">
+      <div class="section-title">Settings</div>
+      <div class="settings-grid">
+        <!-- LEFT: Targets + Data Source -->
+        <div>
+          <div class="settings-card">
+            <h3>Advisor Targets</h3>
+
+            <div class="field-group">
+              <label for="dailyLabourTarget">Daily labour target</label>
+              <input type="number" id="dailyLabourTarget" min="0" step="100" />
+            </div>
+
+            <div class="field-group">
+              <label for="dailyBilledRatioTarget">Daily billed hours target</label>
+              <input type="number" id="dailyBilledRatioTarget" min="0" max="1.2" step="0.01" />
+              <small>(e.g. 0.98 = 98%)</small>
+            </div>
+
+            <div class="field-group">
+              <label for="mtdLabourTarget">MTD labour target</label>
+              <input type="number" id="mtdLabourTarget" min="0" step="1000" />
+            </div>
+
+            <div class="field-group">
+              <label for="mtdUpsellPerROTarget">MTD upsell per RO target</label>
+              <input type="number" id="mtdUpsellPerROTarget" min="0" step="10" />
+              <small>(legacy benchmark, optional)</small>
+            </div>
+
+            <div class="field-group">
+              <label for="targetGrossPerRO">Target gross per RO</label>
+              <input type="number" id="targetGrossPerRO" min="0" step="10" />
+              <small>(default 450)</small>
+            </div>
+
+            <div class="field-group">
+              <label for="targetGpPct">Target GP %</label>
+              <input type="number" id="targetGpPct" min="0" max="100" step="1" />
+              <small>(e.g. 80 = 80%)</small>
+            </div>
+
+            <div class="field-group">
+              <label for="nonRetailMaxPct">Max non-retail mix</label>
+              <input type="number" id="nonRetailMaxPct" min="0" max="100" step="1" />
+              <small>(% of warranty/internal ROs)</small>
+            </div>
+
+            <div class="inline-note">
+              Targets are stored locally in this browser (no server). Adjust any time.
+            </div>
+          </div>
+
+          <div class="settings-card" style="margin-top:10px;">
+            <h3>Data source</h3>
+
+            <div class="field-group">
+              <label>Mode</label>
+              <select id="dataSourceMode">
+                <option value="manual">Manual CSV only</option>
+                <option value="online">Try online CSV first</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label for="onlineCsvUrl">Online CSV URL</label>
+              <input type="text" id="onlineCsvUrl" placeholder="https://...export?format=csv" />
+            </div>
+
+            <div class="inline-note">
+              For Google Sheets: use a share link with
+              <strong>'Anyone with link'</strong> and append
+              <code>export?format=csv</code>. Google Drive files must expose CSV.
+            </div>
+
+            <div class="field-group" style="margin-top:8px;">
+              <button id="testOnlineLoadBtn" class="primary">🌐 Test &amp; load online data</button>
+              <span id="onlineStatus" class="inline-note"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Policy + Unapplied -->
+        <div>
+          <div class="settings-card">
+            <h3>Policy $ by brand</h3>
+            <p class="inline-note">
+              These are <strong>actual policy costs</strong> for the period, not budgets.
+              They are deducted from MTD gross when calculating adjusted income.
+            </p>
+
+            <table class="policy-table" id="policyTable">
+              <thead>
+                <tr>
+                  <th style="width:45%;">Make / Brand</th>
+                  <th style="width:45%;">Policy $</th>
+                  <th style="width:10%;"></th>
+                </tr>
+              </thead>
+              <tbody id="policyTableBody">
+                <!-- Rows injected -->
+              </tbody>
+            </table>
+
+            <div style="margin-top:6px; display:flex; justify-content:space-between; align-items:center;">
+              <button id="addPolicyRowBtn">＋ Add brand</button>
+              <span id="policyTotalLabel" class="pill-outline">Total policy: $0</span>
+            </div>
+          </div>
+
+          <div class="settings-card" style="margin-top:10px;">
+            <h3>Unapplied time</h3>
+
+            <div class="field-group">
+              <label for="unappliedHours">Unapplied hours</label>
+              <input type="number" id="unappliedHours" min="0" step="0.1" />
+            </div>
+
+            <div class="field-group">
+              <label for="unappliedDollars">Unapplied $</label>
+              <input type="number" id="unappliedDollars" min="0" step="50" />
+            </div>
+
+            <div class="inline-note" id="unappliedRateLabel">
+              Rate per hour: –
+            </div>
+
+            <p class="inline-note">
+              Unapplied dollars are deducted from MTD gross alongside policy costs to show
+              <strong>adjusted department income</strong>.
+            </p>
+
+            <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+              <button id="resetSettingsBtn">Reset all settings</button>
+              <span class="pill-outline">Settings stored locally only</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSIGHTS MODAL -->
+  <div id="insightsModal" class="hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Service Advisor Insights</h2>
+        <span class="pill-soft" id="modalDateLabel">Snapshot</span>
+      </div>
+      <div class="modal-body" id="insightsBody">
+        <!-- Insights injected -->
+      </div>
+      <div style="margin-top: 10px; display: flex; justify-content: flex-end; gap: 8px;">
+        <button id="closeInsights">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD SIDE PANEL -->
+  <div id="leaderboardPanel" class="hidden">
+    <div class="lb-panel-inner">
+      <div class="lb-panel-header">
+        <h2>Advisor Leaderboard</h2>
+        <button id="closeLeaderboard" class="icon-btn">✕</button>
+      </div>
+      <div class="lb-panel-body" id="leaderboardBody">
+        <!-- Leaderboard injected -->
+      </div>
+    </div>
+  </div>
+
+  <!-- If a saved/shareable copy injects embedded data, it can define:
+       window.EMBEDDED_TOTAL_DATA and window.EMBEDDED_SETTINGS -->
+  <script>
+    // === GLOBAL STATE ===
+    const state = {
+      total: [],
+      loadedTotal: false,
+      loaded: false,
+      error: null,
+      filters: {
+        date: null,
+        advisor: "all"
+      },
+      openCounts: {
+        internalOpen: 0,
+        warrantyOpen: 0
+      }
+    };
+
+    const SETTINGS_STORAGE_KEY = "advisorDashSettings_v1";
+    const THEME_STORAGE_KEY   = "advisorDashTheme_v1";
+
+    let currentTheme = "dark";
+
+    const defaultSettings = {
+      dailyLabourTarget: 16000,
+      dailyBilledRatioTarget: 0.98,
+      mtdLabourTarget: 280000,
+      mtdUpsellPerROTarget: 75,
+      targetGrossPerRO: 450,
+      targetGpPct: 80,
+      nonRetailMaxPct: 20,
+      dataSourceMode: "online",
+      onlineCsvUrl: https://docs.google.com/spreadsheets/d/1fiwosf8gXN6faN-LHQtvAIfMbAagEptqWkwiPE23Vbg/export?format=csv,
+      policyByBrand: [
+        { make: "Kia", policy: 0 },
+        { make: "Nissan", policy: 0 },
+        { make: "GWM", policy: 0 }
+      ],
+      unappliedHours: 0,
+      unappliedDollars: 0
+    };
+
+    let settings = { ...defaultSettings };
+
+    // === SETTINGS STORAGE ===
+    function loadSettings() {
+      try {
+        const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        settings = { ...defaultSettings, ...parsed };
+      } catch (e) {
+        console.warn("Failed to load settings, using defaults", e);
+        settings = { ...defaultSettings };
+      }
+    }
+
+    function saveSettings() {
+      try {
+        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+      } catch (e) {
+        console.warn("Failed to save settings", e);
+      }
+    }
+
+    // === THEME STORAGE ===
+    function applyTheme(theme) {
+      currentTheme = theme === "light" ? "light" : "dark";
+      if (currentTheme === "light") {
+        document.body.classList.add("light");
+      } else {
+        document.body.classList.remove("light");
+      }
+      const btn = document.getElementById("themeToggleBtn");
+      if (btn) btn.textContent = currentTheme === "light" ? "🌞" : "🌓";
+      try {
+        localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
+      } catch (e) {
+        console.warn("Theme save failed", e);
+      }
+    }
+
+    function loadTheme() {
+      try {
+        const raw = localStorage.getItem(THEME_STORAGE_KEY);
+        if (raw === "light" || raw === "dark") {
+          applyTheme(raw);
+        } else {
+          applyTheme("dark");
+        }
+      } catch (e) {
+        applyTheme("dark");
+      }
+    }
+
+    // === UTILITIES ===
+    function parseAuDate(str) {
+      if (!str || typeof str !== "string") return null;
+      const parts = str.split(/[\/\-]/);
+      if (parts.length < 3) return null;
+      const [d, m, y] = parts.map(p => parseInt(p, 10));
+      if (!y || !m || !d) return null;
+      return new Date(y, m - 1, d);
+    }
+
+    function sameDay(d1, d2) {
+      return (
+        d1.getFullYear() === d2.getFullYear() &&
+        d1.getMonth() === d2.getMonth() &&
+        d1.getDate() === d2.getDate()
+      );
+    }
+
+    function sameMonth(d1, d2) {
+      return d1.getFullYear() === d2.getFullYear() &&
+             d1.getMonth() === d2.getMonth();
+    }
+
+    function toNumber(value) {
+      if (typeof value === "number") return value;
+      if (value === null || value === undefined || value === "") return 0;
+      const cleaned = String(value).replace(/[^0-9.\-]/g, "");
+      const n = parseFloat(cleaned);
+      return isNaN(n) ? 0 : n;
+    }
+
+    function formatCurrency(v) {
+      return "$" + toNumber(v).toLocaleString("en-AU", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      });
+    }
+
+    function formatPercent(v) {
+      return toNumber(v).toFixed(1) + "%";
+    }
+
+    function uniq(arr) {
+      return [...new Set(arr)];
+    }
+
+    function classifyType(row) {
+      const t = String(row["Type"] || "").toLowerCase();
+      if (t.includes("warranty")) return "warranty";
+      if (t.includes("internal")) return "internal";
+      return "retail";
+    }
+
+    function getGross(row) {
+      return (
+        toNumber(row["Gross Amt"]) ||
+        toNumber(row["Sale Amt"]) ||
+        toNumber(row["Labour Gross"]) ||
+        0
+      );
+    }
+
+    function getCost(row) {
+      return (
+        toNumber(row["Cost Amt"]) ||
+        toNumber(row["Cost"]) ||
+        toNumber(row["Labour Cost"]) ||
+        toNumber(row["Total Cost"]) ||
+        0
+      );
+    }
+
+    // === DATE INITIALISATION FROM DATA ===
+    function initDateFromData() {
+      const datePicker = document.getElementById("datePicker");
+      if (!state.total.length) return;
+
+      const dates = state.total
+        .map(r => parseAuDate(r["CustomerClosedDate"]))
+        .filter(d => d instanceof Date && !isNaN(d));
+      if (!dates.length) return;
+
+      let minD = dates[0];
+      let maxD = dates[0];
+      dates.forEach(d => {
+        if (d < minD) minD = d;
+        if (d > maxD) maxD = d;
+      });
+
+      state.filters.date = new Date(maxD.getFullYear(), maxD.getMonth(), maxD.getDate());
+
+      function toInputDate(d) {
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const dd = String(d.getDate()).padStart(2, "0");
+        return `${yyyy}-${mm}-${dd}`;
+      }
+
+      if (datePicker) {
+        datePicker.min = toInputDate(minD);
+        datePicker.max = toInputDate(maxD);
+        datePicker.value = toInputDate(maxD);
+      }
+    }
+
+    // === OPEN INTERNAL / WARRANTY COUNTS ===
+    function computeOpenCounts() {
+      let internalOpen = 0;
+      let warrantyOpen = 0;
+
+      state.total.forEach(r => {
+        const typeClass = classifyType(r);
+
+        if (typeClass === "internal") {
+          const d = parseAuDate(r["InternalClosedDate"]);
+          if (!d) internalOpen++;
+        }
+        if (typeClass === "warranty") {
+          const d = parseAuDate(r["WarrantyClosedDate"]);
+          if (!d) warrantyOpen++;
+        }
+      });
+
+      state.openCounts.internalOpen = internalOpen;
+      state.openCounts.warrantyOpen = warrantyOpen;
+    }
+
+    // === FILE / CSV HANDLING ===
+    function parseCsvText(text) {
+      Papa.parse(text, {
+        header: true,
+        dynamicTyping: true,
+        complete: (results) => {
+          const rows = (results.data || []).filter(r => r && r["Advisor Name"]);
+          state.total = rows;
+          state.loadedTotal = true;
+          state.loaded = true;
+          state.error = null;
+          updateUploadStatus();
+          initAdvisorFilter();
+          initDateFromData();
+          computeOpenCounts();
+          renderAll();
+        },
+        error: (err) => {
+          console.error(err);
+          state.error = "Failed to parse Total Performance CSV. Please check the file.";
+          updateUploadStatus();
+          renderAll();
+        }
+      });
+    }
+
+    function handleFileInput(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        parseCsvText(e.target.result);
+      };
+      reader.onerror = () => {
+        state.error = "Error reading Total Performance file.";
+        renderAll();
+      };
+      reader.readAsText(file);
+    }
+
+    function updateUploadStatus() {
+      const statusTotal = document.getElementById("statusTotal");
+
+      if (state.loadedTotal) {
+        statusTotal.classList.remove("bad");
+        statusTotal.classList.add("good");
+        statusTotal.innerHTML = '<span class="status-dot"></span><span>Total performance: Loaded ✔</span>';
+      } else {
+        statusTotal.classList.remove("good");
+        statusTotal.classList.add("bad");
+        statusTotal.innerHTML = '<span class="status-dot"></span><span>Total performance: Not loaded</span>';
+      }
+    }
+
+    // === DATA SOURCE: ONLINE CSV ===
+    async function loadOnlineCsv() {
+      const url = (settings.onlineCsvUrl || "").trim();
+      const statusEl = document.getElementById("onlineStatus");
+      if (!url) {
+        if (statusEl) statusEl.textContent = "Please enter a URL in Settings.";
+        return;
+      }
+      if (statusEl) statusEl.textContent = "Loading…";
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const text = await res.text();
+        parseCsvText(text);
+        if (statusEl) statusEl.textContent = "Online data loaded successfully.";
+      } catch (e) {
+        console.error("Online CSV load failed", e);
+        if (statusEl) statusEl.textContent = "Failed to load online CSV. Check link / access / export.";
+      }
+    }
+
+    // === FILTERING HELPERS ===
+    function getFilteredRowsDaily() {
+      const { date, advisor } = state.filters;
+      if (!date) return [];
+      return state.total.filter(r => {
+        const closed = parseAuDate(r["CustomerClosedDate"]);
+        if (!closed || !sameDay(closed, date)) return false;
+        if (advisor !== "all" && String(r["Advisor Name"]).trim() !== advisor) return false;
+        return true;
+      });
+    }
+
+    function getFilteredRowsMTD() {
+      const { date, advisor } = state.filters;
+      const baseDate = date || new Date();
+      return state.total.filter(r => {
+        const closed = parseAuDate(r["CustomerClosedDate"]);
+        if (!closed || !sameMonth(closed, baseDate)) return false;
+        if (advisor !== "all" && String(r["Advisor Name"]).trim() !== advisor) return false;
+        return true;
+      });
+    }
+
+    function getAllRowsMTDForMonth() {
+      const { date } = state.filters;
+      const baseDate = date || new Date();
+      return state.total.filter(r => {
+        const closed = parseAuDate(r["CustomerClosedDate"]);
+        return closed && sameMonth(closed, baseDate);
+      });
+    }
+
+    // === METRIC AGGREGATION ===
+    function buildAdvisorStats(rows) {
+      const byAdvisor = {};
+
+      rows.forEach(r => {
+        const name = String(r["Advisor Name"]).trim() || "Unknown";
+        if (!byAdvisor[name]) {
+          byAdvisor[name] = {
+            advisor: name,
+            labourGross: 0,
+            cost: 0,
+            roCount: 0,
+            billedHrs: 0,
+            techHrs: 0
+          };
+        }
+        const gross = getGross(r);
+        const cost = getCost(r);
+        byAdvisor[name].labourGross += gross;
+        byAdvisor[name].cost += cost;
+        byAdvisor[name].roCount += 1;
+        byAdvisor[name].billedHrs += toNumber(r["Charged Hrs"]);
+        byAdvisor[name].techHrs += toNumber(r["TotalTimeHours"]);
+      });
+
+      const arr = Object.values(byAdvisor);
+      arr.forEach(a => {
+        a.avgRO = a.roCount ? a.labourGross / a.roCount : 0;
+        a.leakagePct = a.techHrs ? (1 - (a.billedHrs / a.techHrs)) * 100 : 0;
+        a.gpPct = a.labourGross
+          ? ((a.labourGross - a.cost) / a.labourGross) * 100
+          : 0;
+      });
+
+      return arr.sort((a, b) => b.labourGross - a.labourGross);
+    }
+
+    function buildDailyMetrics() {
+      const rows = getFilteredRowsDaily();
+
+      let totalGross = 0;
+      let totalCost = 0;
+      let roCount = 0;
+      let techHrs = 0;
+      let billedHrs = 0;
+      let retailCount = 0;
+      let warrantyCount = 0;
+      let internalCount = 0;
+
+      rows.forEach(r => {
+        const gross = getGross(r);
+        const cost = getCost(r);
+        totalGross += gross;
+        totalCost += cost;
+        roCount += 1;
+        techHrs += toNumber(r["TotalTimeHours"]);
+        billedHrs += toNumber(r["Charged Hrs"]);
+
+        const t = classifyType(r);
+        if (t === "retail") retailCount++;
+        else if (t === "warranty") warrantyCount++;
+        else internalCount++;
+      });
+
+      const advisorStats = buildAdvisorStats(rows);
+      const gpPct = totalGross
+        ? ((totalGross - totalCost) / totalGross) * 100
+        : 0;
+
+      return {
+        totalGross,
+        totalCost,
+        roCount,
+        techHrs,
+        billedHrs,
+        retailCount,
+        warrantyCount,
+        internalCount,
+        gpPct,
+        advisorStats
+      };
+    }
+
+    function buildMTDMetrics() {
+      const rows = getFilteredRowsMTD();
+
+      let totalGross = 0;
+      let totalCost = 0;
+      let roCount = 0;
+      let techHrs = 0;
+      let billedHrs = 0;
+      let retailCount = 0;
+      let warrantyCount = 0;
+      let internalCount = 0;
+
+      rows.forEach(r => {
+        const gross = getGross(r);
+        const cost = getCost(r);
+        totalGross += gross;
+        totalCost += cost;
+        roCount += 1;
+        techHrs += toNumber(r["TotalTimeHours"]);
+        billedHrs += toNumber(r["Charged Hrs"]);
+
+        const t = classifyType(r);
+        if (t === "retail") retailCount++;
+        else if (t === "warranty") warrantyCount++;
+        else internalCount++;
+      });
+
+      const advisorStats = buildAdvisorStats(rows);
+
+      // Policy + unapplied adjustments
+      const totalPolicy = (settings.policyByBrand || []).reduce(
+        (sum, p) => sum + toNumber(p.policy),
+        0
+      );
+      const unapplied = toNumber(settings.unappliedDollars);
+      const adjustedGross = totalGross - totalPolicy - unapplied;
+      const gpPct = totalGross
+        ? ((totalGross - totalCost) / totalGross) * 100
+        : 0;
+
+      return {
+        totalGross,
+        totalCost,
+        adjustedGross,
+        totalPolicy,
+        unapplied,
+        roCount,
+        techHrs,
+        billedHrs,
+        retailCount,
+        warrantyCount,
+        internalCount,
+        gpPct,
+        advisorStats
+      };
+    }
+
+    function buildAllMTDAdvisorStatsForMonth() {
+      const rows = getAllRowsMTDForMonth();
+      return buildAdvisorStats(rows);
+    }
+
+    function buildMTDRankMap() {
+      const allStats = buildAllMTDAdvisorStatsForMonth();
+      const rankMap = {};
+      allStats.forEach((a, idx) => {
+        rankMap[a.advisor] = idx + 1;
+      });
+      return { allStats, rankMap };
+    }
+
+    // === RENDERING HELPERS ===
+    function createGaugeCard(title, subtitle, valueLabel, targetLabel, ratio, status) {
+      const div = document.createElement("div");
+      div.className = "card";
+      const pct = Math.max(0, Math.min(ratio * 100, 200));
+      div.innerHTML = `
+        <h3>
+          <span>${title}</span>
+          <span class="pill ${status || ""}">${status === "good" ? "On track" : status === "bad" ? "Attention" : "Snapshot"}</span>
+        </h3>
+        <div class="card-sub">${subtitle}</div>
+        <div class="metric-main">${valueLabel}</div>
+        <div class="metric-target">${targetLabel}</div>
+        <div class="gauge" style="--value: ${pct}%;"><div class="gauge-fill"></div></div>
+        <div class="gauge-meta">
+          <span>${pct.toFixed(1)}% of target</span>
+          <span></span>
+        </div>
+      `;
+      return div;
+    }
+    function renderDailyView() {
+      const gaugesEl = document.getElementById("dailyGauges");
+      const cardsEl = document.getElementById("dailyAdvisorCards");
+      const lbEl = document.getElementById("dailyLeaderboards");
+      const summaryEl = document.getElementById("dailyRoSummary");
+
+      gaugesEl.innerHTML = "";
+      cardsEl.innerHTML = "";
+      lbEl.innerHTML = "";
+
+      if (!state.loaded) {
+        gaugesEl.innerHTML = `<div class="loading">Load Total Performance to see today’s gauges.</div>`;
+        if (summaryEl) summaryEl.textContent = "Load data to see today’s RO breakdown.";
+        return;
+      }
+      if (state.error) {
+        gaugesEl.innerHTML = `<div class="error">${state.error}</div>`;
+        if (summaryEl) summaryEl.textContent = state.error;
+        return;
+      }
+
+      const metrics = buildDailyMetrics();
+      const {
+        advisorStats,
+        totalGross,
+        roCount,
+        techHrs,
+        billedHrs,
+        retailCount,
+        warrantyCount,
+        internalCount
+      } = metrics;
+
+      if (summaryEl) {
+        if (!roCount) {
+          summaryEl.textContent = "No ROs found for the selected date. Try another day within the data range.";
+        } else {
+          summaryEl.innerHTML =
+            `ROs today: <strong>${roCount}</strong> · ` +
+            `Customer: <strong>${retailCount}</strong> · ` +
+            `Warranty: <strong>${warrantyCount}</strong> · ` +
+            `Internal: <strong>${internalCount}</strong>`;
+        }
+      }
+
+      if (!roCount && !advisorStats.length) {
+        gaugesEl.innerHTML = `<div class="loading">No ROs found for the selected date. Try another day within the data range.</div>`;
+        return;
+      }
+
+      const dailyGrossTarget = settings.dailyLabourTarget || 0;
+      const billedRatio = techHrs ? billedHrs / techHrs : 1;
+      const targetGrossPerRO = settings.targetGrossPerRO || 450;
+      const avgGrossPerRO = roCount ? totalGross / roCount : 0;
+
+      // Gauge 1: Daily gross vs target
+      gaugesEl.appendChild(
+        createGaugeCard(
+          "Labour Gross vs Target",
+          "All advisors · daily gross",
+          formatCurrency(totalGross),
+          dailyGrossTarget ? "Target: " + formatCurrency(dailyGrossTarget) : "No target set",
+          dailyGrossTarget ? totalGross / dailyGrossTarget : 0,
+          dailyGrossTarget && totalGross >= dailyGrossTarget && roCount ? "good" : ""
+        )
+      );
+
+      // Gauge 2: Avg gross per RO vs target
+      gaugesEl.appendChild(
+        createGaugeCard(
+          "Avg Gross per RO (Daily)",
+          "Labour gross per closed RO",
+          formatCurrency(avgGrossPerRO),
+          targetGrossPerRO ? "Target: " + formatCurrency(targetGrossPerRO) : "No per-RO target set",
+          targetGrossPerRO ? avgGrossPerRO / targetGrossPerRO : 0,
+          avgGrossPerRO >= targetGrossPerRO && roCount ? "good" : ""
+        )
+      );
+
+      // Gauge 3: Hours sold vs Tech hours
+      gaugesEl.appendChild(
+        createGaugeCard(
+          "Hours Sold vs Tech Hours",
+          "Billed hours vs technician time",
+          formatPercent(billedRatio * 100),
+          `Goal: ${(settings.dailyBilledRatioTarget || 0.98) * 100}% billed`,
+          (settings.dailyBilledRatioTarget || 0.98) ? billedRatio / (settings.dailyBilledRatioTarget || 0.98) : 0,
+          billedRatio >= (settings.dailyBilledRatioTarget || 0.98) ? "good" : "bad"
+        )
+      );
+
+      // Advisor cards
+      advisorStats.forEach((a, idx) => {
+        const card = document.createElement("div");
+        card.className = "advisor-card";
+        card.innerHTML = `
+          <div class="advisor-header">
+            <span class="advisor-name">${a.advisor}</span>
+            <span class="advisor-rank">Rank (today): #${idx + 1}</span>
+          </div>
+          <div class="advisor-metrics">
+            <span class="chip">Labour: ${formatCurrency(a.labourGross)}</span>
+            <span class="chip">Avg RO: ${formatCurrency(a.avgRO)}</span>
+            <span class="chip">ROs: ${a.roCount}</span>
+            <span class="chip">Leakage: ${formatPercent(a.leakagePct)}</span>
+            <span class="chip">GP%: ${formatPercent(a.gpPct)}</span>
+          </div>
+        `;
+        cardsEl.appendChild(card);
+      });
+
+      // Leaderboards + open ROs
+      const lb1 = document.createElement("div");
+      lb1.className = "lb-card";
+      lb1.innerHTML = `<div class="lb-title">Top Gross · Today</div>`;
+      advisorStats.slice(0, 3).forEach((a, i) => {
+        const row = document.createElement("div");
+        row.className = "lb-row";
+        row.innerHTML = `<span>${i + 1}. ${a.advisor}</span><span>${formatCurrency(a.labourGross)}</span>`;
+        lb1.appendChild(row);
+      });
+
+      const byLeakage = [...advisorStats].sort((a, b) => a.leakagePct - b.leakagePct);
+      const lb2 = document.createElement("div");
+      lb2.className = "lb-card";
+      lb2.innerHTML = `<div class="lb-title">Lowest Leakage (Hours)</div>`;
+      byLeakage.slice(0, 3).forEach((a, i) => {
+        const row = document.createElement("div");
+        row.className = "lb-row";
+        row.innerHTML = `<span>${i + 1}. ${a.advisor}</span><span>${formatPercent(a.leakagePct)}</span>`;
+        lb2.appendChild(row);
+      });
+
+      const lb3 = document.createElement("div");
+      lb3.className = "lb-card";
+      const { internalOpen, warrantyOpen } = state.openCounts;
+      lb3.innerHTML = `
+        <div class="lb-title">Open Warranty & Internal ROs (all dates)</div>
+        <div class="lb-row"><span>Open internal ROs</span><span>${internalOpen}</span></div>
+        <div class="lb-row"><span>Open warranty ROs</span><span>${warrantyOpen}</span></div>
+      `;
+
+      lbEl.append(lb1, lb2, lb3);
+    }
+
+    function renderMTDView() {
+      const gaugesEl = document.getElementById("mtdGauges");
+      const cardsEl = document.getElementById("mtdAdvisorCards");
+      const alignEl = document.getElementById("alignmentCards");
+      const summaryEl = document.getElementById("mtdRoSummary");
+
+      gaugesEl.innerHTML = "";
+      cardsEl.innerHTML = "";
+      alignEl.innerHTML = "";
+
+      if (!state.loaded) {
+        gaugesEl.innerHTML = `<div class="loading">Load Total Performance to see MTD summary.</div>`;
+        if (summaryEl) summaryEl.textContent = "Load data to see MTD RO breakdown.";
+        return;
+      }
+      if (state.error) {
+        gaugesEl.innerHTML = `<div class="error">${state.error}</div>`;
+        if (summaryEl) summaryEl.textContent = state.error;
+        return;
+      }
+
+      const metrics = buildMTDMetrics();
+      const {
+        advisorStats,
+        totalGross,
+        adjustedGross,
+        totalPolicy,
+        unapplied,
+        roCount,
+        techHrs,
+        billedHrs,
+        retailCount,
+        warrantyCount,
+        internalCount,
+        gpPct
+      } = metrics;
+
+      if (summaryEl) {
+        if (!roCount) {
+          summaryEl.textContent = "No MTD ROs found for the selected month.";
+        } else {
+          summaryEl.innerHTML =
+            `ROs MTD: <strong>${roCount}</strong> · ` +
+            `Customer: <strong>${retailCount}</strong> · ` +
+            `Warranty: <strong>${warrantyCount}</strong> · ` +
+            `Internal: <strong>${internalCount}</strong>`;
+        }
+      }
+
+      const mtdGrossTarget = settings.mtdLabourTarget || 0;
+      const billedRatio = techHrs ? billedHrs / techHrs : 1;
+      const nonRetailCount = warrantyCount + internalCount;
+      const nonRetailPct = (nonRetailCount + retailCount)
+        ? (nonRetailCount / (nonRetailCount + retailCount)) * 100
+        : 0;
+
+      const targetGrossPerRO = settings.targetGrossPerRO || 450;
+      const targetGpPct = settings.targetGpPct || 80;
+      const upsellPerRO = roCount ? (totalGross / roCount) : 0;
+
+      const { rankMap } = buildMTDRankMap();
+
+      // Gauges
+      gaugesEl.appendChild(
+        createGaugeCard(
+          "MTD Labour Gross",
+          "All advisors · rough gross",
+          formatCurrency(totalGross),
+          mtdGrossTarget ? "Target: " + formatCurrency(mtdGrossTarget) : "No target set",
+          mtdGrossTarget ? totalGross / mtdGrossTarget : 0,
+          mtdGrossTarget && totalGross >= mtdGrossTarget ? "good" : ""
+        )
+      );
+
+      gaugesEl.appendChild(
+        createGaugeCard(
+          "Avg Gross per RO (MTD)",
+          "Approx labour gross per closed RO",
+          formatCurrency(upsellPerRO),
+          targetGrossPerRO ? "Target: " + formatCurrency(targetGrossPerRO) : "No per-RO target set",
+          targetGrossPerRO ? upsellPerRO / targetGrossPerRO : 0,
+          upsellPerRO >= targetGrossPerRO ? "good" : ""
+        )
+      );
+
+      gaugesEl.appendChild(
+        createGaugeCard(
+          "GP% vs Target",
+          "Labour gross margin %",
+          formatPercent(gpPct),
+          `Target: ${targetGpPct.toFixed(0)}%`,
+          targetGpPct ? gpPct / targetGpPct : 0,
+          gpPct >= targetGpPct ? "good" : "bad"
+        )
+      );
+
+      gaugesEl.appendChild(
+        createGaugeCard(
+          "Warranty / Internal Mix",
+          "Non-retail ROs vs total",
+          formatPercent(nonRetailPct),
+          `Goal: ≤ ${(settings.nonRetailMaxPct || 20).toFixed(0)}% non-retail`,
+          (settings.nonRetailMaxPct || 20) ? (100 - nonRetailPct) / (100 - (settings.nonRetailMaxPct || 20)) : 0,
+          nonRetailPct <= (settings.nonRetailMaxPct || 20) ? "good" : ""
+        )
+      );
+
+      // Advisor cards with TRUE MTD rank (regardless of advisor filter)
+      advisorStats.forEach((a) => {
+        const globalRank = rankMap[a.advisor] || "-";
+        const card = document.createElement("div");
+        card.className = "advisor-card";
+        card.innerHTML = `
+          <div class="advisor-header">
+            <span class="advisor-name">${a.advisor}</span>
+            <span class="advisor-rank">MTD Rank: #${globalRank}</span>
+          </div>
+          <div class="advisor-metrics">
+            <span class="chip">Labour: ${formatCurrency(a.labourGross)}</span>
+            <span class="chip">Avg RO: ${formatCurrency(a.avgRO)}</span>
+            <span class="chip">ROs: ${a.roCount}</span>
+            <span class="chip">Leakage: ${formatPercent(a.leakagePct)}</span>
+            <span class="chip">GP%: ${formatPercent(a.gpPct)}</span>
+          </div>
+        `;
+        cardsEl.appendChild(card);
+      });
+
+      // Alignment + adjusted income
+      const card1 = document.createElement("div");
+      card1.className = "lb-card";
+      card1.innerHTML = `
+        <div class="lb-title">Hours – Tech vs Billed (MTD approx)</div>
+        <div class="lb-row"><span>Tech hours produced</span><span>${techHrs.toFixed(1)} hrs</span></div>
+        <div class="lb-row"><span>Advisor hours billed</span><span>${billedHrs.toFixed(1)} hrs</span></div>
+        <div class="lb-row"><span>Leakage</span><span>${(techHrs - billedHrs).toFixed(1)} hrs (${formatPercent((1 - billedRatio) * 100)})</span></div>
+      `;
+
+      const card2 = document.createElement("div");
+      card2.className = "lb-card";
+      card2.innerHTML = `
+        <div class="lb-title">RO Mix by Type (Advisor view)</div>
+        <div class="lb-row"><span>Retail</span><span>${retailCount}</span></div>
+        <div class="lb-row"><span>Warranty</span><span>${warrantyCount}</span></div>
+        <div class="lb-row"><span>Internal</span><span>${internalCount}</span></div>
+      `;
+
+      const card3 = document.createElement("div");
+      card3.className = "lb-card";
+      card3.innerHTML = `
+        <div class="lb-title">Adjusted MTD income</div>
+        <div class="lb-row"><span>Gross before adjustments</span><span>${formatCurrency(totalGross)}</span></div>
+        <div class="lb-row"><span>Less policy (all brands)</span><span>− ${formatCurrency(totalPolicy)}</span></div>
+        <div class="lb-row"><span>Less unapplied</span><span>− ${formatCurrency(unapplied)}</span></div>
+        <div class="lb-row"><span><strong>Adjusted MTD gross</strong></span><span><strong>${formatCurrency(adjustedGross)}</strong></span></div>
+      `;
+
+      alignEl.append(card1, card2, card3);
+    }
+
+    function renderAll() {
+      renderDailyView();
+      renderMTDView();
+      renderSettingsUi();
+    }
+
+    // === ADVISOR FILTER INIT ===
+    function initAdvisorFilter() {
+      const select = document.getElementById("advisorFilter");
+      const names = uniq(state.total.map(r => String(r["Advisor Name"]).trim()).filter(Boolean));
+      select.innerHTML = `<option value="all">All Advisors</option>` +
+        names.map(n => `<option value="${n}">${n}</option>`).join("");
+    }
+
+    // === INSIGHTS ===
+    function buildInsights() {
+      if (!state.loaded) return;
+
+      const metricsDaily = buildDailyMetrics();
+      const metricsMTD = buildMTDMetrics();
+      const { advisorStats: advDaily } = metricsDaily;
+      const {
+        advisorStats: advMTD,
+        adjustedGross,
+        totalPolicy,
+        unapplied,
+        gpPct
+      } = metricsMTD;
+
+      const bestToday = advDaily[0];
+      const bestMtd = advMTD[0];
+
+      const body = document.getElementById("insightsBody");
+      body.innerHTML = "";
+
+      function addInsight(tag, text) {
+        const div = document.createElement("div");
+        div.className = "insight-item";
+        div.innerHTML = `
+          <div class="insight-tag">${tag}</div>
+          <div class="insight-text">${text}</div>
+        `;
+        body.appendChild(div);
+      }
+
+      if (bestToday) {
+        addInsight(
+          "Daily performance",
+          `${bestToday.advisor} is leading labour gross today at <strong>${formatCurrency(bestToday.labourGross)}</strong>. Capture their conversation flow and build a quick win script for the next morning huddle.`
+        );
+      }
+
+      if (bestMtd) {
+        addInsight(
+          "MTD gross contribution",
+          `${bestMtd.advisor} is currently #1 MTD for labour at <strong>${formatCurrency(bestMtd.labourGross)}</strong>. Check whether volume (RO count) or value (average RO) is driving their result.`
+        );
+      }
+
+      addInsight(
+        "Adjusted income",
+        `After applying current policy and unapplied settings, adjusted MTD gross is approximately <strong>${formatCurrency(adjustedGross)}</strong> (policy: ${formatCurrency(totalPolicy)}, unapplied: ${formatCurrency(unapplied)}).`
+      );
+
+      addInsight(
+        "Gross margin",
+        `Current MTD GP% is approximately <strong>${formatPercent(gpPct)}</strong> vs the target in Settings. Use this as a talking point for menu structure and discount control.`
+      );
+
+      const { internalOpen, warrantyOpen } = state.openCounts;
+      addInsight(
+        "Open warranty/internal",
+        `There are <strong>${internalOpen}</strong> open internal ROs and <strong>${warrantyOpen}</strong> open warranty ROs. These are not counted in advisor performance but affect workshop load and must be actively managed.`
+      );
+
+      addInsight(
+        "Next actions",
+        `1) Use this dashboard in a 10-minute huddle.<br/>
+         2) Choose one focus lever (upsell wording, RO mix, leakage, GP%).<br/>
+         3) At close of day, record wins and adjust targets/policy values if needed.`
+      );
+    }
+
+    // === LEADERBOARD PANEL ===
+    function renderLeaderboardPanel() {
+      const body = document.getElementById("leaderboardBody");
+      if (!body) return;
+      body.innerHTML = "";
+
+      if (!state.loaded) {
+        body.innerHTML = `<div class="lb-summary">Load data to view advisor leaderboard.</div>`;
+        return;
+      }
+
+      const { allStats } = buildMTDRankMap();
+      if (!allStats.length) {
+        body.innerHTML = `<div class="lb-summary">No MTD data for the selected month.</div>`;
+        return;
+      }
+
+      const totalGross = allStats.reduce((sum, a) => sum + a.labourGross, 0);
+      const totalROs = allStats.reduce((sum, a) => sum + a.roCount, 0);
+
+      const summary = document.createElement("div");
+      summary.className = "lb-summary";
+      summary.innerHTML =
+        `Total MTD gross: <strong>${formatCurrency(totalGross)}</strong><br>` +
+        `Total ROs: <strong>${totalROs}</strong>`;
+      body.appendChild(summary);
+
+      // Top labour gross
+      const topGrossTitle = document.createElement("div");
+      topGrossTitle.className = "lb-section-title";
+      topGrossTitle.textContent = "Top labour gross (MTD)";
+      body.appendChild(topGrossTitle);
+
+      allStats.slice(0, 5).forEach((a, idx) => {
+        const row = document.createElement("div");
+        row.className = "lb-list-row";
+        row.innerHTML = `<span>${idx + 1}. ${a.advisor}</span><span>${formatCurrency(a.labourGross)}</span>`;
+        body.appendChild(row);
+      });
+
+      // Top avg RO
+      const byAvgRO = [...allStats].sort((a, b) => b.avgRO - a.avgRO);
+      const topAvgTitle = document.createElement("div");
+      topAvgTitle.className = "lb-section-title";
+      topAvgTitle.textContent = "Highest avg gross per RO";
+      body.appendChild(topAvgTitle);
+
+      byAvgRO.slice(0, 5).forEach((a, idx) => {
+        const row = document.createElement("div");
+        row.className = "lb-list-row";
+        row.innerHTML = `<span>${idx + 1}. ${a.advisor}</span><span>${formatCurrency(a.avgRO)}</span>`;
+        body.appendChild(row);
+      });
+
+      // Best GP%
+      const byGp = [...allStats].sort((a, b) => b.gpPct - a.gpPct);
+      const topGpTitle = document.createElement("div");
+      topGpTitle.className = "lb-section-title";
+      topGpTitle.textContent = "Best GP% (MTD)";
+      body.appendChild(topGpTitle);
+
+      byGp.slice(0, 5).forEach((a, idx) => {
+        const row = document.createElement("div");
+        row.className = "lb-list-row";
+        row.innerHTML = `<span>${idx + 1}. ${a.advisor}</span><span>${formatPercent(a.gpPct)}</span>`;
+        body.appendChild(row);
+      });
+
+      // Lowest leakage
+      const byLeakage = [...allStats].sort((a, b) => a.leakagePct - b.leakagePct);
+      const lowLeakTitle = document.createElement("div");
+      lowLeakTitle.className = "lb-section-title";
+      lowLeakTitle.textContent = "Lowest leakage (hours)";
+      body.appendChild(lowLeakTitle);
+
+      byLeakage.slice(0, 5).forEach((a, idx) => {
+        const row = document.createElement("div");
+        row.className = "lb-list-row";
+        row.innerHTML = `<span>${idx + 1}. ${a.advisor}</span><span>${formatPercent(a.leakagePct)}</span>`;
+        body.appendChild(row);
+      });
+    }
+
+    // === SETTINGS UI RENDERING & EVENTS ===
+    function renderSettingsUi() {
+      const dailyLabourTargetEl     = document.getElementById("dailyLabourTarget");
+      const dailyBilledRatioTargetEl= document.getElementById("dailyBilledRatioTarget");
+      const mtdLabourTargetEl       = document.getElementById("mtdLabourTarget");
+      const mtdUpsellPerROTargetEl  = document.getElementById("mtdUpsellPerROTarget");
+      const targetGrossPerROEl      = document.getElementById("targetGrossPerRO");
+      const targetGpPctEl           = document.getElementById("targetGpPct");
+      const nonRetailMaxPctEl       = document.getElementById("nonRetailMaxPct");
+      const dataSourceModeEl        = document.getElementById("dataSourceMode");
+      const onlineCsvUrlEl          = document.getElementById("onlineCsvUrl");
+      const unappliedHoursEl        = document.getElementById("unappliedHours");
+      const unappliedDollarsEl      = document.getElementById("unappliedDollars");
+      const unappliedRateLabel      = document.getElementById("unappliedRateLabel");
+
+      if (!dailyLabourTargetEl) return;
+
+      dailyLabourTargetEl.value      = settings.dailyLabourTarget;
+      dailyBilledRatioTargetEl.value = settings.dailyBilledRatioTarget;
+      mtdLabourTargetEl.value        = settings.mtdLabourTarget;
+      mtdUpsellPerROTargetEl.value   = settings.mtdUpsellPerROTarget;
+      targetGrossPerROEl.value       = settings.targetGrossPerRO;
+      targetGpPctEl.value            = settings.targetGpPct;
+      nonRetailMaxPctEl.value        = settings.nonRetailMaxPct;
+      dataSourceModeEl.value         = settings.dataSourceMode;
+      onlineCsvUrlEl.value           = settings.onlineCsvUrl;
+      unappliedHoursEl.value         = settings.unappliedHours;
+      unappliedDollarsEl.value       = settings.unappliedDollars;
+
+      const hours = toNumber(settings.unappliedHours);
+      const dollars = toNumber(settings.unappliedDollars);
+      if (hours > 0) {
+        const rate = dollars / hours;
+        unappliedRateLabel.textContent = `Rate per hour: ${formatCurrency(rate.toFixed(0))}`;
+      } else {
+        unappliedRateLabel.textContent = "Rate per hour: –";
+      }
+
+      // Policy table
+      const tbody = document.getElementById("policyTableBody");
+      tbody.innerHTML = "";
+      (settings.policyByBrand || []).forEach((row, idx) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><input type="text" data-idx="${idx}" data-field="make" value="${row.make || ""}"></td>
+          <td><input type="number" data-idx="${idx}" data-field="policy" min="0" step="50" value="${row.policy || 0}"></td>
+          <td><button data-idx="${idx}" class="removePolicyBtn">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const totalPolicy = (settings.policyByBrand || []).reduce(
+        (sum, p) => sum + toNumber(p.policy),
+        0
+      );
+      const policyTotalLabel = document.getElementById("policyTotalLabel");
+      policyTotalLabel.textContent = `Total policy: ${formatCurrency(totalPolicy)}`;
+    }
+
+    function attachSettingsEvents() {
+      const dailyLabourTargetEl     = document.getElementById("dailyLabourTarget");
+      const dailyBilledRatioTargetEl= document.getElementById("dailyBilledRatioTarget");
+      const mtdLabourTargetEl       = document.getElementById("mtdLabourTarget");
+      const mtdUpsellPerROTargetEl  = document.getElementById("mtdUpsellPerROTarget");
+      const targetGrossPerROEl      = document.getElementById("targetGrossPerRO");
+      const targetGpPctEl           = document.getElementById("targetGpPct");
+      const nonRetailMaxPctEl       = document.getElementById("nonRetailMaxPct");
+      const dataSourceModeEl        = document.getElementById("dataSourceMode");
+      const onlineCsvUrlEl          = document.getElementById("onlineCsvUrl");
+      const addPolicyRowBtn         = document.getElementById("addPolicyRowBtn");
+      const policyTableBody         = document.getElementById("policyTableBody");
+      const unappliedHoursEl        = document.getElementById("unappliedHours");
+      const unappliedDollarsEl      = document.getElementById("unappliedDollars");
+      const resetSettingsBtn        = document.getElementById("resetSettingsBtn");
+      const testOnlineLoadBtn       = document.getElementById("testOnlineLoadBtn");
+
+      dailyLabourTargetEl.addEventListener("change", () => {
+        settings.dailyLabourTarget = toNumber(dailyLabourTargetEl.value);
+        saveSettings();
+        renderAll();
+      });
+
+      dailyBilledRatioTargetEl.addEventListener("change", () => {
+        settings.dailyBilledRatioTarget = toNumber(dailyBilledRatioTargetEl.value);
+        saveSettings();
+        renderAll();
+      });
+
+      mtdLabourTargetEl.addEventListener("change", () => {
+        settings.mtdLabourTarget = toNumber(mtdLabourTargetEl.value);
+        saveSettings();
+        renderAll();
+      });
+
+      mtdUpsellPerROTargetEl.addEventListener("change", () => {
+        settings.mtdUpsellPerROTarget = toNumber(mtdUpsellPerROTargetEl.value);
+        saveSettings();
+        renderAll();
+      });
+
+      targetGrossPerROEl.addEventListener("change", () => {
+        settings.targetGrossPerRO = toNumber(targetGrossPerROEl.value);
+        saveSettings();
+        renderAll();
+      });
+
+      targetGpPctEl.addEventListener("change", () => {
+        settings.targetGpPct = toNumber(targetGpPctEl.value);
+        saveSettings();
+        renderAll();
+      });
+
+      nonRetailMaxPctEl.addEventListener("change", () => {
+        settings.nonRetailMaxPct = toNumber(nonRetailMaxPctEl.value);
+        saveSettings();
+        renderAll();
+      });
+
+      dataSourceModeEl.addEventListener("change", () => {
+        settings.dataSourceMode = dataSourceModeEl.value;
+        saveSettings();
+      });
+
+      onlineCsvUrlEl.addEventListener("change", () => {
+        settings.onlineCsvUrl = onlineCsvUrlEl.value;
+        saveSettings();
+      });
+
+      addPolicyRowBtn.addEventListener("click", () => {
+        settings.policyByBrand.push({ make: "", policy: 0 });
+        saveSettings();
+        renderAll();
+      });
+
+      policyTableBody.addEventListener("input", (e) => {
+        const target = e.target;
+        const idx = parseInt(target.dataset.idx, 10);
+        const field = target.dataset.field;
+        if (Number.isNaN(idx) || !field) return;
+        if (!settings.policyByBrand[idx]) return;
+        if (field === "policy") {
+          settings.policyByBrand[idx].policy = toNumber(target.value);
+        } else {
+          settings.policyByBrand[idx][field] = target.value;
+        }
+        saveSettings();
+        renderAll();
+      });
+
+      policyTableBody.addEventListener("click", (e) => {
+        if (!e.target.classList.contains("removePolicyBtn")) return;
+        const idx = parseInt(e.target.dataset.idx, 10);
+        if (Number.isNaN(idx)) return;
+        settings.policyByBrand.splice(idx, 1);
+        saveSettings();
+        renderAll();
+      });
+
+      unappliedHoursEl.addEventListener("change", () => {
+        settings.unappliedHours = toNumber(unappliedHoursEl.value);
+        saveSettings();
+        renderAll();
+      });
+
+      unappliedDollarsEl.addEventListener("change", () => {
+        settings.unappliedDollars = toNumber(unappliedDollarsEl.value);
+        saveSettings();
+        renderAll();
+      });
+
+      resetSettingsBtn.addEventListener("click", () => {
+        if (!confirm("Reset all settings to defaults?")) return;
+        settings = { ...defaultSettings };
+        saveSettings();
+        renderAll();
+      });
+
+      testOnlineLoadBtn.addEventListener("click", () => {
+        loadOnlineCsv();
+      });
+    }
+
+    // === BOOTSTRAP ===
+    document.addEventListener("DOMContentLoaded", () => {
+      loadSettings();
+      loadTheme();
+      renderSettingsUi();
+      updateUploadStatus();
+
+      const datePicker = document.getElementById("datePicker");
+      datePicker.addEventListener("change", () => {
+        if (datePicker.value) {
+          const d = new Date(datePicker.value);
+          state.filters.date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        } else {
+          state.filters.date = null;
+        }
+        if (state.loaded) renderAll();
+      });
+
+      const advisorFilter = document.getElementById("advisorFilter");
+      advisorFilter.addEventListener("change", () => {
+        state.filters.advisor = advisorFilter.value;
+        if (state.loaded) renderAll();
+      });
+
+      // Main tabs
+      const mainTabs = document.querySelectorAll(".main-tab");
+      const pageDashboard = document.getElementById("page-dashboard");
+      const pageSettings = document.getElementById("page-settings");
+
+      mainTabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          mainTabs.forEach(t => t.classList.remove("active"));
+          tab.classList.add("active");
+          const page = tab.getAttribute("data-page");
+          if (page === "dashboard") {
+            pageDashboard.classList.remove("hidden");
+            pageSettings.classList.add("hidden");
+          } else {
+            pageSettings.classList.remove("hidden");
+            pageDashboard.classList.add("hidden");
+          }
+        });
+      });
+
+      // Inner tabs
+      const tabs = document.querySelectorAll(".tab");
+      const dailyView = document.getElementById("view-daily");
+      const mtdView = document.getElementById("view-mtd");
+
+      tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          tabs.forEach(t => t.classList.remove("active"));
+          tab.classList.add("active");
+          const view = tab.getAttribute("data-view");
+          if (view === "daily") {
+            dailyView.classList.remove("hidden");
+            mtdView.classList.add("hidden");
+          } else {
+            mtdView.classList.remove("hidden");
+            dailyView.classList.add("hidden");
+          }
+        });
+      });
+
+      // Upload buttons
+      const btnUploadTotal = document.getElementById("btnUploadTotal");
+      const fileTotal = document.getElementById("fileTotal");
+      btnUploadTotal.addEventListener("click", () => fileTotal.click());
+      fileTotal.addEventListener("change", () => {
+        if (fileTotal.files && fileTotal.files[0]) {
+          handleFileInput(fileTotal.files[0]);
+        }
+      });
+
+      const btnOnlineLoad = document.getElementById("btnOnlineLoad");
+      btnOnlineLoad.addEventListener("click", () => {
+        loadOnlineCsv();
+      });
+
+      const reloadOnlineBtn = document.getElementById("reloadOnlineBtn");
+      reloadOnlineBtn.addEventListener("click", () => {
+        loadOnlineCsv();
+      });
+
+      // Insights modal
+      const insightsBtn = document.getElementById("insightsBtn");
+      const insightsModal = document.getElementById("insightsModal");
+      const closeInsights = document.getElementById("closeInsights");
+      const modalDateLabel = document.getElementById("modalDateLabel");
+
+      insightsBtn.addEventListener("click", () => {
+        if (!state.loaded) {
+          alert("Load the Total Performance data first to generate insights.");
+          return;
+        }
+        buildInsights();
+        if (state.filters.date) {
+          modalDateLabel.textContent = state.filters.date.toLocaleDateString("en-AU", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+          });
+        } else {
+          modalDateLabel.textContent = "Snapshot";
+        }
+        insightsModal.classList.remove("hidden");
+      });
+
+      closeInsights.addEventListener("click", () => {
+        insightsModal.classList.add("hidden");
+      });
+
+      insightsModal.addEventListener("click", (e) => {
+        if (e.target === insightsModal) {
+          insightsModal.classList.add("hidden");
+        }
+      });
+
+      // Settings events
+      attachSettingsEvents();
+
+      // Theme toggle
+      const themeToggleBtn = document.getElementById("themeToggleBtn");
+      themeToggleBtn.addEventListener("click", () => {
+        applyTheme(currentTheme === "dark" ? "light" : "dark");
+      });
+
+      // Leaderboard toggle
+      const leaderboardToggle = document.getElementById("leaderboardToggle");
+      const leaderboardPanel = document.getElementById("leaderboardPanel");
+      const closeLeaderboard = document.getElementById("closeLeaderboard");
+
+      leaderboardToggle.addEventListener("click", () => {
+        renderLeaderboardPanel();
+        leaderboardPanel.classList.remove("hidden");
+      });
+
+      closeLeaderboard.addEventListener("click", () => {
+        leaderboardPanel.classList.add("hidden");
+      });
+
+      leaderboardPanel.addEventListener("click", (e) => {
+        if (e.target === leaderboardPanel) {
+          leaderboardPanel.classList.add("hidden");
+        }
+      });
+
+      // If this is a saved/shareable copy with embedded data, auto-load it
+      if (window.EMBEDDED_TOTAL_DATA) {
+        state.total = window.EMBEDDED_TOTAL_DATA;
+        state.loadedTotal = true;
+        state.loaded = true;
+        state.error = null;
+        if (window.EMBEDDED_SETTINGS) {
+          settings = { ...defaultSettings, ...window.EMBEDDED_SETTINGS };
+          saveSettings();
+        }
+        initAdvisorFilter();
+        initDateFromData();
+        computeOpenCounts();
+        renderAll();
+        updateUploadStatus();
+      } else {
+        if (settings.dataSourceMode === "online" && settings.onlineCsvUrl) {
+          loadOnlineCsv();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
