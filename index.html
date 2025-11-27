@@ -1010,7 +1010,12 @@
 
             <div class="field-group">
               <label for="onlineCsvUrl">Online CSV URL</label>
-              <input type="text" id="onlineCsvUrl" placeholder="https://...export?format=csv" />
+              <input
+  type="text"
+  id="onlineCsvUrl"
+  placeholder="https://docs.google.com/spreadsheets/d/1fiwosf8gXN6faN-LHQtvAIfMbAagEptqWkwiPE23Vbg/export?format=csv"
+/>
+
             </div>
 
             <div class="inline-note">
@@ -1140,23 +1145,24 @@
     let currentTheme = "dark";
 
     const defaultSettings = {
-      dailyLabourTarget: 16000,
-      dailyBilledRatioTarget: 0.98,
-      mtdLabourTarget: 280000,
-      mtdUpsellPerROTarget: 75,
-      targetGrossPerRO: 450,
-      targetGpPct: 80,
-      nonRetailMaxPct: 20,
-      dataSourceMode: "online",
-      onlineCsvUrl: https://docs.google.com/spreadsheets/d/1fiwosf8gXN6faN-LHQtvAIfMbAagEptqWkwiPE23Vbg/export?format=csv,
-      policyByBrand: [
-        { make: "Kia", policy: 0 },
-        { make: "Nissan", policy: 0 },
-        { make: "GWM", policy: 0 }
-      ],
-      unappliedHours: 0,
-      unappliedDollars: 0
-    };
+  dailyLabourTarget: 16000,
+  dailyBilledRatioTarget: 0.98,
+  mtdLabourTarget: 280000,
+  mtdUpsellPerROTarget: 75,
+  targetGrossPerRO: 450,
+  targetGpPct: 80,
+  nonRetailMaxPct: 20,
+  dataSourceMode: "online",
+  onlineCsvUrl: "https://docs.google.com/spreadsheets/d/1fiwosf8gXN6faN-LHQtvAIfMbAagEptqWkwiPE23Vbg/export?format=csv",
+  policyByBrand: [
+    { make: "Kia", policy: 0 },
+    { make: "Nissan", policy: 0 },
+    { make: "GWM", policy: 0 }
+  ],
+  unappliedHours: 0,
+  unappliedDollars: 0
+};
+
 
     let settings = { ...defaultSettings };
 
