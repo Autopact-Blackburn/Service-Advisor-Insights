@@ -5,7 +5,7 @@
   <title>Advisor Performance – Service Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- PapaParse for CSV loading (used in later blocks) -->
+  <!-- PapaParse for CSV loading -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <style>
@@ -334,7 +334,7 @@
       color: var(--muted);
     }
 
-    /* TECHNICIAN-STYLE CIRCULAR GAUGE (CONIC) */
+    /* CIRCULAR GAUGE USING CSS CONIC GRADIENT */
 
     .circle-gauge {
       width: 90px;
@@ -748,7 +748,9 @@
       <div id="todaySummary" class="loading">
         Load CSV (manual or online) to see today's snapshot.
       </div>
+
       <div class="gauge-row">
+        <!-- Today Labour -->
         <div class="gauge-card" id="todayGaugeLabour">
           <div class="gauge-header">
             <div class="gauge-title">Today Labour Gross</div>
@@ -760,7 +762,7 @@
               <div class="circle-gauge-outer" style="--value: 0;">
                 <div class="circle-gauge-inner">
                   <div class="circle-gauge-value">$0</div>
-                  <div class="circle-gauge-pct">0%</div>
+                  <div class="circle-gauge-pct">0% of target</div>
                 </div>
               </div>
             </div>
@@ -770,6 +772,7 @@
           </div>
         </div>
 
+        <!-- Today Avg RO -->
         <div class="gauge-card" id="todayGaugeAvgRo">
           <div class="gauge-header">
             <div class="gauge-title">Today Avg RO</div>
@@ -781,7 +784,7 @@
               <div class="circle-gauge-outer" style="--value: 0;">
                 <div class="circle-gauge-inner">
                   <div class="circle-gauge-value">$0</div>
-                  <div class="circle-gauge-pct">0%</div>
+                  <div class="circle-gauge-pct">0% of target</div>
                 </div>
               </div>
             </div>
@@ -791,6 +794,7 @@
           </div>
         </div>
 
+        <!-- Today Hours -->
         <div class="gauge-card" id="todayGaugeHours">
           <div class="gauge-header">
             <div class="gauge-title">Hours Sold / Clocked</div>
@@ -818,7 +822,9 @@
       <div id="mtdSummary" class="loading">
         Load CSV to see MTD summary.
       </div>
+
       <div class="gauge-row">
+        <!-- MTD Labour -->
         <div class="gauge-card" id="mtdGaugeLabour">
           <div class="gauge-header">
             <div class="gauge-title">MTD Labour Gross</div>
@@ -830,7 +836,7 @@
               <div class="circle-gauge-outer" style="--value: 0;">
                 <div class="circle-gauge-inner">
                   <div class="circle-gauge-value">$0</div>
-                  <div class="circle-gauge-pct">0%</div>
+                  <div class="circle-gauge-pct">0% of target</div>
                 </div>
               </div>
             </div>
@@ -840,6 +846,7 @@
           </div>
         </div>
 
+        <!-- MTD Avg RO -->
         <div class="gauge-card" id="mtdGaugeAvgRo">
           <div class="gauge-header">
             <div class="gauge-title">MTD Avg RO</div>
@@ -851,7 +858,7 @@
               <div class="circle-gauge-outer" style="--value: 0;">
                 <div class="circle-gauge-inner">
                   <div class="circle-gauge-value">$0</div>
-                  <div class="circle-gauge-pct">0%</div>
+                  <div class="circle-gauge-pct">0% of target</div>
                 </div>
               </div>
             </div>
@@ -861,6 +868,7 @@
           </div>
         </div>
 
+        <!-- MTD GP% -->
         <div class="gauge-card" id="mtdGaugeGp">
           <div class="gauge-header">
             <div class="gauge-title">MTD GP%</div>
@@ -893,9 +901,7 @@
         <div class="card-subtext" id="mixCountsLabel">
           Retail 0 · Warranty 0 · Internal 0 · Total 0
         </div>
-        <div class="mix-bar" id="mixBar">
-          <!-- segments injected by JS -->
-        </div>
+        <div class="mix-bar" id="mixBar"></div>
         <div class="mix-legend" id="mixLegend">
           <span><span class="mix-dot" style="background:var(--mix-retail);"></span>Retail (Customer-pay)</span>
           <span><span class="mix-dot" style="background:var(--mix-warranty);"></span>Warranty</span>
@@ -930,7 +936,7 @@
         </div>
         <div class="lb-card">
           <div class="lb-title">Top 5 GP%</div>
-          <div class="loading">Will replace "Lowest leakage" – more relevant.</div>
+          <div class="loading">Will populate once CSV is loaded.</div>
         </div>
       </div>
 
@@ -951,7 +957,7 @@
         </div>
       </div>
 
-      <!-- ONLINE CSV SOURCE CARD (same as previous build, but cleaner) -->
+      <!-- ONLINE CSV SOURCE CARD -->
       <div class="section-title">Online CSV source</div>
       <div class="card">
         <div class="card-header">
@@ -1062,8 +1068,7 @@
         <span class="pill snapshot" id="modalDateLabel">Snapshot</span>
       </div>
       <div id="advisorModalBody" class="modal-section">
-        <!-- Per-advisor insights injected here -->
-        <p class="loading">Select an advisor card to view insights.</p>
+        <p class="loading">Select an advisor card to view insights, or click ✨ Insights for a global summary.</p>
       </div>
       <div style="margin-top:10px; display:flex; justify-content:flex-end; gap:8px;">
         <button id="advisorModalClose">Close</button>
@@ -1079,1070 +1084,1245 @@
         <button id="closeLeaderboard" class="icon-btn">✕</button>
       </div>
       <div id="leaderboardPanelBody">
-        <!-- full rankings injected here -->
         <div class="loading">Will populate once CSV is loaded.</div>
       </div>
     </div>
   </div>
 
-  <!-- BLOCK 2 / 3 / 4 SCRIPTS WILL BE APPENDED BELOW -->
+  <!-- BLOCK 2 / 3 / 4 SCRIPTS BELOW -->
   <script>
-    // Block 2 will define: state, settings, utilities, metrics
-    // Block 3 will define: gauge rendering, advisor cards, leaderboards, mix bar
-    // Block 4 will define: CSV loading, event wiring, insights engine
+  // ======================================================
+  // BLOCK 2 — STATE, SETTINGS, UTILITIES, METRIC BUILDERS
+  // ======================================================
+
+  // ------------ STATE ------------
+  const state = {
+    rows: [],
+    loaded: false,
+    filters: {
+      date: null,
+      advisor: "all"
+    }
+  };
+
+  // ------------ SETTINGS ------------
+  const SETTINGS_KEY = "advisorDashSettings_v5";
+
+  const defaultSettings = {
+    // Daily targets
+    dailyLabourTarget: 17000,
+    dailyAvgRoTarget: 410,
+    dailyHoursRatioTarget: 1.0, // 100%
+
+    // MTD targets
+    mtdLabourTarget: 390000,
+    mtdAvgRoTarget: 430,
+    mtdGpPctTarget: 80,
+
+    // Mix expectations
+    nonRetailMaxPct: 20,
+
+    // Data source defaults
+    dataSourceMode: "online",
+    onlineCsvUrl:
+      "https://docs.google.com/spreadsheets/d/1fiwosf8gXN6faN-LHQtvAIfMbAagEptqWkwiPE23Vbg/export?format=csv"
+  };
+
+  let settings = { ...defaultSettings };
+
+  function loadSettings() {
+    try {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      settings = { ...defaultSettings, ...parsed };
+    } catch (e) {
+      console.warn("Failed to load settings, using defaults.", e);
+      settings = { ...defaultSettings };
+    }
+  }
+
+  function saveSettings() {
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    } catch (e) {
+      console.warn("Failed to save settings.", e);
+    }
+  }
+
+  // ------------ UTILITIES ------------
+
+  function parseAuDate(str) {
+    if (!str || typeof str !== "string") return null;
+    const trimmed = str.trim();
+    if (!trimmed) return null;
+
+    // dd/mm/yyyy or dd-mm-yyyy
+    const m = trimmed.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+    if (m) {
+      let d = parseInt(m[1], 10);
+      let mth = parseInt(m[2], 10);
+      let y = parseInt(m[3], 10);
+      if (y < 100) y += 2000;
+      const dt = new Date(y, mth - 1, d);
+      return isNaN(dt.getTime()) ? null : dt;
+    }
+
+    // yyyy-mm-dd
+    const m2 = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (m2) {
+      let y = parseInt(m2[1], 10);
+      let mth = parseInt(m2[2], 10);
+      let d = parseInt(m2[3], 10);
+      const dt = new Date(y, mth - 1, d);
+      return isNaN(dt.getTime()) ? null : dt;
+    }
+
+    const dt = new Date(trimmed);
+    return isNaN(dt.getTime()) ? null : dt;
+  }
+
+  function sameDay(d1, d2) {
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    );
+  }
+
+  function sameMonth(d1, d2) {
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth()
+    );
+  }
+
+  function toNumber(v) {
+    if (typeof v === "number" && isFinite(v)) return v;
+    if (v === null || v === undefined) return 0;
+    const cleaned = String(v).replace(/[^0-9.\-]/g, "");
+    const num = parseFloat(cleaned);
+    return isNaN(num) ? 0 : num;
+  }
+
+  function formatCurrency(v) {
+    return "$" + toNumber(v).toLocaleString("en-AU", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    });
+  }
+
+  function formatPercent(v) {
+    return toNumber(v).toFixed(1) + "%";
+  }
+
+  const uniq = arr => [...new Set(arr)];
+
+  // ------------ COLUMN HELPERS ------------
+
+  function getCloseDate(row) {
+    const c = parseAuDate(row["C Closed Date"]);
+    const w = parseAuDate(row["W Closed Date"]);
+    const i = parseAuDate(row["I Closed Date"]);
+    const invClosed = parseAuDate(row["Inv Closed Date"]);
+    const invOpen = parseAuDate(row["Inv Open Date"]);
+    return c || w || i || invClosed || invOpen || null;
+  }
+
+  function classifyRoType(row) {
+    if (row["I Closed Date"]) return "internal";
+    if (row["W Closed Date"]) return "warranty";
+    if (row["C Closed Date"]) return "customer";
+    return "unknown";
+  }
+
+  function getGross(row) {
+    const g = toNumber(row["Gross"]);
+    if (g !== 0) return g;
+
+    const sale = toNumber(row["Sale"]);
+    const cost = toNumber(row["Cost"]);
+    if (sale || cost) return sale - cost;
+
+    return 0;
+  }
+
+  function getCost(row) {
+    const c = toNumber(row["Cost"]);
+    if (c !== 0) return c;
+    return (
+      toNumber(row["Cost (Open)"]) +
+      toNumber(row["Cost (Labour)"]) +
+      toNumber(row["Cost (Parts)"])
+    );
+  }
+
+  function getChargedHours(row) {
+    return toNumber(row["Charged Hrs"]);
+  }
+
+  function getClockedHours(row) {
+    return toNumber(row["Clocked Hrs"]);
+  }
+
+  // ------------ DATA PREPARATION AFTER LOAD ------------
+
+  function buildAdvisorStats(rows) {
+    const map = {};
+
+    rows.forEach(r => {
+      const name = String(r["Advisor Name"] || "").trim() || "Unknown";
+      if (!map[name]) {
+        map[name] = {
+          advisor: name,
+          labourGross: 0,
+          cost: 0,
+          roCount: 0,
+          chargedHrs: 0,
+          clockedHrs: 0
+        };
+      }
+
+      map[name].labourGross += getGross(r);
+      map[name].cost += getCost(r);
+      map[name].roCount += 1;
+      map[name].chargedHrs += getChargedHours(r);
+      map[name].clockedHrs += getClockedHours(r);
+    });
+
+    const list = Object.values(map);
+
+    list.forEach(a => {
+      a.avgRo = a.roCount ? a.labourGross / a.roCount : 0;
+      a.gpPct = a.labourGross
+        ? ((a.labourGross - a.cost) / a.labourGross) * 100
+        : 0;
+      a.hoursRatio = a.clockedHrs
+        ? a.chargedHrs / a.clockedHrs
+        : 0;
+      a.leakagePct = 100 - (a.hoursRatio * 100);
+    });
+
+    list.sort((a, b) => b.labourGross - a.labourGross);
+    return list;
+  }
+
+  // ------------ METRICS: TODAY ------------
+  function computeTodayMetrics() {
+    const base = state.filters.date || new Date();
+    const todayRows = state.rows.filter(r => {
+      const d = getCloseDate(r);
+      return d && sameDay(d, base);
+    });
+
+    const stats = buildAdvisorStats(todayRows);
+
+    let totalGross = 0;
+    let totalCost = 0;
+    let chargedHrs = 0;
+    let clockedHrs = 0;
+    let retail = 0;
+    let warranty = 0;
+    let internal = 0;
+
+    todayRows.forEach(r => {
+      totalGross += getGross(r);
+      totalCost += getCost(r);
+      chargedHrs += getChargedHours(r);
+      clockedHrs += getClockedHours(r);
+
+      const type = classifyRoType(r);
+      if (type === "customer") retail++;
+      if (type === "warranty") warranty++;
+      if (type === "internal") internal++;
+    });
+
+    return {
+      rows: todayRows,
+      advisorStats: stats,
+      roCount: todayRows.length,
+      totalGross,
+      totalCost,
+      chargedHrs,
+      clockedHrs,
+      retail,
+      warranty,
+      internal
+    };
+  }
+
+  // ------------ METRICS: MTD ------------
+  function computeMtdMetrics() {
+    const base = state.filters.date || new Date();
+    const mtdRows = state.rows.filter(r => {
+      const d = getCloseDate(r);
+      return d && sameMonth(d, base);
+    });
+
+    const statsRaw = buildAdvisorStats(mtdRows);
+    const stats = statsRaw.filter(a => a.labourGross >= 1000);
+
+    const rankMap = {};
+    stats
+      .slice()
+      .sort((a, b) => b.labourGross - a.labourGross)
+      .forEach((a, i) => (rankMap[a.advisor] = i + 1));
+
+    let totalGross = 0;
+    let totalCost = 0;
+    let chargedHrs = 0;
+    let clockedHrs = 0;
+    let retail = 0;
+    let warranty = 0;
+    let internal = 0;
+
+    mtdRows.forEach(r => {
+      totalGross += getGross(r);
+      totalCost += getCost(r);
+      chargedHrs += getChargedHours(r);
+      clockedHrs += getClockedHours(r);
+
+      const type = classifyRoType(r);
+      if (type === "customer") retail++;
+      if (type === "warranty") warranty++;
+      if (type === "internal") internal++;
+    });
+
+    const gpPct = totalGross
+      ? ((totalGross - totalCost) / totalGross) * 100
+      : 0;
+
+    const avgRo = mtdRows.length ? totalGross / mtdRows.length : 0;
+
+    return {
+      rows: mtdRows,
+      advisorStats: stats,
+      rankMap,
+      roCount: mtdRows.length,
+      totalGross,
+      totalCost,
+      chargedHrs,
+      clockedHrs,
+      retail,
+      warranty,
+      internal,
+      gpPct,
+      avgRo
+    };
+  }
+
+  // ------------ METRICS: MIX (ALL ADVISORS, MTD) ------------
+  function computeMtdMixAll() {
+    const base = state.filters.date || new Date();
+    const mtdRows = state.rows.filter(r => {
+      const d = getCloseDate(r);
+      return d && sameMonth(d, base);
+    });
+
+    let retail = 0,
+      warranty = 0,
+      internal = 0;
+
+    mtdRows.forEach(r => {
+      const t = classifyRoType(r);
+      if (t === "customer") retail++;
+      if (t === "warranty") warranty++;
+      if (t === "internal") internal++;
+    });
+
+    const total = retail + warranty + internal;
+
+    return {
+      retail,
+      warranty,
+      internal,
+      total,
+      retailPct: total ? (retail / total) * 100 : 0,
+      warrantyPct: total ? (warranty / total) * 100 : 0,
+      internalPct: total ? (internal / total) * 100 : 0
+    };
+  }
+
+  // alias name used elsewhere
+  function computeMtdMixAllAdvisors() {
+    return computeMtdMixAll();
+  }
+
+  // ------------ DATE + ADVISOR FILTER INIT ------------
+
+  function initDateFromData() {
+    if (!state.rows.length) return;
+    const dates = state.rows
+      .map(r => getCloseDate(r))
+      .filter(Boolean)
+      .sort((a, b) => a - b);
+
+    if (!dates.length) return;
+
+    const latest = dates[dates.length - 1];
+    state.filters.date = latest;
+
+    const picker = document.getElementById("datePicker");
+    if (picker) {
+      const y = latest.getFullYear();
+      const m = String(latest.getMonth() + 1).padStart(2, "0");
+      const d = String(latest.getDate()).padStart(2, "0");
+      picker.value = `${y}-${m}-${d}`;
+    }
+  }
+
+  function initAdvisorFilter() {
+    const select = document.getElementById("advisorFilter");
+    if (!select) return;
+    select.innerHTML = "";
+
+    const optAll = document.createElement("option");
+    optAll.value = "all";
+    optAll.textContent = "All Advisors (> $1k MTD)";
+    select.appendChild(optAll);
+
+    const mtd = computeMtdMetrics();
+    const advisors = mtd.advisorStats
+      .slice()
+      .sort((a, b) => a.advisor.localeCompare(b.advisor));
+
+    advisors.forEach(a => {
+      const opt = document.createElement("option");
+      opt.value = a.advisor;
+      opt.textContent = a.advisor;
+      select.appendChild(opt);
+    });
+  }
   </script>
-</body>
-</html>
-<script>
-// ======================================================
-// BLOCK 2 — STATE, SETTINGS, UTILITIES, METRIC BUILDERS
-// ======================================================
+  <script>
+  // ======================================================
+  // BLOCK 3 — RENDER ENGINE (GAUGES, MIX BAR, CARDS, LEADERBOARDS)
+  // ======================================================
 
-// ------------ STATE ------------
-const state = {
-  rows: [],
-  loaded: false,
-  filters: {
-    date: null,
-    advisor: "all"
-  }
-};
-
-// ------------ SETTINGS ------------
-const SETTINGS_KEY = "advisorDashSettings_v4";
-
-const defaultSettings = {
-  // Daily targets
-  dailyLabourTarget: 17000,
-  dailyAvgRoTarget: 410,
-  dailyHoursRatioTarget: 1.0, // 100%
-
-  // MTD targets
-  mtdLabourTarget: 390000,
-  mtdAvgRoTarget: 430,
-  mtdGpPctTarget: 80,
-
-  // Mix expectations
-  nonRetailMaxPct: 20,
-
-  // Data source defaults
-  dataSourceMode: "online",
-  onlineCsvUrl:
-    "https://docs.google.com/spreadsheets/d/1fiwosf8gXN6faN-LHQtvAIfMbAagEptqWkwiPE23Vbg/export?format=csv"
-};
-
-let settings = {...defaultSettings};
-
-// Load settings from localStorage
-function loadSettings() {
-  try {
-    const raw = localStorage.getItem(SETTINGS_KEY);
-    if (!raw) return;
-    const parsed = JSON.parse(raw);
-    settings = {...defaultSettings, ...parsed};
-  } catch (e) {
-    console.warn("Failed to load settings, using defaults.", e);
-    settings = {...defaultSettings};
-  }
-}
-
-// Save settings to localStorage
-function saveSettings() {
-  try {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-  } catch (e) {
-    console.warn("Failed to save settings.", e);
-  }
-}
-
-// ------------ UTILITIES ------------
-
-// Parses AU date formats: dd/mm/yyyy, d/m/yy, yyyy-mm-dd
-function parseAuDate(str) {
-  if (!str || typeof str !== "string") return null;
-  const trimmed = str.trim();
-  if (!trimmed) return null;
-
-  // dd/mm/yyyy or dd-mm-yyyy
-  const m = trimmed.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-  if (m) {
-    let d = parseInt(m[1], 10);
-    let mth = parseInt(m[2], 10);
-    let y = parseInt(m[3], 10);
-    if (y < 100) y += 2000;
-    const dt = new Date(y, mth - 1, d);
-    return isNaN(dt.getTime()) ? null : dt;
+  function byId(id) {
+    return document.getElementById(id);
   }
 
-  // yyyy-mm-dd
-  const m2 = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if (m2) {
-    let y = parseInt(m2[1], 10);
-    let mth = parseInt(m2[2], 10);
-    let d = parseInt(m2[3], 10);
-    const dt = new Date(y, mth - 1, d);
-    return isNaN(dt.getTime()) ? null : dt;
+  function el(tag, cls, txt) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (txt !== undefined) e.textContent = txt;
+    return e;
   }
 
-  // Fallback
-  const dt = new Date(trimmed);
-  return isNaN(dt.getTime()) ? null : dt;
-}
+  // ----- CIRCULAR GAUGE USING EXISTING .circle-gauge MARKUP -----
+  function buildCircleGauge(valueLabel, pctLabel, pct, colorVar) {
+    const wrap = el("div", "circle-gauge");
+    const outer = el("div", "circle-gauge-outer");
+    const inner = el("div", "circle-gauge-inner");
+    const valEl = el("div", "circle-gauge-value", valueLabel);
+    const pctEl = el("div", "circle-gauge-pct", pctLabel);
 
-function sameDay(d1, d2) {
-  return (
-    d1.getFullYear() === d2.getFullYear() &&
-    d1.getMonth() === d2.getMonth() &&
-    d1.getDate() === d2.getDate()
-  );
-}
-
-function sameMonth(d1, d2) {
-  return (
-    d1.getFullYear() === d2.getFullYear() &&
-    d1.getMonth() === d2.getMonth()
-  );
-}
-
-function toNumber(v) {
-  if (typeof v === "number" && isFinite(v)) return v;
-  if (v === null || v === undefined) return 0;
-  const cleaned = String(v).replace(/[^0-9.\-]/g, "");
-  const num = parseFloat(cleaned);
-  return isNaN(num) ? 0 : num;
-}
-
-function formatCurrency(v) {
-  return "$" + toNumber(v).toLocaleString("en-AU", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  });
-}
-
-function formatPercent(v) {
-  return toNumber(v).toFixed(1) + "%";
-}
-
-const uniq = arr => [...new Set(arr)];
-
-// ------------ COLUMN HELPERS ------------
-
-// Determine the RO's close date using the three fields
-function getCloseDate(row) {
-  const c = parseAuDate(row["C Closed Date"]);
-  const w = parseAuDate(row["W Closed Date"]);
-  const i = parseAuDate(row["I Closed Date"]);
-  return c || w || i || null;
-}
-
-// Determine the RO type (customer, warranty, internal)
-function classifyRoType(row) {
-  if (row["I Closed Date"]) return "internal";
-  if (row["W Closed Date"]) return "warranty";
-  if (row["C Closed Date"]) return "customer";
-  return "unknown";
-}
-
-// Gross
-function getGross(row) {
-  // Primary
-  const g = toNumber(row["Gross"]);
-  if (g !== 0) return g;
-
-  // Fallback (Sale - Cost)
-  const sale = toNumber(row["Sale"]);
-  const cost = toNumber(row["Cost"]);
-  if (sale || cost) return sale - cost;
-
-  return 0;
-}
-
-// Cost (fallback if not provided)
-function getCost(row) {
-  const c = toNumber(row["Cost"]);
-  if (c !== 0) return c;
-  return (
-    toNumber(row["Cost (Open)"]) +
-    toNumber(row["Cost (Labour)"]) +
-    toNumber(row["Cost (Parts)"])
-  );
-}
-
-function getChargedHours(row) {
-  return toNumber(row["Charged Hrs"]);
-}
-
-function getClockedHours(row) {
-  return toNumber(row["Clocked Hrs"]);
-}
-
-// ------------ DATA PREPARATION AFTER LOAD ------------
-
-// Build advisor stats (today or MTD)
-function buildAdvisorStats(rows) {
-  const map = {};
-
-  rows.forEach(r => {
-    const name = String(r["Advisor Name"] || "").trim() || "Unknown";
-    if (!map[name]) {
-      map[name] = {
-        advisor: name,
-        labourGross: 0,
-        cost: 0,
-        roCount: 0,
-        chargedHrs: 0,
-        clockedHrs: 0
-      };
+    const frac = Math.max(0, Math.min(100, pct)) / 100;
+    outer.style.setProperty("--value", String(frac));
+    if (colorVar) {
+      outer.style.setProperty("--gauge-color", colorVar);
     }
 
-    map[name].labourGross += getGross(r);
-    map[name].cost += getCost(r);
-    map[name].roCount += 1;
-    map[name].chargedHrs += getChargedHours(r);
-    map[name].clockedHrs += getClockedHours(r);
-  });
-
-  const list = Object.values(map);
-
-  list.forEach(a => {
-    a.avgRo = a.roCount ? a.labourGross / a.roCount : 0;
-    a.gpPct = a.labourGross
-      ? ((a.labourGross - a.cost) / a.labourGross) * 100
-      : 0;
-    a.hoursRatio = a.clockedHrs
-      ? a.chargedHrs / a.clockedHrs
-      : 0;
-    a.leakagePct = 100 - (a.hoursRatio * 100);
-  });
-
-  list.sort((a, b) => b.labourGross - a.labourGross);
-  return list;
-}
-
-// ------------ METRICS: TODAY ------------
-function computeTodayMetrics() {
-  const base = state.filters.date || new Date();
-  const todayRows = state.rows.filter(r => {
-    const d = getCloseDate(r);
-    return d && sameDay(d, base);
-  });
-
-  const stats = buildAdvisorStats(todayRows);
-
-  // Aggregate totals
-  let totalGross = 0;
-  let totalCost = 0;
-  let chargedHrs = 0;
-  let clockedHrs = 0;
-  let retail = 0;
-  let warranty = 0;
-  let internal = 0;
-
-  todayRows.forEach(r => {
-    totalGross += getGross(r);
-    totalCost += getCost(r);
-    chargedHrs += getChargedHours(r);
-    clockedHrs += getClockedHours(r);
-
-    const type = classifyRoType(r);
-    if (type === "customer") retail++;
-    if (type === "warranty") warranty++;
-    if (type === "internal") internal++;
-  });
-
-  return {
-    rows: todayRows,
-    advisorStats: stats,
-    roCount: todayRows.length,
-    totalGross,
-    totalCost,
-    chargedHrs,
-    clockedHrs,
-    retail,
-    warranty,
-    internal
-  };
-}
-
-// ------------ METRICS: MTD ------------
-function computeMtdMetrics() {
-  const base = state.filters.date || new Date();
-  const mtdRows = state.rows.filter(r => {
-    const d = getCloseDate(r);
-    return d && sameMonth(d, base);
-  });
-
-  const statsRaw = buildAdvisorStats(mtdRows);
-  const stats = statsRaw.filter(a => a.labourGross >= 1000); // remove ghosts
-
-  // Build rankMap
-  const rankMap = {};
-  stats
-    .slice()
-    .sort((a, b) => b.labourGross - a.labourGross)
-    .forEach((a, i) => (rankMap[a.advisor] = i + 1));
-
-  // Aggregates
-  let totalGross = 0;
-  let totalCost = 0;
-  let chargedHrs = 0;
-  let clockedHrs = 0;
-  let retail = 0;
-  let warranty = 0;
-  let internal = 0;
-
-  mtdRows.forEach(r => {
-    totalGross += getGross(r);
-    totalCost += getCost(r);
-    chargedHrs += getChargedHours(r);
-    clockedHrs += getClockedHours(r);
-
-    const type = classifyRoType(r);
-    if (type === "customer") retail++;
-    if (type === "warranty") warranty++;
-    if (type === "internal") internal++;
-  });
-
-  const gpPct = totalGross
-    ? ((totalGross - totalCost) / totalGross) * 100
-    : 0;
-
-  const avgRo = mtdRows.length ? totalGross / mtdRows.length : 0;
-
-  return {
-    rows: mtdRows,
-    advisorStats: stats,
-    rankMap,
-    roCount: mtdRows.length,
-    totalGross,
-    totalCost,
-    chargedHrs,
-    clockedHrs,
-    retail,
-    warranty,
-    internal,
-    gpPct,
-    avgRo
-  };
-}
-
-// ------------ METRICS: MIX ------------
-function computeMtdMixAll() {
-  const base = state.filters.date || new Date();
-  const mtdRows = state.rows.filter(r => {
-    const d = getCloseDate(r);
-    return d && sameMonth(d, base);
-  });
-
-  let retail = 0,
-    warranty = 0,
-    internal = 0;
-
-  mtdRows.forEach(r => {
-    const t = classifyRoType(r);
-    if (t === "customer") retail++;
-    if (t === "warranty") warranty++;
-    if (t === "internal") internal++;
-  });
-
-  const total = retail + warranty + internal;
-
-  return {
-    retail,
-    warranty,
-    internal,
-    total,
-    retailPct: total ? (retail / total) * 100 : 0,
-    warrantyPct: total ? (warranty / total) * 100 : 0,
-    internalPct: total ? (internal / total) * 100 : 0
-  };
-}
-</script>
-<script>
-// ======================================================
-// BLOCK 3 — RENDER ENGINE (GAUGES, MIX BAR, CARDS, LEADERBOARDS)
-// ======================================================
-
-// ---------------------
-// ELEMENT HELPERS
-// ---------------------
-function byId(id) {
-  return document.getElementById(id);
-}
-
-// Create a node
-function el(tag, cls, txt) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (txt !== undefined) e.textContent = txt;
-  return e;
-}
-
-// ---------------------
-// CIRCULAR GAUGE ENGINE
-// ---------------------
-function createGaugeSvg(valuePct, strokeColour) {
-  // Ensure 0–100
-  const pct = Math.max(0, Math.min(100, valuePct));
-
-  // Conic arcs are done with an SVG circle using strokeDasharray
-  const radius = 42;
-  const circumference = 2 * Math.PI * radius;
-  const offset = ((100 - pct) / 100) * circumference;
-
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("width", "110");
-  svg.setAttribute("height", "110");
-
-  // Background circle
-  const bg = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  bg.setAttribute("cx", "55");
-  bg.setAttribute("cy", "55");
-  bg.setAttribute("r", radius);
-  bg.setAttribute("fill", "none");
-  bg.setAttribute("stroke", "var(--border)");
-  bg.setAttribute("stroke-width", "10");
-  svg.appendChild(bg);
-
-  // Foreground arc
-  const fg = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  fg.setAttribute("cx", "55");
-  fg.setAttribute("cy", "55");
-  fg.setAttribute("r", radius);
-  fg.setAttribute("fill", "none");
-  fg.setAttribute("stroke", strokeColour);
-  fg.setAttribute("stroke-width", "10");
-  fg.setAttribute("stroke-linecap", "round");
-  fg.setAttribute("transform", "rotate(-90 55 55)");
-  fg.style.strokeDasharray = `${circumference}`;
-  fg.style.strokeDashoffset = `${offset}`;
-  svg.appendChild(fg);
-
-  return svg;
-}
-
-// ---------------------
-// GAUGE CARD RENDERER
-// ---------------------
-function renderGaugeCard(targetId, label, value, target) {
-  const root = byId(targetId);
-  if (!root) return;
-
-  root.innerHTML = "";
-
-  // Determine pct against target
-  let pct = 0;
-  if (target && target > 0) {
-    pct = (value / target) * 100;
-    if (!isFinite(pct)) pct = 0;
-  }
-  pct = Math.max(0, Math.min(100, pct));
-
-  const card = el("div", "gauge-card");
-  const header = el("div", "gauge-label", label);
-  const svg = createGaugeSvg(pct, "var(--accent)");
-  const val = el("div", "gauge-value", formatCurrency(value));
-  const pctText = el("div", "gauge-pct", pct.toFixed(0) + "% of target");
-
-  card.appendChild(header);
-  card.appendChild(svg);
-  card.appendChild(val);
-  card.appendChild(pctText);
-
-  root.appendChild(card);
-}
-
-// ---------------------
-// GAUGE CARD (NON-$) — e.g. Avg RO, Hours Ratio
-// ---------------------
-function renderGaugeCardNumber(targetId, label, value, target, unit = "") {
-  const root = byId(targetId);
-  if (!root) return;
-
-  root.innerHTML = "";
-
-  let pct = 0;
-  if (target && target > 0) {
-    pct = (value / target) * 100;
-    if (!isFinite(pct)) pct = 0;
-  }
-  pct = Math.max(0, Math.min(100, pct));
-
-  const card = el("div", "gauge-card");
-  const header = el("div", "gauge-label", label);
-  const svg = createGaugeSvg(pct, "var(--accent)");
-  const val = el("div", "gauge-value", value.toFixed(1) + unit);
-  const pctText = el("div", "gauge-pct", pct.toFixed(0) + "% of target");
-
-  card.appendChild(header);
-  card.appendChild(svg);
-  card.appendChild(val);
-  card.appendChild(pctText);
-
-  root.appendChild(card);
-}
-
-// ---------------------
-// MIX BAR RENDERING
-// ---------------------
-function renderMixBar(mix) {
-  const bar = byId("mixBar");
-  const label = byId("mixCountsLabel");
-  const legend = byId("mixLegend");
-  if (!bar || !label || !legend) return;
-
-  bar.innerHTML = "";
-  legend.innerHTML = "";
-
-  if (!mix.total) {
-    label.textContent = "No MTD data";
-    return;
+    inner.appendChild(valEl);
+    inner.appendChild(pctEl);
+    outer.appendChild(inner);
+    wrap.appendChild(outer);
+    return wrap;
   }
 
-  // Segments
-  const segRetail = el("div", "mix-segment mix-retail");
-  segRetail.style.width = mix.retailPct + "%";
-  bar.appendChild(segRetail);
+  function renderGaugeCurrency(cardId, label, subtitle, value, target) {
+    const card = byId(cardId);
+    if (!card) return;
 
-  const segWarranty = el("div", "mix-segment mix-warranty");
-  segWarranty.style.width = mix.warrantyPct + "%";
-  bar.appendChild(segWarranty);
+    const pct = target > 0 ? Math.max(0, Math.min(100, (value / target) * 100)) : 0;
 
-  const segInternal = el("div", "mix-segment mix-internal");
-  segInternal.style.width = mix.internalPct + "%";
-  bar.appendChild(segInternal);
+    card.innerHTML = "";
 
-  // Label summary
-  label.textContent =
-    `Customer ${mix.retail} | Warranty ${mix.warranty} | Internal ${mix.internal}`;
+    const header = el("div", "gauge-header");
+    const title = el("div", "gauge-title", label);
+    const pill = el("span", "pill snapshot", "Snapshot");
+    header.appendChild(title);
+    header.appendChild(pill);
 
-  // Legend dots
-  const lg1 = el("div", "mix-legend-item");
-  lg1.innerHTML = `<span class="mix-dot mix-retail"></span> Customer`;
-  legend.appendChild(lg1);
+    const sub = el("div", "gauge-sub", subtitle);
 
-  const lg2 = el("div", "mix-legend-item");
-  lg2.innerHTML = `<span class="mix-dot mix-warranty"></span> Warranty`;
-  legend.appendChild(lg2);
+    const body = el("div", "gauge-body");
+    const gauge = buildCircleGauge(
+      formatCurrency(value),
+      target ? pct.toFixed(0) + "% of target" : "No target",
+      pct,
+      null
+    );
 
-  const lg3 = el("div", "mix-legend-item");
-  lg3.innerHTML = `<span class="mix-dot mix-internal"></span> Internal`;
-  legend.appendChild(lg3);
-}
+    const targetEl = el(
+      "div",
+      "gauge-target",
+      target ? `Target: ${formatCurrency(target)}` : "Target: not set"
+    );
 
-// ---------------------
-// ADVISOR CARDS
-// ---------------------
-function renderAdvisorCards(stats, rankMap) {
-  const container = byId("advisorCards");
-  if (!container) return;
+    body.appendChild(gauge);
+    body.appendChild(targetEl);
 
-  container.innerHTML = "";
+    card.appendChild(header);
+    card.appendChild(sub);
+    card.appendChild(body);
+  }
 
-  stats.forEach(a => {
-    const card = el("div", "advisor-card");
-    card.addEventListener("click", () => {
-      openAdvisorInsights(a, rankMap);
-    });
+  function renderGaugeNumber(cardId, label, subtitle, value, target, unitLabel, isPercentGauge = false) {
+    const card = byId(cardId);
+    if (!card) return;
 
-    // Advisor name + rank pill
-    const top = el("div", "advisor-card-top");
-    const name = el("div", "advisor-name", a.advisor);
+    const pct = target > 0 ? Math.max(0, Math.min(100, (value / target) * 100)) : 0;
 
-    const rank = rankMap[a.advisor] || "-";
-    const pill = el("span", "rank-pill", "#" + rank);
+    card.innerHTML = "";
 
-    top.appendChild(name);
-    top.appendChild(pill);
+    const header = el("div", "gauge-header");
+    const title = el("div", "gauge-title", label);
+    const pill = el("span", "pill snapshot", "Snapshot");
+    header.appendChild(title);
+    header.appendChild(pill);
 
-    const gross = el("div", "advisor-metric", "Gross: " + formatCurrency(a.labourGross));
-    const avgRo = el("div", "advisor-metric", "Avg RO: " + formatCurrency(a.avgRo));
-    const gp = el("div", "advisor-metric", "GP%: " + a.gpPct.toFixed(1) + "%");
+    const sub = el("div", "gauge-sub", subtitle);
 
-    card.appendChild(top);
-    card.appendChild(gross);
-    card.appendChild(avgRo);
-    card.appendChild(gp);
+    const body = el("div", "gauge-body");
 
-    container.appendChild(card);
-  });
-}
+    const displayValue = isPercentGauge
+      ? value.toFixed(1) + "%"
+      : value.toFixed(0) + (unitLabel || "");
 
-// ---------------------
-// LEADERBOARD RENDERER
-// ---------------------
-function renderLeaderboards(mtdStats) {
-  const container = byId("leaderboardCards");
-  if (!container) return;
+    const gauge = buildCircleGauge(
+      displayValue,
+      target ? pct.toFixed(0) + "% of target" : "No target",
+      pct,
+      isPercentGauge ? "var(--warning)" : null
+    );
 
-  container.innerHTML = "";
+    const targetEl = el(
+      "div",
+      "gauge-target",
+      target
+        ? `Target: ${isPercentGauge ? target.toFixed(1) + "%" : target.toFixed(0) + (unitLabel || "")}`
+        : "Target: not set"
+    );
 
-  const items = [
-    {
-      title: "Top 5 Gross (MTD)",
-      list: mtdStats.slice().sort((a, b) => b.labourGross - a.labourGross)
-    },
-    {
-      title: "Top 5 Avg RO (MTD)",
-      list: mtdStats.slice().sort((a, b) => b.avgRo - a.avgRo)
-    },
-    {
-      title: "Top 5 GP% (MTD)",
-      list: mtdStats.slice().sort((a, b) => b.gpPct - a.gpPct)
+    body.appendChild(gauge);
+    body.appendChild(targetEl);
+
+    card.appendChild(header);
+    card.appendChild(sub);
+    card.appendChild(body);
+  }
+
+  // ----- MIX BAR -----
+  function renderMixBar(mix) {
+    const bar = byId("mixBar");
+    const label = byId("mixCountsLabel");
+    const legend = byId("mixLegend");
+    const pill = byId("mixStatusPill");
+
+    if (!bar || !label || !legend) return;
+
+    bar.innerHTML = "";
+    legend.innerHTML = "";
+
+    if (!mix.total) {
+      label.textContent = "No MTD data";
+      if (pill) {
+        pill.classList.remove("good", "bad");
+        pill.textContent = "No data";
+      }
+      return;
     }
-  ];
 
-  items.forEach(item => {
-    const card = el("div", "leader-card");
-    const title = el("div", "leader-title", item.title);
-    card.appendChild(title);
+    const segRetail = el("div", "mix-segment mix-retail");
+    segRetail.style.width = mix.retailPct + "%";
+    bar.appendChild(segRetail);
 
-    const ul = el("ul", "leader-list");
+    const segWarranty = el("div", "mix-segment mix-warranty");
+    segWarranty.style.width = mix.warrantyPct + "%";
+    bar.appendChild(segWarranty);
 
-    item.list.slice(0, 5).forEach(a => {
-      const li = el("li", "leader-item");
-      li.textContent =
-        `${a.advisor}: ` +
-        `${item.title.includes("Avg RO") ? formatCurrency(a.avgRo) : ""}` +
-        `${item.title.includes("Gross") ? formatCurrency(a.labourGross) : ""}` +
-        `${item.title.includes("GP%") ? a.gpPct.toFixed(1) + "%" : ""}`;
-      ul.appendChild(li);
+    const segInternal = el("div", "mix-segment mix-internal");
+    segInternal.style.width = mix.internalPct + "%";
+    bar.appendChild(segInternal);
+
+    label.textContent =
+      `Customer ${mix.retail} · Warranty ${mix.warranty} · Internal ${mix.internal} · Total ${mix.total}`;
+
+    const lg1 = el("span");
+    lg1.innerHTML = `<span class="mix-dot" style="background:var(--mix-retail);"></span>Retail (Customer-pay)`;
+    legend.appendChild(lg1);
+
+    const lg2 = el("span");
+    lg2.innerHTML = `<span class="mix-dot" style="background:var(--mix-warranty);"></span>Warranty`;
+    legend.appendChild(lg2);
+
+    const lg3 = el("span");
+    lg3.innerHTML = `<span class="mix-dot" style="background:var(--mix-internal);"></span>Internal`;
+    legend.appendChild(lg3);
+
+    if (pill) {
+      pill.classList.remove("good", "bad");
+      const nonRetailPct = mix.warrantyPct + mix.internalPct;
+      if (nonRetailPct <= (toNumber(settings.nonRetailMaxPct) || 20)) {
+        pill.classList.add("good");
+        pill.textContent = "Mix OK";
+      } else {
+        pill.classList.add("bad");
+        pill.textContent = "Mix high non-retail";
+      }
+    }
+  }
+
+  // ----- ADVISOR CARDS -----
+  function renderAdvisorCards(stats, rankMap) {
+    const container = byId("advisorCards");
+    if (!container) return;
+
+    container.innerHTML = "";
+    if (!stats.length) {
+      container.innerHTML = `<div class="loading">No advisor data for this period.</div>`;
+      return;
+    }
+
+    stats.forEach(a => {
+      const card = el("div", "advisor-card");
+      card.addEventListener("click", () => {
+        openAdvisorInsights(a, rankMap);
+      });
+
+      const header = el("div", "advisor-header");
+      const name = el("div", "advisor-name", a.advisor);
+      const rank = el("div", "advisor-rank", "#" + (rankMap[a.advisor] || "-"));
+      header.appendChild(name);
+      header.appendChild(rank);
+
+      const chips = el("div", "chip-row");
+      const chipGross = el("div", "chip", "Gross " + formatCurrency(a.labourGross));
+      const chipAvgRo = el("div", "chip", "Avg RO " + formatCurrency(a.avgRo));
+      const chipGp = el("div", "chip", "GP " + a.gpPct.toFixed(1) + "%");
+      const chipLeak = el("div", "chip", "Leakage " + a.leakagePct.toFixed(1) + "%");
+
+      chips.appendChild(chipGross);
+      chips.appendChild(chipAvgRo);
+      chips.appendChild(chipGp);
+      chips.appendChild(chipLeak);
+
+      card.appendChild(header);
+      card.appendChild(chips);
+
+      container.appendChild(card);
+    });
+  }
+
+  // ----- LEADERBOARDS (MAIN GRID + SIDE PANEL) -----
+  function renderLeaderboards(mtdStats) {
+    const grid = byId("leaderboardCards");
+    const panelBody = byId("leaderboardPanelBody");
+    if (!grid) return;
+
+    grid.innerHTML = "";
+
+    if (!mtdStats.length) {
+      grid.innerHTML =
+        `<div class="lb-card"><div class="lb-title">Leaderboards</div><div class="loading">No data loaded.</div></div>`;
+      if (panelBody) {
+        panelBody.innerHTML = `<div class="loading">No data loaded.</div>`;
+      }
+      return;
+    }
+
+    const clones = mtdStats.slice();
+
+    const cards = [
+      {
+        title: "Top 5 Labour Gross (MTD)",
+        list: clones.slice().sort((a, b) => b.labourGross - a.labourGross),
+        format: a => formatCurrency(a.labourGross)
+      },
+      {
+        title: "Top 5 Avg RO (MTD)",
+        list: clones.slice().sort((a, b) => b.avgRo - a.avgRo),
+        format: a => formatCurrency(a.avgRo)
+      },
+      {
+        title: "Top 5 GP% (MTD)",
+        list: clones.slice().sort((a, b) => b.gpPct - a.gpPct),
+        format: a => a.gpPct.toFixed(1) + "%"
+      }
+    ];
+
+    cards.forEach(cardData => {
+      const card = el("div", "lb-card");
+      const title = el("div", "lb-title", cardData.title);
+      card.appendChild(title);
+
+      cardData.list.slice(0, 5).forEach((a, idx) => {
+        const row = el("div", "lb-row");
+        const left = el("span", "", `${idx + 1}. ${a.advisor}`);
+        const right = el("span", "", cardData.format(a));
+        row.appendChild(left);
+        row.appendChild(right);
+        card.appendChild(row);
+      });
+
+      grid.appendChild(card);
     });
 
-    card.appendChild(ul);
-    container.appendChild(card);
-  });
-}
+    if (panelBody) {
+      panelBody.innerHTML = "";
 
-// ---------------------
-// ADVISOR INSIGHTS MODAL
-// ---------------------
-function openAdvisorInsights(a, rankMap) {
-  const modal = byId("advisorModal");
-  const body = byId("advisorModalBody");
-  const dateLbl = byId("modalDateLabel");
-  const closeBtn = byId("advisorModalClose");
+      const heading = el("div", "lb-title", "Full advisor list (by gross)");
+      panelBody.appendChild(heading);
 
-  if (!modal || !body) return;
-
-  body.innerHTML = `
-    <div><strong>${a.advisor}</strong></div>
-    <div>Rank: #${rankMap[a.advisor] || "-"}</div>
-    <div>Total Gross: ${formatCurrency(a.labourGross)}</div>
-    <div>Avg RO: ${formatCurrency(a.avgRo)}</div>
-    <div>GP%: ${a.gpPct.toFixed(1)}%</div>
-    <div>Hours Ratio: ${(a.hoursRatio * 100).toFixed(1)}%</div>
-    <div>Leakage: ${a.leakagePct.toFixed(1)}%</div>
-  `;
-
-  modal.classList.remove("hidden");
-
-  if (closeBtn) {
-    closeBtn.onclick = () => modal.classList.add("hidden");
+      clones
+        .sort((a, b) => b.labourGross - a.labourGross)
+        .forEach((a, idx) => {
+          const row = el("div", "lb-row");
+          const left = el("span", "", `${idx + 1}. ${a.advisor}`);
+          const right = el(
+            "span",
+            "",
+            `${formatCurrency(a.labourGross)} · Avg RO ${formatCurrency(a.avgRo)} · GP ${a.gpPct.toFixed(1)}%`
+          );
+          row.appendChild(left);
+          row.appendChild(right);
+          panelBody.appendChild(row);
+        });
+    }
   }
 
-  // Close on background click
-  modal.addEventListener("click", e => {
-    if (e.target === modal) modal.classList.add("hidden");
-  });
-}
+  // ----- ADVISOR INSIGHTS MODAL (PER ADVISOR) -----
+  function openAdvisorInsights(a, rankMap) {
+    const modal = byId("advisorModal");
+    const body = byId("advisorModalBody");
+    const dateLbl = byId("modalDateLabel");
+    const closeBtn = byId("advisorModalClose");
 
-</script>
-<script>
-// ======================================================
-// BLOCK 4 — APP ENGINE (LOAD + FILTER + RENDER)
-// ======================================================
+    if (!modal || !body) return;
 
-// ---------- RENDER DASHBOARD FROM STATE ----------
+    const today = state.filters.date || new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, "0");
+    const d = String(today.getDate()).padStart(2, "0");
+    if (dateLbl) dateLbl.textContent = `${d}/${m}/${y}`;
 
-function renderDashboard() {
-  const todaySummaryEl = byId("todaySummary");
-  const mtdSummaryEl   = byId("mtdSummary");
+    body.innerHTML = `
+      <div><strong>${a.advisor}</strong></div>
+      <div>Rank: #${rankMap[a.advisor] || "-"}</div>
+      <div>Total Gross: ${formatCurrency(a.labourGross)}</div>
+      <div>Avg RO: ${formatCurrency(a.avgRo)}</div>
+      <div>GP%: ${a.gpPct.toFixed(1)}%</div>
+      <div>Hours Ratio: ${(a.hoursRatio * 100).toFixed(1)}%</div>
+      <div>Leakage: ${a.leakagePct.toFixed(1)}%</div>
+      <hr style="border:0;border-top:1px solid rgba(31,41,55,0.8);margin:6px 0;" />
+      <p style="margin-top:4px;">
+        Use this as a coaching conversation: celebrate today's wins, then align on 1–2 specific actions
+        (follow-up calls, upsell scripts, better RO story, etc.).
+      </p>
+    `;
 
-  if (!state.loaded || !state.rows.length) {
-    if (todaySummaryEl) todaySummaryEl.textContent = "CSV not loaded.";
-    if (mtdSummaryEl)   mtdSummaryEl.textContent   = "CSV not loaded.";
+    modal.classList.remove("hidden");
 
-    // Clear gauges / cards
-    ["todayLabourGauge","todayAvgRoGauge","todayHoursGauge",
-     "mtdLabourGauge","mtdAvgRoGauge","mtdGpGauge"].forEach(id => {
-      const c = byId(id);
-      if (c) c.innerHTML = "";
+    if (closeBtn) {
+      closeBtn.onclick = () => modal.classList.add("hidden");
+    }
+
+    modal.addEventListener("click", e => {
+      if (e.target === modal) modal.classList.add("hidden");
+    });
+  }
+  </script>
+  <script>
+  // ======================================================
+  // BLOCK 4 — APP ENGINE (LOAD + FILTER + RENDER)
+  // ======================================================
+
+  function renderDashboard() {
+    const todaySummaryEl = byId("todaySummary");
+    const mtdSummaryEl = byId("mtdSummary");
+
+    if (!state.loaded || !state.rows.length) {
+      if (todaySummaryEl) todaySummaryEl.textContent = "CSV not loaded.";
+      if (mtdSummaryEl) mtdSummaryEl.textContent = "CSV not loaded.";
+
+      ["todayGaugeLabour", "todayGaugeAvgRo", "todayGaugeHours",
+       "mtdGaugeLabour", "mtdGaugeAvgRo", "mtdGaugeGp"].forEach(id => {
+        const c = byId(id);
+        if (c) c.querySelector(".circle-gauge-value").textContent = "$0";
+      });
+
+      const advisorCards = byId("advisorCards");
+      const leaderboardCards = byId("leaderboardCards");
+      if (advisorCards) advisorCards.innerHTML = `<div class="loading">Awaiting CSV…</div>`;
+      if (leaderboardCards) leaderboardCards.innerHTML = "";
+      return;
+    }
+
+    const today = computeTodayMetrics();
+    const mtd = computeMtdMetrics();
+    const mixRaw = computeMtdMixAllAdvisors();
+
+    if (todaySummaryEl) {
+      const avgRoToday = today.roCount ? today.totalGross / today.roCount : 0;
+      todaySummaryEl.textContent =
+        `ROs: ${today.roCount} · Gross: ${formatCurrency(today.totalGross)} · Avg RO: ${formatCurrency(avgRoToday)}`;
+    }
+
+    if (mtdSummaryEl) {
+      const avgRoMtd = mtd.roCount ? mtd.totalGross / mtd.roCount : 0;
+      mtdSummaryEl.textContent =
+        `MTD ROs: ${mtd.roCount} · Gross: ${formatCurrency(mtd.totalGross)} · Avg RO: ${formatCurrency(avgRoMtd)} · GP ${mtd.gpPct.toFixed(1)}%`;
+    }
+
+    const todayAvgRo = today.roCount ? today.totalGross / today.roCount : 0;
+    const todayHoursRat = today.clockedHrs ? (today.chargedHrs / today.clockedHrs) : 0;
+    const mtdAvgRo = mtd.roCount ? mtd.totalGross / mtd.roCount : 0;
+
+    renderGaugeCurrency(
+      "todayGaugeLabour",
+      "Today Labour Gross",
+      "All advisors · closed ROs",
+      today.totalGross,
+      toNumber(settings.dailyLabourTarget)
+    );
+
+    renderGaugeCurrency(
+      "mtdGaugeLabour",
+      "MTD Labour Gross",
+      "All advisors · MTD closed ROs",
+      mtd.totalGross,
+      toNumber(settings.mtdLabourTarget)
+    );
+
+    renderGaugeNumber(
+      "todayGaugeAvgRo",
+      "Today Avg RO",
+      "Approx labour per RO",
+      todayAvgRo || 0,
+      toNumber(settings.dailyAvgRoTarget),
+      "",
+      false
+    );
+
+    renderGaugeNumber(
+      "mtdGaugeAvgRo",
+      "MTD Avg RO",
+      "Approx labour per RO · month",
+      mtdAvgRo || 0,
+      toNumber(settings.mtdAvgRoTarget),
+      "",
+      false
+    );
+
+    renderGaugeNumber(
+      "todayGaugeHours",
+      "Hours Sold / Clocked",
+      "Technician hours for today",
+      (todayHoursRat * 100) || 0,
+      (toNumber(settings.dailyHoursRatioTarget) || 1) * 100,
+      "%",
+      true
+    );
+
+    renderGaugeNumber(
+      "mtdGaugeGp",
+      "MTD GP%",
+      "Margin on labour gross",
+      mtd.gpPct || 0,
+      toNumber(settings.mtdGpPctTarget) || 80,
+      "%",
+      true
+    );
+
+    const mix = {
+      retail: mixRaw.retail,
+      warranty: mixRaw.warranty,
+      internal: mixRaw.internal,
+      total: mixRaw.total,
+      retailPct: mixRaw.retailPct,
+      warrantyPct: mixRaw.warrantyPct,
+      internalPct: mixRaw.internalPct
+    };
+    renderMixBar(mix);
+
+    const decoratedMtdStats = mtd.advisorStats.map(a => {
+      const leakagePct = a.hoursRatio ? (1 - a.hoursRatio) * 100 : 0;
+      return { ...a, leakagePct };
     });
 
-    const advisorCards = byId("advisorCards");
-    const leaderboardCards = byId("leaderboardCards");
-    if (advisorCards) advisorCards.innerHTML = `<div class="loading">Awaiting CSV…</div>`;
-    if (leaderboardCards) leaderboardCards.innerHTML = "";
-    return;
-  }
-
-  // Core metrics
-  const today = computeTodayMetrics();
-  const mtd   = computeMtdMetrics();
-  const mixRaw = computeMtdMixAllAdvisors();
-
-  // --- TODAY SUMMARY LINE ---
-  if (todaySummaryEl) {
-    const avgRoToday = today.roCount ? today.totalGross / today.roCount : 0;
-    todaySummaryEl.textContent =
-      `ROs: ${today.roCount} · Gross: ${formatCurrency(today.totalGross)} · Avg RO: ${formatCurrency(avgRoToday)}`;
-  }
-
-  // --- MTD SUMMARY LINE ---
-  if (mtdSummaryEl) {
-    const avgRoMtd = mtd.roCount ? mtd.totalGross / mtd.roCount : 0;
-    mtdSummaryEl.textContent =
-      `MTD ROs: ${mtd.roCount} · Gross: ${formatCurrency(mtd.totalGross)} · Avg RO: ${formatCurrency(avgRoMtd)}`;
-  }
-
-  // ---------- GAUGES ----------
-
-  // TODAY
-  const todayAvgRo    = today.roCount ? today.totalGross / today.roCount : 0;
-  const todayHoursRat = today.clockedHrs ? (today.chargedHrs / today.clockedHrs) : 0;
-
-  renderGaugeCard(
-    "todayLabourGauge",
-    "Today Labour Gross",
-    today.totalGross,
-    toNumber(settings.dailyLabourTarget)
-  );
-
-  renderGaugeCardNumber(
-    "todayAvgRoGauge",
-    "Today Avg RO",
-    todayAvgRo || 0,
-    toNumber(settings.dailyAvgRoTarget),
-    ""
-  );
-
-  renderGaugeCardNumber(
-    "todayHoursGauge",
-    "Hours Sold / Clocked",
-    todayHoursRat * 100 || 0,
-    (toNumber(settings.dailyHoursRatioTarget) || 1) * 100,
-    "%"
-  );
-
-  // MTD
-  const mtdAvgRo = mtd.roCount ? mtd.totalGross / mtd.roCount : 0;
-
-  renderGaugeCard(
-    "mtdLabourGauge",
-    "MTD Labour Gross",
-    mtd.totalGross,
-    toNumber(settings.mtdLabourTarget)
-  );
-
-  renderGaugeCardNumber(
-    "mtdAvgRoGauge",
-    "MTD Avg RO",
-    mtdAvgRo || 0,
-    toNumber(settings.mtdAvgRoTarget),
-    ""
-  );
-
-  renderGaugeCardNumber(
-    "mtdGpGauge",
-    "MTD GP%",
-    mtd.gpPct || 0,
-    toNumber(settings.mtdGpPctTarget) || 80,
-    "%"
-  );
-
-  // ---------- MIX BAR (C/W/I) ----------
-
-  const mix = {
-    retail:      mixRaw.retailCount,
-    warranty:    mixRaw.warrantyCount,
-    internal:    mixRaw.internalCount,
-    total:       mixRaw.total,
-    retailPct:   mixRaw.retailPct,
-    warrantyPct: mixRaw.warrantyPct,
-    internalPct: mixRaw.internalPct
-  };
-  renderMixBar(mix);
-
-  // ---------- ADVISOR STATS + LEADERBOARDS ----------
-
-  // Decorate advisor stats with leakagePct so Block 3 can use it
-  const decoratedMtdStats = mtd.advisorStats.map(a => {
-    const leakagePct = a.hoursRatio ? (1 - a.hoursRatio) * 100 : 0;
-    return { ...a, leakagePct };
-  });
-
-  renderAdvisorCards(decoratedMtdStats, mtd.rankMap || {});
-  renderLeaderboards(decoratedMtdStats);
-
-  // Update status pill if everything is valid
-  const statusTotal = byId("statusTotal");
-  if (statusTotal) {
-    statusTotal.classList.remove("bad");
-    statusTotal.classList.add("good");
-    statusTotal.innerHTML =
-      '<span class="status-dot"></span><span>CSV loaded · ' +
-      decoratedMtdStats.length +
-      ' advisor(s)</span>';
-  }
-}
-
-// ---------- CSV INGESTION ----------
-
-function ingestCsvRows(rows) {
-  // Basic clean – keep rows with an InvoiceID or Advisor Name
-  const clean = (rows || []).filter(r =>
-    r && (r["InvoiceID"] || r["Advisor Name"])
-  );
-
-  state.rows   = clean;
-  state.loaded = clean.length > 0;
-  state.error  = null;
-
-  // Refresh date bounds + advisor list
-  initDateFromData();
-  initAdvisorFilter();
-
-  renderDashboard();
-}
-
-// Parse CSV text via Papa
-function parseCsvText(text) {
-  try {
-    const result = Papa.parse(text, {
-      header: true,
-      dynamicTyping: false,
-      skipEmptyLines: true
-    });
-    ingestCsvRows(result.data || []);
-  } catch (e) {
-    console.error("CSV parse error", e);
-    state.loaded = false;
-    state.error = "Failed to parse CSV";
+    renderAdvisorCards(decoratedMtdStats, mtd.rankMap || {});
+    renderLeaderboards(decoratedMtdStats);
 
     const statusTotal = byId("statusTotal");
-    if (statusTotal) {
-      statusTotal.classList.remove("good");
-      statusTotal.classList.add("bad");
-      statusTotal.innerHTML =
-        '<span class="status-dot"></span><span>Failed to parse CSV</span>';
-    }
-  }
-}
-
-// File upload handler
-function handleFileUpload(file) {
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => parseCsvText(e.target.result);
-  reader.onerror = () => {
-    console.error("File read failed");
-    const statusTotal = byId("statusTotal");
-    if (statusTotal) {
-      statusTotal.classList.remove("good");
-      statusTotal.classList.add("bad");
-      statusTotal.innerHTML =
-        '<span class="status-dot"></span><span>Error reading file</span>';
-    }
-  };
-  reader.readAsText(file);
-}
-
-// Online CSV load
-async function loadOnlineCsv() {
-  const urlInput   = byId("onlineCsvUrl");
-  const onlineStat = byId("onlineStatus");
-  const statusTotal = byId("statusTotal");
-
-  const url = urlInput ? urlInput.value.trim() : "";
-  if (!url) {
-    if (onlineStat) onlineStat.textContent = "Please enter a CSV URL.";
-    return;
-  }
-
-  if (onlineStat) onlineStat.textContent = "Loading online CSV…";
-
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const text = await res.text();
-
-    // Save URL to settings on success
-    settings.onlineCsvUrl = url;
-    saveSettings();
-
-    parseCsvText(text);
-
-    if (onlineStat) onlineStat.textContent = "Online CSV loaded OK.";
     if (statusTotal) {
       statusTotal.classList.remove("bad");
       statusTotal.classList.add("good");
       statusTotal.innerHTML =
-        '<span class="status-dot"></span><span>CSV loaded from online ✔</span>';
-    }
-  } catch (e) {
-    console.error("Online CSV load failed", e);
-    if (onlineStat) onlineStat.textContent = "Failed to load online CSV.";
-    if (statusTotal) {
-      statusTotal.classList.remove("good");
-      statusTotal.classList.add("bad");
-      statusTotal.innerHTML =
-        '<span class="status-dot"></span><span>Online load failed</span>';
+        '<span class="status-dot"></span><span>CSV loaded · ' +
+        decoratedMtdStats.length +
+        ' advisor(s)</span>';
     }
   }
-}
 
-// ---------- GLOBAL INSIGHTS (BUTTON) ----------
+  // ---------- CSV INGESTION ----------
+  function ingestCsvRows(rows) {
+    const clean = (rows || []).filter(r =>
+      r && (r["InvoiceID"] || r["Advisor Name"])
+    );
 
-function openGlobalInsights() {
-  const modal   = byId("advisorModal");
-  const body    = byId("advisorModalBody");
-  const closeBtn = byId("advisorModalClose");
+    state.rows = clean;
+    state.loaded = clean.length > 0;
+    state.error = null;
 
-  if (!modal || !body) return;
-  if (!state.loaded || !state.rows.length) {
-    body.innerHTML = "<p>Load CSV to see insights.</p>";
-  } else {
-    const today = computeTodayMetrics();
-    const mtd   = computeMtdMetrics();
-    const mix   = computeMtdMixAllAdvisors();
+    initDateFromData();
+    initAdvisorFilter();
 
-    const todayAvg = today.roCount ? today.totalGross / today.roCount : 0;
-    const mtdAvg   = mtd.roCount   ? mtd.totalGross   / mtd.roCount   : 0;
-
-    const lines = [];
-
-    // Gross vs targets
-    if (toNumber(settings.dailyLabourTarget)) {
-      if (today.totalGross >= toNumber(settings.dailyLabourTarget)) {
-        lines.push(`• Today is on or above target – ${formatCurrency(today.totalGross)} vs daily target ${formatCurrency(settings.dailyLabourTarget)}.`);
-      } else {
-        lines.push(`• Today is behind gross target – ${formatCurrency(today.totalGross)} vs daily target ${formatCurrency(settings.dailyLabourTarget)}.`);
-      }
-    }
-
-    if (toNumber(settings.mtdLabourTarget)) {
-      if (mtd.totalGross >= toNumber(settings.mtdLabourTarget)) {
-        lines.push(`• MTD gross is on/above target – ${formatCurrency(mtd.totalGross)} vs MTD target ${formatCurrency(settings.mtdLabourTarget)}.`);
-      } else {
-        lines.push(`• MTD gross is behind – ${formatCurrency(mtd.totalGross)} vs target ${formatCurrency(settings.mtdLabourTarget)}.`);
-      }
-    }
-
-    // Mix comments
-    if (mix.total) {
-      if (mix.retailPct < 50) {
-        lines.push(`• Retail mix soft – customer ROs ${mix.retailPct.toFixed(1)}% of total. Push customer-pay opportunities & declined work.`);
-      }
-      if (mix.warrantyPct > 25) {
-        lines.push(`• Warranty share high at ${mix.warrantyPct.toFixed(1)}%. Check coding and ensure warranty isn't crowding out retail.`);
-      }
-      if (mix.internalPct > 20) {
-        lines.push(`• Internal ROs ${mix.internalPct.toFixed(1)}%. Watch that reconditioning isn't consuming prime capacity.`);
-      }
-    }
-
-    if (!lines.length) {
-      lines.push("• Performance steady. Maintain rhythm and follow-up discipline.");
-    }
-
-    body.innerHTML = `
-      <h2>Service Department – Insights</h2>
-      <p><strong>Today:</strong> ${today.roCount} ROs · ${formatCurrency(today.totalGross)} · Avg RO ${formatCurrency(todayAvg)}</p>
-      <p><strong>Month-to-date:</strong> ${mtd.roCount} ROs · ${formatCurrency(mtd.totalGross)} · Avg RO ${formatCurrency(mtdAvg)} · GP% ${mtd.gpPct.toFixed(1)}%</p>
-      <h3>Highlights</h3>
-      <p>${lines.join("<br>")}</p>
-    `;
+    renderDashboard();
   }
 
-  modal.classList.remove("hidden");
-  if (closeBtn) closeBtn.onclick = () => modal.classList.add("hidden");
-  modal.addEventListener("click", e => {
-    if (e.target === modal) modal.classList.add("hidden");
+  function parseCsvText(text) {
+    try {
+      const result = Papa.parse(text, {
+        header: true,
+        dynamicTyping: false,
+        skipEmptyLines: true
+      });
+      ingestCsvRows(result.data || []);
+    } catch (e) {
+      console.error("CSV parse error", e);
+      state.loaded = false;
+      state.error = "Failed to parse CSV";
+
+      const statusTotal = byId("statusTotal");
+      if (statusTotal) {
+        statusTotal.classList.remove("good");
+        statusTotal.classList.add("bad");
+        statusTotal.innerHTML =
+          '<span class="status-dot"></span><span>Failed to parse CSV</span>';
+      }
+    }
+  }
+
+  function handleFileUpload(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => parseCsvText(e.target.result);
+    reader.onerror = () => {
+      console.error("File read failed");
+      const statusTotal = byId("statusTotal");
+      if (statusTotal) {
+        statusTotal.classList.remove("good");
+        statusTotal.classList.add("bad");
+        statusTotal.innerHTML =
+          '<span class="status-dot"></span><span>Error reading file</span>';
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  async function loadOnlineCsv() {
+    const urlInput = byId("onlineCsvUrl");
+    const onlineStat = byId("onlineStatus");
+    const statusTotal = byId("statusTotal");
+
+    const url = urlInput ? urlInput.value.trim() : "";
+    if (!url) {
+      if (onlineStat) onlineStat.textContent = "Please enter a CSV URL.";
+      return;
+    }
+
+    if (onlineStat) onlineStat.textContent = "Loading online CSV…";
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const text = await res.text();
+
+      settings.onlineCsvUrl = url;
+      saveSettings();
+
+      parseCsvText(text);
+
+      if (onlineStat) onlineStat.textContent = "Online CSV loaded OK.";
+      if (statusTotal) {
+        statusTotal.classList.remove("bad");
+        statusTotal.classList.add("good");
+        statusTotal.innerHTML =
+          '<span class="status-dot"></span><span>CSV loaded from online ✔</span>';
+      }
+    } catch (e) {
+      console.error("Online CSV load failed", e);
+      if (onlineStat) onlineStat.textContent = "Failed to load online CSV.";
+      if (statusTotal) {
+        statusTotal.classList.remove("good");
+        statusTotal.classList.add("bad");
+        statusTotal.innerHTML =
+          '<span class="status-dot"></span><span>Online load failed</span>';
+      }
+    }
+  }
+
+  // ---------- GLOBAL INSIGHTS ----------
+  function openGlobalInsights() {
+    const modal = byId("advisorModal");
+    const body = byId("advisorModalBody");
+    const dateLbl = byId("modalDateLabel");
+    const closeBtn = byId("advisorModalClose");
+
+    if (!modal || !body) return;
+
+    const today = state.filters.date || new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, "0");
+    const d = String(today.getDate()).padStart(2, "0");
+    if (dateLbl) dateLbl.textContent = `${d}/${m}/${y}`;
+
+    if (!state.loaded || !state.rows.length) {
+      body.innerHTML = "<p>Load CSV to see insights.</p>";
+    } else {
+      const todayM = computeTodayMetrics();
+      const mtd = computeMtdMetrics();
+      const mix = computeMtdMixAllAdvisors();
+
+      const todayAvg = todayM.roCount ? todayM.totalGross / todayM.roCount : 0;
+      const mtdAvg = mtd.roCount ? mtd.totalGross / mtd.roCount : 0;
+
+      const lines = [];
+
+      if (toNumber(settings.dailyLabourTarget)) {
+        if (todayM.totalGross >= toNumber(settings.dailyLabourTarget)) {
+          lines.push(`• Today is on or above target – ${formatCurrency(todayM.totalGross)} vs daily target ${formatCurrency(settings.dailyLabourTarget)}.`);
+        } else {
+          lines.push(`• Today is behind gross target – ${formatCurrency(todayM.totalGross)} vs daily target ${formatCurrency(settings.dailyLabourTarget)}.`);
+        }
+      }
+
+      if (toNumber(settings.mtdLabourTarget)) {
+        if (mtd.totalGross >= toNumber(settings.mtdLabourTarget)) {
+          lines.push(`• MTD gross is on/above target – ${formatCurrency(mtd.totalGross)} vs MTD target ${formatCurrency(settings.mtdLabourTarget)}.`);
+        } else {
+          lines.push(`• MTD gross is behind – ${formatCurrency(mtd.totalGross)} vs target ${formatCurrency(settings.mtdLabourTarget)}.`);
+        }
+      }
+
+      if (mix.total) {
+        if (mix.retailPct < 50) {
+          lines.push(`• Retail mix soft – customer ROs ${mix.retailPct.toFixed(1)}% of total. Push customer-pay opportunities & declined work.`);
+        }
+        if (mix.warrantyPct > 25) {
+          lines.push(`• Warranty share high at ${mix.warrantyPct.toFixed(1)}%. Check coding and ensure warranty isn't crowding out retail.`);
+        }
+        if (mix.internalPct > 20) {
+          lines.push(`• Internal ROs ${mix.internalPct.toFixed(1)}%. Watch that reconditioning isn't consuming prime capacity.`);
+        }
+      }
+
+      if (!lines.length) {
+        lines.push("• Performance steady. Maintain rhythm and follow-up discipline.");
+      }
+
+      body.innerHTML = `
+        <h3>Service Department – Insights</h3>
+        <p><strong>Today:</strong> ${todayM.roCount} ROs · ${formatCurrency(todayM.totalGross)} · Avg RO ${formatCurrency(todayAvg)}</p>
+        <p><strong>Month-to-date:</strong> ${mtd.roCount} ROs · ${formatCurrency(mtd.totalGross)} · Avg RO ${formatCurrency(mtdAvg)} · GP% ${mtd.gpPct.toFixed(1)}%</p>
+        <h3>Highlights</h3>
+        <p>${lines.join("<br>")}</p>
+      `;
+    }
+
+    modal.classList.remove("hidden");
+    if (closeBtn) closeBtn.onclick = () => modal.classList.add("hidden");
+    modal.addEventListener("click", e => {
+      if (e.target === modal) modal.classList.add("hidden");
+    });
+  }
+
+  // ---------- SETTINGS UI BINDING ----------
+  function syncSettingsToInputs() {
+    const map = {
+      dailyLabourTarget: "dailyLabourTarget",
+      dailyAvgRoTarget: "dailyAvgRoTarget",
+      dailyHoursRatioTarget: "dailyHoursRatioTarget",
+      mtdLabourTarget: "mtdLabourTarget",
+      mtdAvgRoTarget: "mtdAvgRoTarget",
+      mtdGpPctTarget: "mtdGpPctTarget",
+      nonRetailMaxPct: "nonRetailMaxPct"
+    };
+
+    Object.keys(map).forEach(key => {
+      const el = byId(map[key]);
+      if (el) el.value = settings[key] ?? "";
+    });
+
+    const modeSel = byId("dataSourceMode");
+    if (modeSel) modeSel.value = settings.dataSourceMode || "online";
+
+    const urlArea = byId("settingsOnlineUrl");
+    if (urlArea) urlArea.value = settings.onlineCsvUrl || "";
+  }
+
+  function readSettingsFromInputs() {
+    settings.dailyLabourTarget = toNumber(byId("dailyLabourTarget")?.value);
+    settings.dailyAvgRoTarget = toNumber(byId("dailyAvgRoTarget")?.value);
+    settings.dailyHoursRatioTarget = parseFloat(byId("dailyHoursRatioTarget")?.value || 0) || 1.0;
+
+    settings.mtdLabourTarget = toNumber(byId("mtdLabourTarget")?.value);
+    settings.mtdAvgRoTarget = toNumber(byId("mtdAvgRoTarget")?.value);
+    settings.mtdGpPctTarget = parseFloat(byId("mtdGpPctTarget")?.value || 0) || 80;
+
+    settings.nonRetailMaxPct = parseFloat(byId("nonRetailMaxPct")?.value || 0) || 20;
+
+    const modeSel = byId("dataSourceMode");
+    if (modeSel) settings.dataSourceMode = modeSel.value || "online";
+
+    const urlArea = byId("settingsOnlineUrl");
+    if (urlArea && urlArea.value.trim()) {
+      settings.onlineCsvUrl = urlArea.value.trim();
+      const onlineInput = byId("onlineCsvUrl");
+      if (onlineInput) onlineInput.value = settings.onlineCsvUrl;
+    }
+  }
+
+  // ---------- INIT / EVENT WIRING ----------
+  document.addEventListener("DOMContentLoaded", () => {
+    loadSettings();
+    syncSettingsToInputs();
+
+    const onlineInput = byId("onlineCsvUrl");
+    if (onlineInput && settings.onlineCsvUrl) {
+      onlineInput.value = settings.onlineCsvUrl;
+    }
+
+    const fileInput = byId("fileInput");
+    const btnUpload = byId("btnUpload");
+    const btnOnlineLoad = byId("btnOnlineLoad");
+    const reloadOnline = byId("reloadOnlineBtn");
+    const advisorFilter = byId("advisorFilter");
+    const datePicker = byId("datePicker");
+    const insightsBtn = byId("insightsBtn");
+    const leaderboardToggle = byId("leaderboardToggle");
+    const closeLeaderboard = byId("closeLeaderboard");
+
+    if (btnUpload && fileInput) {
+      btnUpload.addEventListener("click", () => fileInput.click());
+    }
+
+    if (fileInput) {
+      fileInput.addEventListener("change", () => {
+        if (fileInput.files && fileInput.files[0]) {
+          handleFileUpload(fileInput.files[0]);
+        }
+      });
+    }
+
+    if (btnOnlineLoad) {
+      btnOnlineLoad.addEventListener("click", () => {
+        loadOnlineCsv();
+      });
+    }
+
+    if (reloadOnline) {
+      reloadOnline.addEventListener("click", () => {
+        loadOnlineCsv();
+      });
+    }
+
+    if (advisorFilter) {
+      advisorFilter.addEventListener("change", () => {
+        state.filters.advisor = advisorFilter.value || "all";
+        if (state.loaded) renderDashboard();
+      });
+    }
+
+    if (datePicker) {
+      datePicker.addEventListener("change", () => {
+        if (datePicker.value) {
+          const d = new Date(datePicker.value);
+          state.filters.date = new Date(
+            d.getFullYear(),
+            d.getMonth(),
+            d.getDate()
+          );
+        } else {
+          state.filters.date = null;
+        }
+        if (state.loaded) renderDashboard();
+      });
+    }
+
+    if (insightsBtn) {
+      insightsBtn.addEventListener("click", openGlobalInsights);
+    }
+
+    const tabs = document.querySelectorAll(".top-tab");
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        tabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+
+        const page = tab.getAttribute("data-page");
+        const dash = byId("page-dashboard");
+        const settingsPage = byId("page-settings");
+        if (page === "dashboard") {
+          dash && dash.classList.remove("hidden");
+          settingsPage && settingsPage.classList.add("hidden");
+        } else {
+          dash && dash.classList.add("hidden");
+          settingsPage && settingsPage.classList.remove("hidden");
+        }
+      });
+    });
+
+    const btnSaveSettings = byId("btnSaveSettings");
+    const btnResetSettings = byId("btnResetSettings");
+
+    if (btnSaveSettings) {
+      btnSaveSettings.addEventListener("click", () => {
+        readSettingsFromInputs();
+        saveSettings();
+        if (state.loaded) renderDashboard();
+      });
+    }
+
+    if (btnResetSettings) {
+      btnResetSettings.addEventListener("click", () => {
+        settings = { ...defaultSettings };
+        saveSettings();
+        syncSettingsToInputs();
+        if (state.loaded) renderDashboard();
+      });
+    }
+
+    if (leaderboardToggle) {
+      leaderboardToggle.addEventListener("click", () => {
+        const panel = byId("leaderboardPanel");
+        if (!panel) return;
+        panel.classList.remove("hidden");
+      });
+    }
+
+    if (closeLeaderboard) {
+      closeLeaderboard.addEventListener("click", () => {
+        const panel = byId("leaderboardPanel");
+        if (!panel) return;
+        panel.classList.add("hidden");
+      });
+    }
+
+    const panel = byId("leaderboardPanel");
+    if (panel) {
+      panel.addEventListener("click", e => {
+        if (e.target === panel) panel.classList.add("hidden");
+      });
+    }
+
+    // Optional: auto-load on open if mode = online
+    if (settings.dataSourceMode === "online" && settings.onlineCsvUrl) {
+      loadOnlineCsv();
+    }
   });
-}
-
-// ---------- INIT / EVENT WIRING ----------
-
-document.addEventListener("DOMContentLoaded", () => {
-  // Load saved settings
-  loadSettings();
-
-  // Pre-fill online URL field from settings
-  const urlInput = byId("onlineCsvUrl");
-  if (urlInput && settings.onlineCsvUrl) {
-    urlInput.value = settings.onlineCsvUrl;
-  }
-
-  const fileInput      = byId("fileInput");
-  const btnUpload      = byId("btnUpload");
-  const btnOnlineLoad  = byId("btnOnlineLoad");
-  const reloadOnline   = byId("reloadOnlineBtn");
-  const advisorFilter  = byId("advisorFilter");
-  const datePicker     = byId("datePicker");
-  const insightsBtn    = byId("insightsBtn");
-
-  // Upload button opens file dialog
-  if (btnUpload && fileInput) {
-    btnUpload.addEventListener("click", () => fileInput.click());
-  }
-
-  // File selected
-  if (fileInput) {
-    fileInput.addEventListener("change", () => {
-      if (fileInput.files && fileInput.files[0]) {
-        handleFileUpload(fileInput.files[0]);
-      }
-    });
-  }
-
-  // Online CSV load (bottom bar)
-  if (btnOnlineLoad) {
-    btnOnlineLoad.addEventListener("click", () => {
-      loadOnlineCsv();
-    });
-  }
-
-  // Reload Online Data (header)
-  if (reloadOnline) {
-    reloadOnline.addEventListener("click", () => {
-      loadOnlineCsv();
-    });
-  }
-
-  // Advisor filter
-  if (advisorFilter) {
-    advisorFilter.addEventListener("change", () => {
-      state.filters.advisor = advisorFilter.value || "all";
-      if (state.loaded) renderDashboard();
-    });
-  }
-
-  // Date filter
-  if (datePicker) {
-    datePicker.addEventListener("change", () => {
-      if (datePicker.value) {
-        const d = new Date(datePicker.value);
-        state.filters.date = new Date(
-          d.getFullYear(),
-          d.getMonth(),
-          d.getDate()
-        );
-      } else {
-        state.filters.date = null;
-      }
-      if (state.loaded) renderDashboard();
-    });
-  }
-
-  // Insights button
-  if (insightsBtn) {
-    insightsBtn.addEventListener("click", openGlobalInsights);
-  }
-
-  // If you want auto-load from Google on open, uncomment:
-  // if (settings.onlineCsvUrl) {
-  //   loadOnlineCsv();
-  // }
-});
-</script>
+  </script>
+</body>
+</html>
