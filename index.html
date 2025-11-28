@@ -5,7 +5,7 @@
   <title>Advisor Performance – Service Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- PapaParse for CSV loading -->
+  <!-- PapaParse for CSV loading (used in later blocks) -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <style>
@@ -13,7 +13,7 @@
       --bg: #050510;
       --bg-alt: #0b0b1a;
       --card: #111827;
-      --card-soft: radial-gradient(circle at top left, #1f2937 0, #020617 55%);
+      --card-soft: radial-gradient(circle at top left, #1f2937 0, #020617 60%);
       --accent: #00bcd4;
       --accent-soft: #00bcd466;
       --text: #f9fafb;
@@ -22,7 +22,11 @@
       --danger: #f97373;
       --success: #22c55e;
       --warning: #facc15;
-      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.88);
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.85);
+
+      --mix-retail: #22c55e;
+      --mix-warranty: #facc15;
+      --mix-internal: #f97373;
     }
 
     * {
@@ -32,7 +36,8 @@
     body {
       margin: 0;
       padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
       background: radial-gradient(circle at top left, #111827 0, #020617 55%);
       color: var(--text);
       min-height: 100vh;
@@ -45,6 +50,8 @@
       width: min(1200px, 96%);
       margin: 20px auto 40px;
     }
+
+    /* HEADER */
 
     header {
       display: flex;
@@ -88,7 +95,7 @@
     .subtitle {
       font-size: 11px;
       color: var(--muted);
-      max-width: 560px;
+      max-width: 580px;
     }
 
     .header-controls {
@@ -123,7 +130,8 @@
       background: #020617;
       color: var(--text);
       border: 1px solid var(--border);
-      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      transition: background 0.15s ease, transform 0.1s ease,
+        box-shadow 0.15s ease;
     }
 
     button:hover {
@@ -152,6 +160,19 @@
       font-size: 16px;
     }
 
+    @media (max-width: 640px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .header-controls {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
+
+    /* TOP TABS */
+
     .top-tabs {
       margin-top: 10px;
       margin-bottom: 10px;
@@ -174,7 +195,7 @@
     }
 
     .top-tab.active {
-      background: linear-gradient(135deg, #1e293b, #020617);
+      background: linear-gradient(135deg, #1f2937, #020617);
       color: #e5e7eb;
     }
 
@@ -186,31 +207,7 @@
       color: var(--muted);
     }
 
-    .gauge-row {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    @media (max-width: 960px) {
-      .gauge-row {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 640px) {
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .header-controls {
-        width: 100%;
-        justify-content: flex-start;
-      }
-      .gauge-row {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
+    /* CARD BASE */
 
     .card {
       position: relative;
@@ -234,6 +231,11 @@
       font-weight: 500;
     }
 
+    .card-subtext {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
     .pill {
       font-size: 10px;
       padding: 2px 8px;
@@ -254,45 +256,137 @@
       background: rgba(239, 68, 68, 0.16);
     }
 
-    .card-main-value {
-      font-size: 22px;
-      font-weight: 600;
-      margin: 4px 0 2px;
+    .pill.snapshot {
+      border-color: rgba(148, 163, 184, 0.7);
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.8);
     }
 
-    .card-subtext {
+    .loading {
       font-size: 11px;
       color: var(--muted);
     }
 
-    /* Circular gauge container */
-    .gauge-circle-wrapper {
-      margin-top: 6px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .hidden {
+      display: none !important;
     }
 
-    .gauge-circle {
-      width: 64px;
-      height: 64px;
+    /* GAUGE LAYOUT */
+
+    .gauge-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
     }
 
-    .gauge-circle svg {
-      width: 100%;
-      height: 100%;
-      transform: rotate(-90deg);
+    @media (max-width: 960px) {
+      .gauge-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
-    .gauge-meta {
-      font-size: 10px;
-      color: var(--muted);
+    @media (max-width: 640px) {
+      .gauge-row {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .gauge-card {
+      background: var(--card-soft);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 10px 10px 12px;
       display: flex;
       flex-direction: column;
+      gap: 6px;
+    }
+
+    .gauge-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .gauge-title {
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .gauge-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .gauge-body {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .gauge-target {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .gauge-placeholder {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* TECHNICIAN-STYLE CIRCULAR GAUGE (CONIC) */
+
+    .circle-gauge {
+      width: 90px;
+      height: 90px;
+      flex: 0 0 auto;
+    }
+
+    .circle-gauge-outer {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, #020617 58%, transparent 60%),
+        conic-gradient(
+          var(--gauge-color, var(--accent)) calc(var(--value, 0) * 1turn),
+          #111827 0
+        );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .circle-gauge-inner {
+      width: 66%;
+      height: 66%;
+      border-radius: 50%;
+      background: #020617;
+      border: 1px solid #1f2937;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       gap: 2px;
     }
 
-    /* Mix bar */
+    .circle-gauge-value {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .circle-gauge-pct {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* MIX BAR */
+
+    .mix-card {
+      margin-top: 4px;
+    }
+
     .mix-bar {
       position: relative;
       width: 100%;
@@ -301,12 +395,25 @@
       overflow: hidden;
       background: rgba(15, 23, 42, 0.95);
       border: 1px solid rgba(30, 64, 175, 0.7);
-      margin-top: 4px;
+      margin-top: 6px;
+      display: flex;
     }
 
     .mix-segment {
       height: 100%;
       display: inline-block;
+    }
+
+    .mix-retail {
+      background: var(--mix-retail);
+    }
+
+    .mix-warranty {
+      background: var(--mix-warranty);
+    }
+
+    .mix-internal {
+      background: var(--mix-internal);
     }
 
     .mix-legend {
@@ -326,6 +433,8 @@
       margin-right: 4px;
     }
 
+    /* ADVISOR CARDS */
+
     .advisor-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -341,6 +450,15 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.15s ease,
+        border-color 0.15s ease;
+    }
+
+    .advisor-card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(148, 163, 184, 0.9);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.9);
     }
 
     .advisor-header {
@@ -375,6 +493,8 @@
       color: var(--muted);
     }
 
+    /* LEADERBOARDS */
+
     .leaderboard-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -405,7 +525,8 @@
       color: var(--muted);
     }
 
-    /* Data source panel */
+    /* DATA SOURCE BAR */
+
     .data-source-bar {
       margin-top: 18px;
       padding: 10px 12px;
@@ -431,10 +552,6 @@
       font-size: 12px;
       font-weight: 500;
       color: #e5e7eb;
-    }
-
-    .hidden {
-      display: none !important;
     }
 
     .status-pill {
@@ -474,19 +591,126 @@
       color: #fecaca;
     }
 
-    .loading {
+    /* SETTINGS PAGE BASIC */
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    @media (min-width: 840px) {
+      .settings-grid {
+        grid-template-columns: 2fr 1.4fr;
+      }
+    }
+
+    .settings-field {
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 11px;
+    }
+
+    .settings-field label {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .settings-field input,
+    .settings-field select,
+    .settings-field textarea {
+      background: #020617;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      font-size: 11px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .settings-group-title {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    /* INSIGHTS MODAL */
+
+    #advisorModal {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.7);
+      z-index: 50;
+    }
+
+    #advisorModal.hidden {
+      display: none !important;
+    }
+
+    .modal-card {
+      width: min(520px, 94%);
+      max-height: 80vh;
+      overflow-y: auto;
+      background: #020617;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      box-shadow: var(--shadow-soft);
       font-size: 11px;
       color: var(--muted);
     }
 
-    .error {
+    .modal-section h3 {
       font-size: 11px;
-      color: #fecaca;
+      margin: 8px 0 4px;
+      color: #e5e7eb;
+    }
+
+    .modal-section p {
+      margin: 2px 0;
+    }
+
+    /* LEADERBOARD SIDE PANEL */
+
+    #leaderboardPanel {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      display: flex;
+      justify-content: flex-end;
+      z-index: 40;
+    }
+
+    #leaderboardPanel.hidden {
+      display: none !important;
+    }
+
+    .leaderboard-panel-inner {
+      width: min(360px, 90%);
+      background: #020617;
+      border-left: 1px solid var(--border);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    #leaderboardPanelBody {
+      font-size: 11px;
+      color: var(--muted);
+      overflow-y: auto;
+      max-height: calc(100vh - 80px);
     }
   </style>
 </head>
 <body>
   <div class="shell">
+    <!-- HEADER -->
     <header>
       <div class="title-block">
         <div class="badge">
@@ -511,6 +735,7 @@
       </div>
     </header>
 
+    <!-- TABS -->
     <div class="top-tabs">
       <button class="top-tab active" data-page="dashboard">Dashboard</button>
       <button class="top-tab" data-page="settings">Settings</button>
@@ -520,33 +745,161 @@
     <div id="page-dashboard">
       <!-- TODAY GAUGES -->
       <div class="section-title">Today's performance</div>
-      <div id="todaySummary" class="loading">Load CSV to see today's summary.</div>
-      <div class="gauge-row" id="todayGauges">
-        <!-- Today gauges injected -->
+      <div id="todaySummary" class="loading">
+        Load CSV (manual or online) to see today's snapshot.
+      </div>
+      <div class="gauge-row">
+        <div class="gauge-card" id="todayGaugeLabour">
+          <div class="gauge-header">
+            <div class="gauge-title">Today Labour Gross</div>
+            <span class="pill snapshot">Snapshot</span>
+          </div>
+          <div class="gauge-sub">All advisors · closed ROs</div>
+          <div class="gauge-body">
+            <div class="circle-gauge">
+              <div class="circle-gauge-outer" style="--value: 0;">
+                <div class="circle-gauge-inner">
+                  <div class="circle-gauge-value">$0</div>
+                  <div class="circle-gauge-pct">0%</div>
+                </div>
+              </div>
+            </div>
+            <div class="gauge-target">
+              Target: set in Settings
+            </div>
+          </div>
+        </div>
+
+        <div class="gauge-card" id="todayGaugeAvgRo">
+          <div class="gauge-header">
+            <div class="gauge-title">Today Avg RO</div>
+            <span class="pill snapshot">Snapshot</span>
+          </div>
+          <div class="gauge-sub">Approx labour per RO</div>
+          <div class="gauge-body">
+            <div class="circle-gauge">
+              <div class="circle-gauge-outer" style="--value: 0;">
+                <div class="circle-gauge-inner">
+                  <div class="circle-gauge-value">$0</div>
+                  <div class="circle-gauge-pct">0%</div>
+                </div>
+              </div>
+            </div>
+            <div class="gauge-target">
+              Target: set in Settings
+            </div>
+          </div>
+        </div>
+
+        <div class="gauge-card" id="todayGaugeHours">
+          <div class="gauge-header">
+            <div class="gauge-title">Hours Sold / Clocked</div>
+            <span class="pill snapshot">Snapshot</span>
+          </div>
+          <div class="gauge-sub">Technician hours for today</div>
+          <div class="gauge-body">
+            <div class="circle-gauge">
+              <div class="circle-gauge-outer" style="--value: 0;">
+                <div class="circle-gauge-inner">
+                  <div class="circle-gauge-value">0.0%</div>
+                  <div class="circle-gauge-pct">Leakage</div>
+                </div>
+              </div>
+            </div>
+            <div class="gauge-target">
+              Goal: set in Settings (e.g. 100% billed)
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- MTD GAUGES -->
       <div class="section-title">Month-to-date performance</div>
-      <div id="mtdSummary" class="loading">Load CSV to see MTD summary.</div>
-      <div class="gauge-row" id="mtdGauges">
-        <!-- MTD gauges injected -->
+      <div id="mtdSummary" class="loading">
+        Load CSV to see MTD summary.
+      </div>
+      <div class="gauge-row">
+        <div class="gauge-card" id="mtdGaugeLabour">
+          <div class="gauge-header">
+            <div class="gauge-title">MTD Labour Gross</div>
+            <span class="pill snapshot">Snapshot</span>
+          </div>
+          <div class="gauge-sub">All advisors · MTD closed ROs</div>
+          <div class="gauge-body">
+            <div class="circle-gauge">
+              <div class="circle-gauge-outer" style="--value: 0;">
+                <div class="circle-gauge-inner">
+                  <div class="circle-gauge-value">$0</div>
+                  <div class="circle-gauge-pct">0%</div>
+                </div>
+              </div>
+            </div>
+            <div class="gauge-target">
+              Target: set in Settings
+            </div>
+          </div>
+        </div>
+
+        <div class="gauge-card" id="mtdGaugeAvgRo">
+          <div class="gauge-header">
+            <div class="gauge-title">MTD Avg RO</div>
+            <span class="pill snapshot">Snapshot</span>
+          </div>
+          <div class="gauge-sub">Approx labour per RO · month</div>
+          <div class="gauge-body">
+            <div class="circle-gauge">
+              <div class="circle-gauge-outer" style="--value: 0;">
+                <div class="circle-gauge-inner">
+                  <div class="circle-gauge-value">$0</div>
+                  <div class="circle-gauge-pct">0%</div>
+                </div>
+              </div>
+            </div>
+            <div class="gauge-target">
+              Target: set in Settings
+            </div>
+          </div>
+        </div>
+
+        <div class="gauge-card" id="mtdGaugeGp">
+          <div class="gauge-header">
+            <div class="gauge-title">MTD GP%</div>
+            <span class="pill snapshot">Snapshot</span>
+          </div>
+          <div class="gauge-sub">Margin on labour gross</div>
+          <div class="gauge-body">
+            <div class="circle-gauge">
+              <div class="circle-gauge-outer" style="--value: 0;">
+                <div class="circle-gauge-inner">
+                  <div class="circle-gauge-value">0.0%</div>
+                  <div class="circle-gauge-pct">vs target</div>
+                </div>
+              </div>
+            </div>
+            <div class="gauge-target">
+              Target: set in Settings
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- MIX BAR -->
       <div class="section-title">Customer / Warranty / Internal mix (MTD)</div>
-      <div class="card">
+      <div class="card mix-card">
         <div class="card-header">
-          <span class="card-title">RO Mix by type</span>
-          <span class="pill" id="mixStatusPill">Snapshot</span>
+          <span class="card-title">RO Mix by type (all advisors)</span>
+          <span class="pill snapshot" id="mixStatusPill">Snapshot</span>
         </div>
         <div class="card-subtext" id="mixCountsLabel">
           Retail 0 · Warranty 0 · Internal 0 · Total 0
         </div>
         <div class="mix-bar" id="mixBar">
-          <!-- segments -->
+          <!-- segments injected by JS -->
         </div>
         <div class="mix-legend" id="mixLegend">
-          <!-- legend -->
+          <span><span class="mix-dot" style="background:var(--mix-retail);"></span>Retail (Customer-pay)</span>
+          <span><span class="mix-dot" style="background:var(--mix-warranty);"></span>Warranty</span>
+          <span><span class="mix-dot" style="background:var(--mix-internal);"></span>Internal</span>
         </div>
       </div>
 
@@ -556,7 +909,7 @@
         <div class="card-header">
           <span class="card-title">Advisor cards – Today &amp; MTD</span>
           <span class="card-subtext" id="advisorFilterNote">
-            Filtered by advisors with &gt;$1k MTD labour.
+            Filtered by advisors with &gt;$1k MTD labour (ghost advisors removed).
           </span>
         </div>
         <div class="advisor-grid" id="advisorCards">
@@ -567,14 +920,25 @@
       <!-- LEADERBOARDS -->
       <div class="section-title">Leaderboards &amp; key indicators</div>
       <div class="leaderboard-grid" id="leaderboardCards">
-        <!-- populated by JS -->
+        <div class="lb-card">
+          <div class="lb-title">Top 5 Labour Gross</div>
+          <div class="loading">Will populate once CSV is loaded.</div>
+        </div>
+        <div class="lb-card">
+          <div class="lb-title">Top 5 Avg RO</div>
+          <div class="loading">Will populate once CSV is loaded.</div>
+        </div>
+        <div class="lb-card">
+          <div class="lb-title">Top 5 GP%</div>
+          <div class="loading">Will replace "Lowest leakage" – more relevant.</div>
+        </div>
       </div>
 
-      <!-- DATA SOURCE -->
+      <!-- DATA SOURCE BAR -->
       <div class="data-source-bar">
         <div class="data-source-left">
           <div class="data-source-title">Data source</div>
-          <div>Use the BI Summary export (one row per RO). CSV can be loaded from an online link or manual upload.</div>
+          <div>Use the Advisor Summary export (one row per RO). CSV can be loaded from an online link or manual upload.</div>
         </div>
         <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
           <input type="file" id="fileInput" accept=".csv" class="hidden" />
@@ -586,161 +950,242 @@
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- SETTINGS PAGE (placeholder, JS will wire fields) -->
-    <div id="page-settings" class="hidden">
-      <div class="section-title">Settings</div>
-      <!-- Settings content will be defined in later blocks -->
+      <!-- ONLINE CSV SOURCE CARD (same as previous build, but cleaner) -->
+      <div class="section-title">Online CSV source</div>
       <div class="card">
         <div class="card-header">
-          <span class="card-title">Targets &amp; data source</span>
+          <span class="card-title">Google Sheets CSV link</span>
         </div>
-        <div class="card-subtext">
-          Settings UI &amp; storage will be injected by script (Blocks 2–6).
+        <div style="margin-top:6px; font-size:11px; color:var(--muted);">
+          Paste Google Sheets CSV link. This will be used when "Load Online CSV" or "Reload Online Data" is clicked.
+        </div>
+        <input
+          id="onlineCsvUrl"
+          type="text"
+          style="margin-top:8px; width:100%; padding:8px; border-radius:8px; border:1px solid var(--border); background:#020617; color:var(--text); font-size:11px;"
+          value="https://docs.google.com/spreadsheets/d/1fiwosf8gXN6faN-LHQtvAIfMbAagEptqWkwiPE23Vbg/export?format=csv"
+        />
+        <div id="onlineStatus" style="margin-top:6px; font-size:11px; color:var(--muted);">
+          Waiting for first load.
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div id="page-settings" class="hidden">
+      <div class="section-title">Settings</div>
+      <div class="settings-grid">
+        <!-- Targets -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Targets</span>
+          </div>
+          <div class="card-subtext">
+            Configure daily and MTD targets for gauges. These will be stored in localStorage.
+          </div>
+
+          <div class="settings-field">
+            <label for="dailyLabourTarget">Daily Labour Gross Target ($)</label>
+            <input type="number" id="dailyLabourTarget" />
+          </div>
+          <div class="settings-field">
+            <label for="dailyAvgRoTarget">Daily Avg RO Target ($)</label>
+            <input type="number" id="dailyAvgRoTarget" />
+          </div>
+          <div class="settings-field">
+            <label for="dailyHoursRatioTarget">Hours Sold / Clocked Target (e.g. 1.0 = 100%)</label>
+            <input type="number" step="0.01" id="dailyHoursRatioTarget" />
+          </div>
+          <hr style="border:0;border-top:1px solid rgba(31,41,55,0.8);margin:8px 0;" />
+          <div class="settings-field">
+            <label for="mtdLabourTarget">MTD Labour Gross Target ($)</label>
+            <input type="number" id="mtdLabourTarget" />
+          </div>
+          <div class="settings-field">
+            <label for="mtdAvgRoTarget">MTD Avg RO Target ($)</label>
+            <input type="number" id="mtdAvgRoTarget" />
+          </div>
+          <div class="settings-field">
+            <label for="mtdGpPctTarget">MTD GP% Target</label>
+            <input type="number" id="mtdGpPctTarget" />
+          </div>
+          <div class="settings-field">
+            <label for="nonRetailMaxPct">Max Warranty + Internal % of total ROs</label>
+            <input type="number" id="nonRetailMaxPct" />
+          </div>
+
+          <div style="margin-top:10px; display:flex; gap:8px;">
+            <button id="btnSaveSettings" class="btn-primary">Save Settings</button>
+            <button id="btnResetSettings">Reset to Defaults</button>
+          </div>
+        </div>
+
+        <!-- Data source mode + notes -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Data source mode</span>
+          </div>
+          <div class="card-subtext">
+            Choose whether to default to the online Google Sheets CSV or manual upload.
+          </div>
+
+          <div class="settings-field">
+            <label for="dataSourceMode">Default data source</label>
+            <select id="dataSourceMode">
+              <option value="online">Online (Google Sheets CSV)</option>
+              <option value="manual">Manual upload</option>
+            </select>
+          </div>
+
+          <div class="settings-field">
+            <label for="settingsOnlineUrl">Online CSV URL (same as above)</label>
+            <textarea id="settingsOnlineUrl" rows="4"></textarea>
+          </div>
+
+          <div class="settings-field">
+            <label>Notes</label>
+            <div style="font-size:11px; color:var(--muted);">
+              This panel just controls defaults and targets. Data is never sent anywhere – everything runs in-browser.
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-<div class="card">
-  <div class="card-header">
-    <span class="card-title">Online CSV Source</span>
-  </div>
-
-  <div style="margin-top:6px; font-size:11px; color:var(--muted);">
-    Paste Google Sheets CSV link (already in Settings & defaults)
-  </div>
-
-  <input
-    id="onlineCsvUrl"
-    type="text"
-    style="margin-top:8px; width:100%; padding:8px; border-radius:8px; border:1px solid var(--border); background:#020617; color:var(--text); font-size:11px;"
-    value="https://docs.google.com/spreadsheets/d/1fiwosf8gXN6faN-LHQtvAIfMbAagEptqWkwiPE23Vbg/export?format=csv"
-  />
-
-  <div id="onlineStatus" style="margin-top:6px; font-size:11px; color:var(--muted);"></div>
-</div>
 
   <!-- INSIGHTS MODAL -->
   <div id="advisorModal" class="hidden">
-  <div class="card" style="position:fixed; inset:50% auto auto 50%; transform:translate(-50%, -50%); width:min(520px, 94%); max-height:80vh; overflow-y:auto;">
-      <div class="card-header">
+    <div class="modal-card">
+      <div class="card-header" style="padding:0; margin-bottom:6px;">
         <span class="card-title">Service Advisor Insights</span>
-        <span class="pill" id="modalDateLabel">Snapshot</span>
+        <span class="pill snapshot" id="modalDateLabel">Snapshot</span>
       </div>
-
-      <div id="advisorModalBody" style="font-size:11px; color:var(--muted); margin-top:4px;">
+      <div id="advisorModalBody" class="modal-section">
+        <!-- Per-advisor insights injected here -->
+        <p class="loading">Select an advisor card to view insights.</p>
       </div>
-
       <div style="margin-top:10px; display:flex; justify-content:flex-end; gap:8px;">
         <button id="advisorModalClose">Close</button>
-      </div>
-  </div>
-</div>
-
-
-  <!-- LEADERBOARD SIDE PANEL -->
-  <div id="leaderboardPanel" class="hidden">
-    <div style="position:fixed; inset:0; background:rgba(15,23,42,0.7); display:flex; justify-content:flex-end;">
-      <div style="width:min(360px, 90%); background:#020617; border-left:1px solid var(--border); padding:12px 14px; display:flex; flex-direction:column; gap:8px;">
-        <div class="card-header" style="padding:0;">
-          <span class="card-title">Advisor Leaderboard</span>
-          <button id="closeLeaderboard" class="icon-btn">✕</button>
-        </div>
-        <div id="leaderboardPanelBody" style="font-size:11px; color:var(--muted); overflow-y:auto; max-height:calc(100vh - 80px);">
-          <!-- content injected -->
-        </div>
       </div>
     </div>
   </div>
 
-  <!-- SCRIPT WILL START IN BLOCK 2 -->
+  <!-- LEADERBOARD SIDE PANEL -->
+  <div id="leaderboardPanel" class="hidden">
+    <div class="leaderboard-panel-inner">
+      <div class="card-header" style="padding:0;">
+        <span class="card-title">Advisor Leaderboard</span>
+        <button id="closeLeaderboard" class="icon-btn">✕</button>
+      </div>
+      <div id="leaderboardPanelBody">
+        <!-- full rankings injected here -->
+        <div class="loading">Will populate once CSV is loaded.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 2 / 3 / 4 SCRIPTS WILL BE APPENDED BELOW -->
   <script>
-    // Block 2 will insert JS here
+    // Block 2 will define: state, settings, utilities, metrics
+    // Block 3 will define: gauge rendering, advisor cards, leaderboards, mix bar
+    // Block 4 will define: CSV loading, event wiring, insights engine
   </script>
 </body>
 </html>
 <script>
-// === BLOCK 2 – STATE, SETTINGS, UTILITIES, METRIC BUILDERS ===
+// ======================================================
+// BLOCK 2 — STATE, SETTINGS, UTILITIES, METRIC BUILDERS
+// ======================================================
 
-// ----- STATE -----
+// ------------ STATE ------------
 const state = {
   rows: [],
   loaded: false,
-  error: null,
   filters: {
-    date: null,      // JS Date used for daily + MTD month
-    advisor: "all",  // "all" or specific advisor
+    date: null,
+    advisor: "all"
   }
 };
 
-const SETTINGS_STORAGE_KEY = "advisorDashSettings_v3";
+// ------------ SETTINGS ------------
+const SETTINGS_KEY = "advisorDashSettings_v4";
 
 const defaultSettings = {
-  // Targets
+  // Daily targets
   dailyLabourTarget: 17000,
   dailyAvgRoTarget: 410,
-  dailyHoursRatioTarget: 1.0,     // Charged / Clocked
+  dailyHoursRatioTarget: 1.0, // 100%
 
+  // MTD targets
   mtdLabourTarget: 390000,
   mtdAvgRoTarget: 430,
   mtdGpPctTarget: 80,
-  nonRetailMaxPct: 20,            // Max W+I % of total ROs
 
-  // Data source
-  dataSourceMode: "online",       // "online" or "manual"
+  // Mix expectations
+  nonRetailMaxPct: 20,
+
+  // Data source defaults
+  dataSourceMode: "online",
   onlineCsvUrl:
     "https://docs.google.com/spreadsheets/d/1fiwosf8gXN6faN-LHQtvAIfMbAagEptqWkwiPE23Vbg/export?format=csv"
 };
 
-let settings = { ...defaultSettings };
+let settings = {...defaultSettings};
 
-// ----- SETTINGS LOAD / SAVE -----
+// Load settings from localStorage
 function loadSettings() {
   try {
-    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    const raw = localStorage.getItem(SETTINGS_KEY);
     if (!raw) return;
     const parsed = JSON.parse(raw);
-    settings = { ...defaultSettings, ...parsed };
+    settings = {...defaultSettings, ...parsed};
   } catch (e) {
-    console.warn("Failed to load settings, using defaults", e);
-    settings = { ...defaultSettings };
+    console.warn("Failed to load settings, using defaults.", e);
+    settings = {...defaultSettings};
   }
 }
 
+// Save settings to localStorage
 function saveSettings() {
   try {
-    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   } catch (e) {
-    console.warn("Failed to save settings", e);
+    console.warn("Failed to save settings.", e);
   }
 }
 
-// ----- UTILITIES -----
+// ------------ UTILITIES ------------
+
+// Parses AU date formats: dd/mm/yyyy, d/m/yy, yyyy-mm-dd
 function parseAuDate(str) {
   if (!str || typeof str !== "string") return null;
   const trimmed = str.trim();
   if (!trimmed) return null;
 
-  // Accept dd/mm/yyyy, d/m/yy, yyyy-mm-dd etc.
-  const parts = trimmed.split(/[\/\-]/);
-  if (parts.length < 3) return null;
-
-  let d, m, y;
-  // If first part is 4 digits, treat as yyyy-mm-dd
-  if (parts[0].length === 4) {
-    y = parseInt(parts[0], 10);
-    m = parseInt(parts[1], 10);
-    d = parseInt(parts[2], 10);
-  } else {
-    d = parseInt(parts[0], 10);
-    m = parseInt(parts[1], 10);
-    y = parseInt(parts[2], 10);
+  // dd/mm/yyyy or dd-mm-yyyy
+  const m = trimmed.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (m) {
+    let d = parseInt(m[1], 10);
+    let mth = parseInt(m[2], 10);
+    let y = parseInt(m[3], 10);
     if (y < 100) y += 2000;
+    const dt = new Date(y, mth - 1, d);
+    return isNaN(dt.getTime()) ? null : dt;
   }
 
-  if (!y || !m || !d) return null;
-  const dt = new Date(y, m - 1, d);
+  // yyyy-mm-dd
+  const m2 = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (m2) {
+    let y = parseInt(m2[1], 10);
+    let mth = parseInt(m2[2], 10);
+    let d = parseInt(m2[3], 10);
+    const dt = new Date(y, mth - 1, d);
+    return isNaN(dt.getTime()) ? null : dt;
+  }
+
+  // Fallback
+  const dt = new Date(trimmed);
   return isNaN(dt.getTime()) ? null : dt;
 }
 
@@ -759,12 +1204,12 @@ function sameMonth(d1, d2) {
   );
 }
 
-function toNumber(value) {
-  if (typeof value === "number") return isFinite(value) ? value : 0;
-  if (value === null || value === undefined || value === "") return 0;
-  const cleaned = String(value).replace(/[^0-9.\-]/g, "");
-  const n = parseFloat(cleaned);
-  return isNaN(n) ? 0 : n;
+function toNumber(v) {
+  if (typeof v === "number" && isFinite(v)) return v;
+  if (v === null || v === undefined) return 0;
+  const cleaned = String(v).replace(/[^0-9.\-]/g, "");
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? 0 : num;
 }
 
 function formatCurrency(v) {
@@ -778,51 +1223,49 @@ function formatPercent(v) {
   return toNumber(v).toFixed(1) + "%";
 }
 
-function uniq(arr) {
-  return [...new Set(arr)];
-}
+const uniq = arr => [...new Set(arr)];
 
-// ----- COLUMN HELPERS FOR SUMMARY EXPORT -----
+// ------------ COLUMN HELPERS ------------
+
+// Determine the RO's close date using the three fields
 function getCloseDate(row) {
-  // Use whichever closed date exists (C, W, I) as the RO close date.
   const c = parseAuDate(row["C Closed Date"]);
   const w = parseAuDate(row["W Closed Date"]);
   const i = parseAuDate(row["I Closed Date"]);
-  // If multiple are somehow present, preference C, then W, then I.
   return c || w || i || null;
 }
 
-// C / W / I mix
+// Determine the RO type (customer, warranty, internal)
 function classifyRoType(row) {
-  const c = row["C Closed Date"];
-  const w = row["W Closed Date"];
-  const i = row["I Closed Date"];
-  if (i && String(i).trim() !== "") return "internal";
-  if (w && String(w).trim() !== "") return "warranty";
-  if (c && String(c).trim() !== "") return "customer";
+  if (row["I Closed Date"]) return "internal";
+  if (row["W Closed Date"]) return "warranty";
+  if (row["C Closed Date"]) return "customer";
   return "unknown";
 }
 
+// Gross
 function getGross(row) {
-  // Adam: you said column B in your view is the sale / labour gross.
-  // In this summary export we’ll treat "Gross" as primary, with "Sale" fallback.
-  const gross = toNumber(row["Gross"]);
-  if (gross !== 0) return gross;
-  // Fallback to Sale - Cost if needed
+  // Primary
+  const g = toNumber(row["Gross"]);
+  if (g !== 0) return g;
+
+  // Fallback (Sale - Cost)
   const sale = toNumber(row["Sale"]);
   const cost = toNumber(row["Cost"]);
   if (sale || cost) return sale - cost;
+
   return 0;
 }
 
+// Cost (fallback if not provided)
 function getCost(row) {
-  // Prefer explicit "Cost" then build from components.
-  const cost = toNumber(row["Cost"]);
-  if (cost !== 0) return cost;
-  const cOpen   = toNumber(row["Cost (Open)"]);
-  const cLabour = toNumber(row["Cost (Labour)"]);
-  const cParts  = toNumber(row["Cost (Parts)"]);
-  return cOpen + cLabour + cParts;
+  const c = toNumber(row["Cost"]);
+  if (c !== 0) return c;
+  return (
+    toNumber(row["Cost (Open)"]) +
+    toNumber(row["Cost (Labour)"]) +
+    toNumber(row["Cost (Parts)"])
+  );
 }
 
 function getChargedHours(row) {
@@ -833,97 +1276,16 @@ function getClockedHours(row) {
   return toNumber(row["Clocked Hrs"]);
 }
 
-// ----- DATA PREP AFTER CSV LOAD -----
-function initDateFromData() {
-  const datePicker = document.getElementById("datePicker");
-  if (!state.rows.length || !datePicker) return;
+// ------------ DATA PREPARATION AFTER LOAD ------------
 
-  const dates = state.rows
-    .map(r => getCloseDate(r))
-    .filter(d => d instanceof Date && !isNaN(d));
-
-  if (!dates.length) return;
-
-  let minD = dates[0];
-  let maxD = dates[0];
-  dates.forEach(d => {
-    if (d < minD) minD = d;
-    if (d > maxD) maxD = d;
-  });
-
-  // Default filter date = most recent close date
-  state.filters.date = new Date(
-    maxD.getFullYear(),
-    maxD.getMonth(),
-    maxD.getDate()
-  );
-
-  function toInputDate(d) {
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd}`;
-  }
-
-  datePicker.min = toInputDate(minD);
-  datePicker.max = toInputDate(maxD);
-  datePicker.value = toInputDate(maxD);
-}
-
-function initAdvisorFilter() {
-  const select = document.getElementById("advisorFilter");
-  if (!select) return;
-
-  const names = uniq(
-    state.rows
-      .map(r => String(r["Advisor Name"] || "").trim())
-      .filter(Boolean)
-  ).sort((a, b) => a.localeCompare(b));
-
-  select.innerHTML =
-    `<option value="all">All Advisors (&gt;$1k MTD)</option>` +
-    names.map(n => `<option value="${n}">${n}</option>`).join("");
-}
-
-// ----- FILTERED ROW HELPERS -----
-function getRowsForToday() {
-  const baseDate = state.filters.date || new Date();
-  return state.rows.filter(r => {
-    const closed = getCloseDate(r);
-    if (!closed) return false;
-    return sameDay(closed, baseDate);
-  });
-}
-
-function getRowsForMtd() {
-  const baseDate = state.filters.date || new Date();
-  return state.rows.filter(r => {
-    const closed = getCloseDate(r);
-    if (!closed) return false;
-    return sameMonth(closed, baseDate);
-  });
-}
-
-function getRowsForMtdByAdvisor(advisorName) {
-  const baseDate = state.filters.date || new Date();
-  return state.rows.filter(r => {
-    const closed = getCloseDate(r);
-    if (!closed) return false;
-    if (!sameMonth(closed, baseDate)) return false;
-    if (!advisorName) return true;
-    const a = String(r["Advisor Name"] || "").trim();
-    return a === advisorName;
-  });
-}
-
-// ----- ADVISOR STATS (PER ROW SET) -----
+// Build advisor stats (today or MTD)
 function buildAdvisorStats(rows) {
-  const byAdvisor = {};
+  const map = {};
 
   rows.forEach(r => {
     const name = String(r["Advisor Name"] || "").trim() || "Unknown";
-    if (!byAdvisor[name]) {
-      byAdvisor[name] = {
+    if (!map[name]) {
+      map[name] = {
         advisor: name,
         labourGross: 0,
         cost: 0,
@@ -933,819 +1295,632 @@ function buildAdvisorStats(rows) {
       };
     }
 
-    const g = getGross(r);
-    const c = getCost(r);
-    const ch = getChargedHours(r);
-    const cl = getClockedHours(r);
-
-    byAdvisor[name].labourGross += g;
-    byAdvisor[name].cost += c;
-    byAdvisor[name].roCount += 1;
-    byAdvisor[name].chargedHrs += ch;
-    byAdvisor[name].clockedHrs += cl;
+    map[name].labourGross += getGross(r);
+    map[name].cost += getCost(r);
+    map[name].roCount += 1;
+    map[name].chargedHrs += getChargedHours(r);
+    map[name].clockedHrs += getClockedHours(r);
   });
 
-  const arr = Object.values(byAdvisor);
+  const list = Object.values(map);
 
-  arr.forEach(a => {
+  list.forEach(a => {
     a.avgRo = a.roCount ? a.labourGross / a.roCount : 0;
     a.gpPct = a.labourGross
       ? ((a.labourGross - a.cost) / a.labourGross) * 100
       : 0;
-    a.hoursRatio = a.clockedHrs ? (a.chargedHrs / a.clockedHrs) : 0;
+    a.hoursRatio = a.clockedHrs
+      ? a.chargedHrs / a.clockedHrs
+      : 0;
+    a.leakagePct = 100 - (a.hoursRatio * 100);
   });
 
-  // Sort by labour gross desc by default
-  arr.sort((a, b) => b.labourGross - a.labourGross);
-  return arr;
+  list.sort((a, b) => b.labourGross - a.labourGross);
+  return list;
 }
 
-// ----- METRICS: TODAY -----
+// ------------ METRICS: TODAY ------------
 function computeTodayMetrics() {
-  const allRows = getRowsForToday();
-  const { advisor } = state.filters;
-
-  const rows = advisor === "all"
-    ? allRows
-    : allRows.filter(r => String(r["Advisor Name"] || "").trim() === advisor);
-
-  let totalGross = 0;
-  let totalCost = 0;
-  let roCount = 0;
-  let chargedHrs = 0;
-  let clockedHrs = 0;
-
-  let retailCount = 0;
-  let warrantyCount = 0;
-  let internalCount = 0;
-
-  rows.forEach(r => {
-    const g = getGross(r);
-    const c = getCost(r);
-    const ch = getChargedHours(r);
-    const cl = getClockedHours(r);
-
-    totalGross += g;
-    totalCost += c;
-    roCount += 1;
-    chargedHrs += ch;
-    clockedHrs += cl;
-
-    const t = classifyRoType(r);
-    if (t === "customer") retailCount++;
-    else if (t === "warranty") warrantyCount++;
-    else if (t === "internal") internalCount++;
+  const base = state.filters.date || new Date();
+  const todayRows = state.rows.filter(r => {
+    const d = getCloseDate(r);
+    return d && sameDay(d, base);
   });
 
-  const advisorStats = buildAdvisorStats(rows);
+  const stats = buildAdvisorStats(todayRows);
+
+  // Aggregate totals
+  let totalGross = 0;
+  let totalCost = 0;
+  let chargedHrs = 0;
+  let clockedHrs = 0;
+  let retail = 0;
+  let warranty = 0;
+  let internal = 0;
+
+  todayRows.forEach(r => {
+    totalGross += getGross(r);
+    totalCost += getCost(r);
+    chargedHrs += getChargedHours(r);
+    clockedHrs += getClockedHours(r);
+
+    const type = classifyRoType(r);
+    if (type === "customer") retail++;
+    if (type === "warranty") warranty++;
+    if (type === "internal") internal++;
+  });
 
   return {
-    rows,
-    advisorStats,
+    rows: todayRows,
+    advisorStats: stats,
+    roCount: todayRows.length,
     totalGross,
     totalCost,
-    roCount,
     chargedHrs,
     clockedHrs,
-    retailCount,
-    warrantyCount,
-    internalCount
+    retail,
+    warranty,
+    internal
   };
 }
 
-// ----- METRICS: MTD -----
+// ------------ METRICS: MTD ------------
 function computeMtdMetrics() {
-  const allRows = getRowsForMtd();
-  const { advisor } = state.filters;
-
-  const rows = advisor === "all"
-    ? allRows
-    : allRows.filter(r => String(r["Advisor Name"] || "").trim() === advisor);
-
-  let totalGross = 0;
-  let totalCost = 0;
-  let roCount = 0;
-  let chargedHrs = 0;
-  let clockedHrs = 0;
-
-  let retailCount = 0;
-  let warrantyCount = 0;
-  let internalCount = 0;
-
-  rows.forEach(r => {
-    const g = getGross(r);
-    const c = getCost(r);
-    const ch = getChargedHours(r);
-    const cl = getClockedHours(r);
-
-    totalGross += g;
-    totalCost += c;
-    roCount += 1;
-    chargedHrs += ch;
-    clockedHrs += cl;
-
-    const t = classifyRoType(r);
-    if (t === "customer") retailCount++;
-    else if (t === "warranty") warrantyCount++;
-    else if (t === "internal") internalCount++;
+  const base = state.filters.date || new Date();
+  const mtdRows = state.rows.filter(r => {
+    const d = getCloseDate(r);
+    return d && sameMonth(d, base);
   });
 
-  const advisorStatsRaw = buildAdvisorStats(rows);
+  const statsRaw = buildAdvisorStats(mtdRows);
+  const stats = statsRaw.filter(a => a.labourGross >= 1000); // remove ghosts
 
-  // Filter out "ghost advisors" – only keep ≥ $1k MTD labour
-  const advisorStats = advisorStatsRaw.filter(a => a.labourGross >= 1000);
-
-  // Build rank map for MTD (for cards + leaderboard side panel)
+  // Build rankMap
   const rankMap = {};
-  advisorStats
-    .slice() // ensure we don't mutate original
+  stats
+    .slice()
     .sort((a, b) => b.labourGross - a.labourGross)
-    .forEach((a, idx) => {
-      rankMap[a.advisor] = idx + 1;
-    });
+    .forEach((a, i) => (rankMap[a.advisor] = i + 1));
+
+  // Aggregates
+  let totalGross = 0;
+  let totalCost = 0;
+  let chargedHrs = 0;
+  let clockedHrs = 0;
+  let retail = 0;
+  let warranty = 0;
+  let internal = 0;
+
+  mtdRows.forEach(r => {
+    totalGross += getGross(r);
+    totalCost += getCost(r);
+    chargedHrs += getChargedHours(r);
+    clockedHrs += getClockedHours(r);
+
+    const type = classifyRoType(r);
+    if (type === "customer") retail++;
+    if (type === "warranty") warranty++;
+    if (type === "internal") internal++;
+  });
 
   const gpPct = totalGross
     ? ((totalGross - totalCost) / totalGross) * 100
     : 0;
 
-  // Non-retail mix
-  const nonRetailCount = warrantyCount + internalCount;
-  const totalCount = retailCount + warrantyCount + internalCount;
-  const nonRetailPct = totalCount
-    ? (nonRetailCount / totalCount) * 100
-    : 0;
+  const avgRo = mtdRows.length ? totalGross / mtdRows.length : 0;
 
   return {
-    rows,
-    advisorStats,
+    rows: mtdRows,
+    advisorStats: stats,
     rankMap,
+    roCount: mtdRows.length,
     totalGross,
     totalCost,
-    roCount,
     chargedHrs,
     clockedHrs,
-    retailCount,
-    warrantyCount,
-    internalCount,
+    retail,
+    warranty,
+    internal,
     gpPct,
-    nonRetailPct
+    avgRo
   };
 }
 
-// ----- MIX METRICS (MTD, all advisors) -----
-function computeMtdMixAllAdvisors() {
-  const rows = getRowsForMtd();
-  let retailCount = 0;
-  let warrantyCount = 0;
-  let internalCount = 0;
-
-  rows.forEach(r => {
-    const t = classifyRoType(r);
-    if (t === "customer") retailCount++;
-    else if (t === "warranty") warrantyCount++;
-    else if (t === "internal") internalCount++;
+// ------------ METRICS: MIX ------------
+function computeMtdMixAll() {
+  const base = state.filters.date || new Date();
+  const mtdRows = state.rows.filter(r => {
+    const d = getCloseDate(r);
+    return d && sameMonth(d, base);
   });
 
-  const total = retailCount + warrantyCount + internalCount;
-  const retailPct = total ? (retailCount / total) * 100 : 0;
-  const warrantyPct = total ? (warrantyCount / total) * 100 : 0;
-  const internalPct = total ? (internalCount / total) * 100 : 0;
+  let retail = 0,
+    warranty = 0,
+    internal = 0;
+
+  mtdRows.forEach(r => {
+    const t = classifyRoType(r);
+    if (t === "customer") retail++;
+    if (t === "warranty") warranty++;
+    if (t === "internal") internal++;
+  });
+
+  const total = retail + warranty + internal;
 
   return {
-    retailCount,
-    warrantyCount,
-    internalCount,
+    retail,
+    warranty,
+    internal,
     total,
-    retailPct,
-    warrantyPct,
-    internalPct
+    retailPct: total ? (retail / total) * 100 : 0,
+    warrantyPct: total ? (warranty / total) * 100 : 0,
+    internalPct: total ? (internal / total) * 100 : 0
   };
 }
 </script>
 <script>
-// === BLOCK 3 – CIRCULAR GAUGES + MIX BAR RENDERING ===
+// ======================================================
+// BLOCK 3 — RENDER ENGINE (GAUGES, MIX BAR, CARDS, LEADERBOARDS)
+// ======================================================
 
-// Small helper to clamp a value
-function clamp(val, min, max) {
-  return Math.max(min, Math.min(max, val));
+// ---------------------
+// ELEMENT HELPERS
+// ---------------------
+function byId(id) {
+  return document.getElementById(id);
 }
 
-// Renders a circular gauge into a card container
-// containerId: element ID (e.g. "todayLabourGauge")
-// opts: { title, subtitle, valueLabel, targetLabel, ratio, status }
-function renderGaugeCard(containerId, opts) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
+// Create a node
+function el(tag, cls, txt) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (txt !== undefined) e.textContent = txt;
+  return e;
+}
 
-  const {
-    title,
-    subtitle,
-    valueLabel,
-    targetLabel,
-    ratio,
-    status // "good" | "attention" | "snapshot"
-  } = opts;
+// ---------------------
+// CIRCULAR GAUGE ENGINE
+// ---------------------
+function createGaugeSvg(valuePct, strokeColour) {
+  // Ensure 0–100
+  const pct = Math.max(0, Math.min(100, valuePct));
 
-  const pct = clamp((ratio || 0) * 100, 0, 200); // allow up to 200% for over-achievement
+  // Conic arcs are done with an SVG circle using strokeDasharray
+  const radius = 42;
+  const circumference = 2 * Math.PI * radius;
+  const offset = ((100 - pct) / 100) * circumference;
 
-  let statusLabel = "Snapshot";
-  let statusClass = "pill-snapshot";
-  if (status === "good") {
-    statusLabel = "On track";
-    statusClass = "pill-good";
-  } else if (status === "attention") {
-    statusLabel = "Attention";
-    statusClass = "pill-bad";
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("width", "110");
+  svg.setAttribute("height", "110");
+
+  // Background circle
+  const bg = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  bg.setAttribute("cx", "55");
+  bg.setAttribute("cy", "55");
+  bg.setAttribute("r", radius);
+  bg.setAttribute("fill", "none");
+  bg.setAttribute("stroke", "var(--border)");
+  bg.setAttribute("stroke-width", "10");
+  svg.appendChild(bg);
+
+  // Foreground arc
+  const fg = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  fg.setAttribute("cx", "55");
+  fg.setAttribute("cy", "55");
+  fg.setAttribute("r", radius);
+  fg.setAttribute("fill", "none");
+  fg.setAttribute("stroke", strokeColour);
+  fg.setAttribute("stroke-width", "10");
+  fg.setAttribute("stroke-linecap", "round");
+  fg.setAttribute("transform", "rotate(-90 55 55)");
+  fg.style.strokeDasharray = `${circumference}`;
+  fg.style.strokeDashoffset = `${offset}`;
+  svg.appendChild(fg);
+
+  return svg;
+}
+
+// ---------------------
+// GAUGE CARD RENDERER
+// ---------------------
+function renderGaugeCard(targetId, label, value, target) {
+  const root = byId(targetId);
+  if (!root) return;
+
+  root.innerHTML = "";
+
+  // Determine pct against target
+  let pct = 0;
+  if (target && target > 0) {
+    pct = (value / target) * 100;
+    if (!isFinite(pct)) pct = 0;
   }
+  pct = Math.max(0, Math.min(100, pct));
 
-  el.innerHTML = `
-    <div class="gauge-card-inner">
-      <div class="gauge-header">
-        <div class="gauge-title">${title}</div>
-        <div class="gauge-pill ${statusClass}">${statusLabel}</div>
-      </div>
-      <div class="gauge-sub">${subtitle || ""}</div>
-      <div class="gauge-body">
-        <div class="circle-gauge" style="--value:${pct};">
-          <div class="circle-gauge-outer">
-            <div class="circle-gauge-fill"></div>
-            <div class="circle-gauge-inner">
-              <div class="circle-gauge-value">${valueLabel}</div>
-              <div class="circle-gauge-pct">${pct.toFixed(0)}%</div>
-            </div>
-          </div>
-        </div>
-        <div class="gauge-target">
-          ${targetLabel || ""}
-        </div>
-      </div>
-    </div>
-  `;
+  const card = el("div", "gauge-card");
+  const header = el("div", "gauge-label", label);
+  const svg = createGaugeSvg(pct, "var(--accent)");
+  const val = el("div", "gauge-value", formatCurrency(value));
+  const pctText = el("div", "gauge-pct", pct.toFixed(0) + "% of target");
+
+  card.appendChild(header);
+  card.appendChild(svg);
+  card.appendChild(val);
+  card.appendChild(pctText);
+
+  root.appendChild(card);
 }
 
-// TODAY GAUGES
-function renderTopGaugesToday(today) {
-  const {
-    totalGross,
-    roCount,
-    chargedHrs,
-    clockedHrs
-  } = today;
+// ---------------------
+// GAUGE CARD (NON-$) — e.g. Avg RO, Hours Ratio
+// ---------------------
+function renderGaugeCardNumber(targetId, label, value, target, unit = "") {
+  const root = byId(targetId);
+  if (!root) return;
 
-  const dailyGrossTarget = toNumber(settings.dailyLabourTarget);
-  const dailyAvgRoTarget = toNumber(settings.dailyAvgRoTarget);
-  const dailyHoursTarget = toNumber(settings.dailyHoursRatioTarget) || 1.0;
+  root.innerHTML = "";
 
-  const avgRo = roCount ? totalGross / roCount : 0;
-  const hoursRatio = clockedHrs ? (chargedHrs / clockedHrs) : 0;
+  let pct = 0;
+  if (target && target > 0) {
+    pct = (value / target) * 100;
+    if (!isFinite(pct)) pct = 0;
+  }
+  pct = Math.max(0, Math.min(100, pct));
 
-  // Gauge 1: Today Labour Gross
-  renderGaugeCard("todayLabourGauge", {
-    title: "Today Labour Gross",
-    subtitle: "All advisors · closed ROs (InvoiceID)",
-    valueLabel: formatCurrency(totalGross),
-    targetLabel: dailyGrossTarget
-      ? `Target: ${formatCurrency(dailyGrossTarget)}`
-      : "Target not set",
-    ratio: dailyGrossTarget ? totalGross / dailyGrossTarget : 0,
-    status:
-      dailyGrossTarget && totalGross >= dailyGrossTarget && roCount
-        ? "good"
-        : "snapshot"
-  });
+  const card = el("div", "gauge-card");
+  const header = el("div", "gauge-label", label);
+  const svg = createGaugeSvg(pct, "var(--accent)");
+  const val = el("div", "gauge-value", value.toFixed(1) + unit);
+  const pctText = el("div", "gauge-pct", pct.toFixed(0) + "% of target");
 
-  // Gauge 2: Today Avg RO
-  renderGaugeCard("todayAvgRoGauge", {
-    title: "Today Avg RO",
-    subtitle: roCount
-      ? `Approx labour per RO · ${roCount} RO(s)`
-      : "No ROs for selected date",
-    valueLabel: formatCurrency(avgRo),
-    targetLabel: dailyAvgRoTarget
-      ? `Target: ${formatCurrency(dailyAvgRoTarget)}`
-      : "Target not set",
-    ratio: dailyAvgRoTarget ? avgRo / dailyAvgRoTarget : 0,
-    status:
-      dailyAvgRoTarget && avgRo >= dailyAvgRoTarget && roCount
-        ? "good"
-        : "snapshot"
-  });
+  card.appendChild(header);
+  card.appendChild(svg);
+  card.appendChild(val);
+  card.appendChild(pctText);
 
-  // Gauge 3: Hours Sold / Clocked
-  const hoursPctLabel =
-    clockedHrs > 0
-      ? `${formatPercent(hoursRatio * 100)}`
-      : "0.0%";
-
-  renderGaugeCard("todayHoursGauge", {
-    title: "Hours Sold / Clocked",
-    subtitle: clockedHrs
-      ? `Charged ${chargedHrs.toFixed(1)}h · Clocked ${clockedHrs.toFixed(1)}h`
-      : "No technician hours recorded for today",
-    valueLabel: hoursPctLabel,
-    targetLabel: `Goal: ${(dailyHoursTarget * 100).toFixed(0)}% billed`,
-    ratio: dailyHoursTarget ? hoursRatio / dailyHoursTarget : 0,
-    status:
-      hoursRatio >= dailyHoursTarget && clockedHrs
-        ? "good"
-        : "attention"
-  });
+  root.appendChild(card);
 }
 
-// MTD GAUGES
-function renderTopGaugesMtd(mtd) {
-  const {
-    totalGross,
-    roCount,
-    gpPct,
-    chargedHrs,
-    clockedHrs
-  } = mtd;
+// ---------------------
+// MIX BAR RENDERING
+// ---------------------
+function renderMixBar(mix) {
+  const bar = byId("mixBar");
+  const label = byId("mixCountsLabel");
+  const legend = byId("mixLegend");
+  if (!bar || !label || !legend) return;
 
-  const mtdGrossTarget   = toNumber(settings.mtdLabourTarget);
-  const mtdAvgRoTarget   = toNumber(settings.mtdAvgRoTarget);
-  const mtdGpTarget      = toNumber(settings.mtdGpPctTarget) || 80;
+  bar.innerHTML = "";
+  legend.innerHTML = "";
 
-  const avgRo = roCount ? totalGross / roCount : 0;
-
-  // Gauge 1: MTD Labour Gross
-  renderGaugeCard("mtdLabourGauge", {
-    title: "MTD Labour Gross",
-    subtitle: roCount
-      ? `All advisors · ${roCount} RO(s) this month`
-      : "No ROs for selected month",
-    valueLabel: formatCurrency(totalGross),
-    targetLabel: mtdGrossTarget
-      ? `Target: ${formatCurrency(mtdGrossTarget)}`
-      : "Target not set",
-    ratio: mtdGrossTarget ? totalGross / mtdGrossTarget : 0,
-    status:
-      mtdGrossTarget && totalGross >= mtdGrossTarget
-        ? "good"
-        : "snapshot"
-  });
-
-  // Gauge 2: MTD Avg RO
-  renderGaugeCard("mtdAvgRoGauge", {
-    title: "MTD Avg RO",
-    subtitle: roCount
-      ? `Approx labour per RO`
-      : "No ROs for selected month",
-    valueLabel: formatCurrency(avgRo),
-    targetLabel: mtdAvgRoTarget
-      ? `Target: ${formatCurrency(mtdAvgRoTarget)}`
-      : "Target not set",
-    ratio: mtdAvgRoTarget ? avgRo / mtdAvgRoTarget : 0,
-    status:
-      mtdAvgRoTarget && avgRo >= mtdAvgRoTarget && roCount
-        ? "good"
-        : "snapshot"
-  });
-
-  // Gauge 3: MTD GP%
-  const gpRatio = mtdGpTarget ? gpPct / mtdGpTarget : 0;
-  renderGaugeCard("mtdGpGauge", {
-    title: "MTD GP%",
-    subtitle: clockedHrs
-      ? `Margin on labour gross`
-      : "Margin based on Gross / Cost",
-    valueLabel: formatPercent(gpPct),
-    targetLabel: `Target: ${mtdGpTarget.toFixed(0)}%`,
-    ratio: gpRatio,
-    status: gpPct >= mtdGpTarget ? "good" : "attention"
-  });
-}
-
-// CUSTOMER / WARRANTY / INTERNAL MIX
-function renderMixCard(mixMetrics) {
-  const barEl   = document.getElementById("mixBar");
-  const labelEl = document.getElementById("mixCountsLabel");
-  if (!barEl || !labelEl) return;
-
-  const {
-    retailCount,
-    warrantyCount,
-    internalCount,
-    total,
-    retailPct,
-    warrantyPct,
-    internalPct
-  } = mixMetrics;
-
-  if (!total) {
-    barEl.innerHTML = `<div class="mix-empty">No MTD ROs available for mix.</div>`;
-    labelEl.textContent = "Retail 0 · Warranty 0 · Internal 0 · Total 0";
+  if (!mix.total) {
+    label.textContent = "No MTD data";
     return;
   }
 
-  const retailWidth   = clamp(retailPct,   0, 100);
-  const warrantyWidth = clamp(warrantyPct, 0, 100);
-  const internalWidth = clamp(internalPct, 0, 100);
+  // Segments
+  const segRetail = el("div", "mix-segment mix-retail");
+  segRetail.style.width = mix.retailPct + "%";
+  bar.appendChild(segRetail);
 
-  barEl.innerHTML = `
-    <div class="mix-segment mix-retail"
-         style="flex-basis:${retailWidth}%;"
-         title="Retail ${retailCount} (${retailPct.toFixed(1)}%)"></div>
-    <div class="mix-segment mix-warranty"
-         style="flex-basis:${warrantyWidth}%;"
-         title="Warranty ${warrantyCount} (${warrantyPct.toFixed(1)}%)"></div>
-    <div class="mix-segment mix-internal"
-         style="flex-basis:${internalWidth}%;"
-         title="Internal ${internalCount} (${internalPct.toFixed(1)}%)"></div>
-  `;
+  const segWarranty = el("div", "mix-segment mix-warranty");
+  segWarranty.style.width = mix.warrantyPct + "%";
+  bar.appendChild(segWarranty);
 
-  labelEl.textContent =
-    `Retail ${retailCount} (${retailPct.toFixed(1)}%) · ` +
-    `Warranty ${warrantyCount} (${warrantyPct.toFixed(1)}%) · ` +
-    `Internal ${internalCount} (${internalPct.toFixed(1)}%) · ` +
-    `Total ${total}`;
+  const segInternal = el("div", "mix-segment mix-internal");
+  segInternal.style.width = mix.internalPct + "%";
+  bar.appendChild(segInternal);
+
+  // Label summary
+  label.textContent =
+    `Customer ${mix.retail} | Warranty ${mix.warranty} | Internal ${mix.internal}`;
+
+  // Legend dots
+  const lg1 = el("div", "mix-legend-item");
+  lg1.innerHTML = `<span class="mix-dot mix-retail"></span> Customer`;
+  legend.appendChild(lg1);
+
+  const lg2 = el("div", "mix-legend-item");
+  lg2.innerHTML = `<span class="mix-dot mix-warranty"></span> Warranty`;
+  legend.appendChild(lg2);
+
+  const lg3 = el("div", "mix-legend-item");
+  lg3.innerHTML = `<span class="mix-dot mix-internal"></span> Internal`;
+  legend.appendChild(lg3);
 }
-</script>
-<script>
-// === BLOCK 4 – ADVISOR CARDS + LEADERBOARDS + RENDER ENGINE ===
 
-// ----- ADVISOR CARDS -----
-function renderAdvisorCards(today, mtd) {
-  const container = document.getElementById("advisorCards");
+// ---------------------
+// ADVISOR CARDS
+// ---------------------
+function renderAdvisorCards(stats, rankMap) {
+  const container = byId("advisorCards");
   if (!container) return;
 
   container.innerHTML = "";
 
-  // Merge advisor stats (today + MTD)
-  const map = {};
-
-  // Today stats
-  today.advisorStats.forEach(a => {
-    const name = a.advisor;
-    if (!map[name]) {
-      map[name] = {
-        advisor: name,
-        todayGross: 0,
-        todayROs: 0,
-        todayAvg: 0,
-        mtdGross: 0,
-        mtdROs: 0,
-        mtdAvg: 0,
-        leakage: 0,
-        gp: 0,
-        rank: null
-      };
-    }
-    map[name].todayGross = a.labourGross;
-    map[name].todayROs   = a.roCount;
-    map[name].todayAvg   = a.avgRo;
-  });
-
-  // MTD stats (only advisors > $1k MTD)
-  mtd.advisorStats.forEach(a => {
-    const name = a.advisor;
-    if (!map[name]) {
-      map[name] = {
-        advisor: name,
-        todayGross: 0,
-        todayROs: 0,
-        todayAvg: 0,
-        mtdGross: 0,
-        mtdROs: 0,
-        mtdAvg: 0,
-        leakage: 0,
-        gp: 0,
-        rank: null
-      };
-    }
-    map[name].mtdGross = a.labourGross;
-    map[name].mtdROs   = a.roCount;
-    map[name].mtdAvg   = a.avgRo;
-    map[name].leakage  = a.hoursRatio ? (1 - a.hoursRatio) * 100 : 0;
-    map[name].gp       = a.gpPct;
-    map[name].rank     = mtd.rankMap[a.advisor] || null;
-  });
-
-  const advisors = Object.values(map)
-    .filter(a => a.mtdGross >= 1000)   // Ghost advisor filter
-    .sort((a, b) => b.mtdGross - a.mtdGross);
-
-  if (!advisors.length) {
-    container.innerHTML =
-      `<div class="loading">No advisors meet the MTD >$1,000 requirement.</div>`;
-    return;
-  }
-
-  advisors.forEach(a => {
-    const card = document.createElement("div");
-    card.className = "advisor-card";
-
-    card.innerHTML = `
-      <div class="advisor-header">
-        <div class="advisor-name">${a.advisor}</div>
-        <div class="advisor-rank">${a.rank ? `Rank #${a.rank}` : ""}</div>
-      </div>
-
-      <div class="chip-row">
-        <div class="chip">Today: ${formatCurrency(a.todayGross)}</div>
-        <div class="chip">MTD: ${formatCurrency(a.mtdGross)}</div>
-        <div class="chip">Avg RO: ${formatCurrency(a.mtdAvg)}</div>
-      </div>
-
-      <div class="chip-row">
-        <div class="chip">ROs: ${a.mtdROs}</div>
-        <div class="chip">Leakage: ${formatPercent(a.leakage)}</div>
-        <div class="chip">GP%: ${formatPercent(a.gp)}</div>
-      </div>
-    `;
-
-    // Clicking card opens insights modal
+  stats.forEach(a => {
+    const card = el("div", "advisor-card");
     card.addEventListener("click", () => {
-      openInsightsModal(a.advisor); // will be defined in Block 6
+      openAdvisorInsights(a, rankMap);
     });
+
+    // Advisor name + rank pill
+    const top = el("div", "advisor-card-top");
+    const name = el("div", "advisor-name", a.advisor);
+
+    const rank = rankMap[a.advisor] || "-";
+    const pill = el("span", "rank-pill", "#" + rank);
+
+    top.appendChild(name);
+    top.appendChild(pill);
+
+    const gross = el("div", "advisor-metric", "Gross: " + formatCurrency(a.labourGross));
+    const avgRo = el("div", "advisor-metric", "Avg RO: " + formatCurrency(a.avgRo));
+    const gp = el("div", "advisor-metric", "GP%: " + a.gpPct.toFixed(1) + "%");
+
+    card.appendChild(top);
+    card.appendChild(gross);
+    card.appendChild(avgRo);
+    card.appendChild(gp);
 
     container.appendChild(card);
   });
 }
 
-// ----- LEADERBOARDS -----
-function renderLeaderboards(mtd) {
-  const container = document.getElementById("leaderboardCards");
+// ---------------------
+// LEADERBOARD RENDERER
+// ---------------------
+function renderLeaderboards(mtdStats) {
+  const container = byId("leaderboardCards");
   if (!container) return;
 
   container.innerHTML = "";
 
-  const advisors = mtd.advisorStats.slice();
+  const items = [
+    {
+      title: "Top 5 Gross (MTD)",
+      list: mtdStats.slice().sort((a, b) => b.labourGross - a.labourGross)
+    },
+    {
+      title: "Top 5 Avg RO (MTD)",
+      list: mtdStats.slice().sort((a, b) => b.avgRo - a.avgRo)
+    },
+    {
+      title: "Top 5 GP% (MTD)",
+      list: mtdStats.slice().sort((a, b) => b.gpPct - a.gpPct)
+    }
+  ];
 
-  if (!advisors.length) {
-    container.innerHTML = `<div class="loading">No advisor data available.</div>`;
-    return;
-  }
+  items.forEach(item => {
+    const card = el("div", "leader-card");
+    const title = el("div", "leader-title", item.title);
+    card.appendChild(title);
 
-  // Sorts
-  const topGross = advisors.slice().sort((a,b) => b.labourGross - a.labourGross).slice(0,5);
-  const topAvgRo = advisors.slice().sort((a,b) => b.avgRo - a.avgRo).slice(0,5);
-  const lowestLeak = advisors.slice().sort((a,b) => a.leakagePct - b.leakagePct).slice(0,5);
+    const ul = el("ul", "leader-list");
 
-  // Convert to simple rows
-  function lbCard(title, rows) {
-    const card = document.createElement("div");
-    card.className = "lb-card";
-
-    let html = `<div class="lb-title">${title}</div>`;
-    rows.forEach(r => {
-      html += `
-        <div class="lb-row">
-          <span>${r.advisor}</span>
-          <span>${formatCurrency(r.labourGross)}</span>
-        </div>
-      `;
+    item.list.slice(0, 5).forEach(a => {
+      const li = el("li", "leader-item");
+      li.textContent =
+        `${a.advisor}: ` +
+        `${item.title.includes("Avg RO") ? formatCurrency(a.avgRo) : ""}` +
+        `${item.title.includes("Gross") ? formatCurrency(a.labourGross) : ""}` +
+        `${item.title.includes("GP%") ? a.gpPct.toFixed(1) + "%" : ""}`;
+      ul.appendChild(li);
     });
 
-    card.innerHTML = html;
-    return card;
-  }
-
-  // Add cards
-  container.appendChild(lbCard("Top 5 Labour Gross", topGross));
-
-  const lbAvg = document.createElement("div");
-  lbAvg.className = "lb-card";
-  lbAvg.innerHTML = `
-    <div class="lb-title">Top Avg RO</div>
-    ${topAvgRo
-      .map(r => `<div class="lb-row"><span>${r.advisor}</span><span>${formatCurrency(r.avgRo)}</span></div>`).join("")}
-  `;
-  container.appendChild(lbAvg);
-
-  const lbLeak = document.createElement("div");
-  lbLeak.className = "lb-card";
-  lbLeak.innerHTML = `
-    <div class="lb-title">Lowest Leakage</div>
-    ${lowestLeak
-      .map(r => `<div class="lb-row"><span>${r.advisor}</span><span>${formatPercent(r.leakagePct)}</span></div>`).join("")}
-  `;
-  container.appendChild(lbLeak);
-
-  // Warranty & Internal Open ROs
-  const openWarranty = mtd.rows.filter(r => classifyRoType(r) === "warranty");
-  const openInternal = mtd.rows.filter(r => classifyRoType(r) === "internal");
-
-  const lbWarranty = document.createElement("div");
-  lbWarranty.className = "lb-card";
-  lbWarranty.innerHTML = `
-    <div class="lb-title">Warranty ROs</div>
-    <div>${openWarranty.length} total</div>
-  `;
-  container.appendChild(lbWarranty);
-
-  const lbInternal = document.createElement("div");
-  lbInternal.className = "lb-card";
-  lbInternal.innerHTML = `
-    <div class="lb-title">Internal ROs</div>
-    <div>${openInternal.length} total</div>
-  `;
-  container.appendChild(lbInternal);
-}
-
-// ----- LEADERBOARD PANEL -----
-function openLeaderboardPanel(mtd) {
-  const panel = document.getElementById("leaderboardPanel");
-  const body  = document.getElementById("leaderboardPanelBody");
-  const close = document.getElementById("closeLeaderboard");
-
-  if (!panel || !body || !close) return;
-
-  const advisors = mtd.advisorStats.slice().sort((a,b) => b.labourGross - a.labourGross);
-
-  body.innerHTML = advisors
-    .map(a => `
-      <div class="lb-row">
-        <span>${a.rank ? "#" + a.rank : ""} ${a.advisor}</span>
-        <span>${formatCurrency(a.labourGross)}</span>
-      </div>
-    `)
-    .join("");
-
-  panel.classList.remove("hidden");
-  close.addEventListener("click", () => {
-    panel.classList.add("hidden");
+    card.appendChild(ul);
+    container.appendChild(card);
   });
 }
 
-// ----- DASHBOARD RENDER PROCESS -----
-function renderDashboard() {
-  if (!state.loaded) {
-    document.getElementById("todaySummary").textContent = "CSV not loaded.";
-    document.getElementById("mtdSummary").textContent   = "CSV not loaded.";
-    return;
+// ---------------------
+// ADVISOR INSIGHTS MODAL
+// ---------------------
+function openAdvisorInsights(a, rankMap) {
+  const modal = byId("advisorModal");
+  const body = byId("advisorModalBody");
+  const dateLbl = byId("modalDateLabel");
+  const closeBtn = byId("advisorModalClose");
+
+  if (!modal || !body) return;
+
+  body.innerHTML = `
+    <div><strong>${a.advisor}</strong></div>
+    <div>Rank: #${rankMap[a.advisor] || "-"}</div>
+    <div>Total Gross: ${formatCurrency(a.labourGross)}</div>
+    <div>Avg RO: ${formatCurrency(a.avgRo)}</div>
+    <div>GP%: ${a.gpPct.toFixed(1)}%</div>
+    <div>Hours Ratio: ${(a.hoursRatio * 100).toFixed(1)}%</div>
+    <div>Leakage: ${a.leakagePct.toFixed(1)}%</div>
+  `;
+
+  modal.classList.remove("hidden");
+
+  if (closeBtn) {
+    closeBtn.onclick = () => modal.classList.add("hidden");
   }
 
-  const today = computeTodayMetrics();
-  const mtd   = computeMtdMetrics();
-  const mix   = computeMtdMixAllAdvisors();
-
-  // Today summary line
-  document.getElementById("todaySummary").textContent =
-    `ROs Today: ${today.roCount} · Gross: ${formatCurrency(today.totalGross)}`;
-
-  // MTD summary line
-  document.getElementById("mtdSummary").textContent =
-    `MTD ROs: ${mtd.roCount} · Gross: ${formatCurrency(mtd.totalGross)}`;
-
-  // Gauges
-  renderTopGaugesToday(today);
-  renderTopGaugesMtd(mtd);
-
-  // Mix
-  renderMixCard(mix);
-
-  // Advisor cards
-  renderAdvisorCards(today, mtd);
-
-  // Leaderboards
-  renderLeaderboards(mtd);
-
-  // Wire leaderboard button
-  const leaderboardBtn = document.getElementById("leaderboardToggle");
-  if (leaderboardBtn) {
-    leaderboardBtn.onclick = () => openLeaderboardPanel(mtd);
-  }
+  // Close on background click
+  modal.addEventListener("click", e => {
+    if (e.target === modal) modal.classList.add("hidden");
+  });
 }
 
-// ----- PAGE SWITCHING -----
-document.querySelectorAll(".top-tab").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".top-tab").forEach(b =>
-      b.classList.remove("active")
-    );
-    btn.classList.add("active");
-
-    const page = btn.dataset.page;
-    document.getElementById("page-dashboard").classList.add("hidden");
-    document.getElementById("page-settings").classList.add("hidden");
-    document.getElementById(`page-${page}`).classList.remove("hidden");
-  });
-});
 </script>
 <script>
-// === BLOCK 5 – CSV LOADING + FILTER WIRING ===
+// ======================================================
+// BLOCK 4 — APP ENGINE (LOAD + FILTER + RENDER)
+// ======================================================
 
-// Safe accessor for global state
-function getAdvisorState() {
-  if (typeof state !== "undefined") return state;
-  if (!window.__advisorState) {
-    window.__advisorState = {
-      rows: [],
-      loaded: false,
-      filters: { date: null, advisor: "all" }
-    };
-  }
-  return window.__advisorState;
-}
+// ---------- RENDER DASHBOARD FROM STATE ----------
 
-// Local helper: parse AU date (for C Closed Date default)
-function parseCClosedDate(raw) {
-  if (!raw) return null;
-  // Try DD/MM/YYYY first
-  const m1 = String(raw).match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-  if (m1) {
-    const d = parseInt(m1[1], 10);
-    const m = parseInt(m1[2], 10);
-    let y = parseInt(m1[3], 10);
-    if (y < 100) y += 2000;
-    const dt = new Date(y, m - 1, d);
-    return isNaN(dt.getTime()) ? null : dt;
-  }
-  // Fallback to Date()
-  const dt = new Date(raw);
-  return isNaN(dt.getTime()) ? null : dt;
-}
+function renderDashboard() {
+  const todaySummaryEl = byId("todaySummary");
+  const mtdSummaryEl   = byId("mtdSummary");
 
-// ---- INGEST CSV ROWS INTO STATE ----
-function ingestAdvisorCsvRows(rows) {
-  const s = getAdvisorState();
+  if (!state.loaded || !state.rows.length) {
+    if (todaySummaryEl) todaySummaryEl.textContent = "CSV not loaded.";
+    if (mtdSummaryEl)   mtdSummaryEl.textContent   = "CSV not loaded.";
 
-  // Filter out empty rows: keep ones with InvoiceID or Advisor Name
-  const clean = (rows || []).filter(r =>
-    r &&
-    (r["InvoiceID"] || r["Advisor Name"])
-  );
-
-  s.rows = clean;
-  s.loaded = true;
-
-  // Build advisor dropdown (unique names)
-  const advisorSelect = document.getElementById("advisorFilter");
-  if (advisorSelect) {
-    const names = [...new Set(
-      clean
-        .map(r => String(r["Advisor Name"] || "").trim())
-        .filter(Boolean)
-    )].sort((a, b) => a.localeCompare(b));
-
-    advisorSelect.innerHTML =
-      `<option value="all">All Advisors</option>` +
-      names.map(n => `<option value="${n}">${n}</option>`).join("");
-  }
-
-  // Determine min/max C Closed Date
-  const cDates = clean
-    .map(r => parseCClosedDate(r["C Closed Date"]))
-    .filter(d => d instanceof Date && !isNaN(d));
-
-  const datePicker = document.getElementById("datePicker");
-  if (cDates.length && datePicker) {
-    let minD = cDates[0];
-    let maxD = cDates[0];
-    cDates.forEach(d => {
-      if (d < minD) minD = d;
-      if (d > maxD) maxD = d;
+    // Clear gauges / cards
+    ["todayLabourGauge","todayAvgRoGauge","todayHoursGauge",
+     "mtdLabourGauge","mtdAvgRoGauge","mtdGpGauge"].forEach(id => {
+      const c = byId(id);
+      if (c) c.innerHTML = "";
     });
 
-    function toInput(d) {
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, "0");
-      const dd = String(d.getDate()).padStart(2, "0");
-      return `${y}-${m}-${dd}`;
-    }
-
-    datePicker.min = toInput(minD);
-    datePicker.max = toInput(maxD);
-    datePicker.value = toInput(maxD);
-
-    // Set filter date in state
-    s.filters.date = new Date(
-      maxD.getFullYear(),
-      maxD.getMonth(),
-      maxD.getDate()
-    );
+    const advisorCards = byId("advisorCards");
+    const leaderboardCards = byId("leaderboardCards");
+    if (advisorCards) advisorCards.innerHTML = `<div class="loading">Awaiting CSV…</div>`;
+    if (leaderboardCards) leaderboardCards.innerHTML = "";
+    return;
   }
 
-  // Update status pill
-  const statusTotal = document.getElementById("statusTotal");
+  // Core metrics
+  const today = computeTodayMetrics();
+  const mtd   = computeMtdMetrics();
+  const mixRaw = computeMtdMixAllAdvisors();
+
+  // --- TODAY SUMMARY LINE ---
+  if (todaySummaryEl) {
+    const avgRoToday = today.roCount ? today.totalGross / today.roCount : 0;
+    todaySummaryEl.textContent =
+      `ROs: ${today.roCount} · Gross: ${formatCurrency(today.totalGross)} · Avg RO: ${formatCurrency(avgRoToday)}`;
+  }
+
+  // --- MTD SUMMARY LINE ---
+  if (mtdSummaryEl) {
+    const avgRoMtd = mtd.roCount ? mtd.totalGross / mtd.roCount : 0;
+    mtdSummaryEl.textContent =
+      `MTD ROs: ${mtd.roCount} · Gross: ${formatCurrency(mtd.totalGross)} · Avg RO: ${formatCurrency(avgRoMtd)}`;
+  }
+
+  // ---------- GAUGES ----------
+
+  // TODAY
+  const todayAvgRo    = today.roCount ? today.totalGross / today.roCount : 0;
+  const todayHoursRat = today.clockedHrs ? (today.chargedHrs / today.clockedHrs) : 0;
+
+  renderGaugeCard(
+    "todayLabourGauge",
+    "Today Labour Gross",
+    today.totalGross,
+    toNumber(settings.dailyLabourTarget)
+  );
+
+  renderGaugeCardNumber(
+    "todayAvgRoGauge",
+    "Today Avg RO",
+    todayAvgRo || 0,
+    toNumber(settings.dailyAvgRoTarget),
+    ""
+  );
+
+  renderGaugeCardNumber(
+    "todayHoursGauge",
+    "Hours Sold / Clocked",
+    todayHoursRat * 100 || 0,
+    (toNumber(settings.dailyHoursRatioTarget) || 1) * 100,
+    "%"
+  );
+
+  // MTD
+  const mtdAvgRo = mtd.roCount ? mtd.totalGross / mtd.roCount : 0;
+
+  renderGaugeCard(
+    "mtdLabourGauge",
+    "MTD Labour Gross",
+    mtd.totalGross,
+    toNumber(settings.mtdLabourTarget)
+  );
+
+  renderGaugeCardNumber(
+    "mtdAvgRoGauge",
+    "MTD Avg RO",
+    mtdAvgRo || 0,
+    toNumber(settings.mtdAvgRoTarget),
+    ""
+  );
+
+  renderGaugeCardNumber(
+    "mtdGpGauge",
+    "MTD GP%",
+    mtd.gpPct || 0,
+    toNumber(settings.mtdGpPctTarget) || 80,
+    "%"
+  );
+
+  // ---------- MIX BAR (C/W/I) ----------
+
+  const mix = {
+    retail:      mixRaw.retailCount,
+    warranty:    mixRaw.warrantyCount,
+    internal:    mixRaw.internalCount,
+    total:       mixRaw.total,
+    retailPct:   mixRaw.retailPct,
+    warrantyPct: mixRaw.warrantyPct,
+    internalPct: mixRaw.internalPct
+  };
+  renderMixBar(mix);
+
+  // ---------- ADVISOR STATS + LEADERBOARDS ----------
+
+  // Decorate advisor stats with leakagePct so Block 3 can use it
+  const decoratedMtdStats = mtd.advisorStats.map(a => {
+    const leakagePct = a.hoursRatio ? (1 - a.hoursRatio) * 100 : 0;
+    return { ...a, leakagePct };
+  });
+
+  renderAdvisorCards(decoratedMtdStats, mtd.rankMap || {});
+  renderLeaderboards(decoratedMtdStats);
+
+  // Update status pill if everything is valid
+  const statusTotal = byId("statusTotal");
   if (statusTotal) {
     statusTotal.classList.remove("bad");
     statusTotal.classList.add("good");
     statusTotal.innerHTML =
-      '<span class="status-dot"></span><span>Total performance: Loaded ✔</span>';
-  }
-
-  // Finally, re-render dashboard
-  try {
-    renderDashboard();
-  } catch (e) {
-    console.error("renderDashboard error:", e);
+      '<span class="status-dot"></span><span>CSV loaded · ' +
+      decoratedMtdStats.length +
+      ' advisor(s)</span>';
   }
 }
 
-// ---- PARSE CSV TEXT ----
-function parseAdvisorCsvText(text) {
+// ---------- CSV INGESTION ----------
+
+function ingestCsvRows(rows) {
+  // Basic clean – keep rows with an InvoiceID or Advisor Name
+  const clean = (rows || []).filter(r =>
+    r && (r["InvoiceID"] || r["Advisor Name"])
+  );
+
+  state.rows   = clean;
+  state.loaded = clean.length > 0;
+  state.error  = null;
+
+  // Refresh date bounds + advisor list
+  initDateFromData();
+  initAdvisorFilter();
+
+  renderDashboard();
+}
+
+// Parse CSV text via Papa
+function parseCsvText(text) {
   try {
     const result = Papa.parse(text, {
       header: true,
-      dynamicTyping: true,
+      dynamicTyping: false,
       skipEmptyLines: true
     });
-    ingestAdvisorCsvRows(result.data || []);
+    ingestCsvRows(result.data || []);
   } catch (e) {
-    console.error("CSV parse failed:", e);
-    const statusTotal = document.getElementById("statusTotal");
+    console.error("CSV parse error", e);
+    state.loaded = false;
+    state.error = "Failed to parse CSV";
+
+    const statusTotal = byId("statusTotal");
     if (statusTotal) {
       statusTotal.classList.remove("good");
       statusTotal.classList.add("bad");
@@ -1755,16 +1930,14 @@ function parseAdvisorCsvText(text) {
   }
 }
 
-// ---- FILE UPLOAD HANDLER ----
-function handleAdvisorFileUpload(file) {
+// File upload handler
+function handleFileUpload(file) {
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = ev => {
-    parseAdvisorCsvText(ev.target.result);
-  };
+  reader.onload = e => parseCsvText(e.target.result);
   reader.onerror = () => {
-    console.error("File read error");
-    const statusTotal = document.getElementById("statusTotal");
+    console.error("File read failed");
+    const statusTotal = byId("statusTotal");
     if (statusTotal) {
       statusTotal.classList.remove("good");
       statusTotal.classList.add("bad");
@@ -1775,36 +1948,41 @@ function handleAdvisorFileUpload(file) {
   reader.readAsText(file);
 }
 
-// ---- ONLINE CSV LOAD ----
-async function loadAdvisorOnlineCsv() {
-  const urlInput = document.getElementById("onlineCsvUrl");
-  const statusSpan = document.getElementById("onlineStatus");
-  const statusTotal = document.getElementById("statusTotal");
+// Online CSV load
+async function loadOnlineCsv() {
+  const urlInput   = byId("onlineCsvUrl");
+  const onlineStat = byId("onlineStatus");
+  const statusTotal = byId("statusTotal");
 
   const url = urlInput ? urlInput.value.trim() : "";
   if (!url) {
-    if (statusSpan) statusSpan.textContent = "Please enter an online CSV URL.";
+    if (onlineStat) onlineStat.textContent = "Please enter a CSV URL.";
     return;
   }
 
-  if (statusSpan) statusSpan.textContent = "Loading online CSV…";
+  if (onlineStat) onlineStat.textContent = "Loading online CSV…";
 
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error("HTTP " + res.status);
     const text = await res.text();
-    parseAdvisorCsvText(text);
 
-    if (statusSpan) statusSpan.textContent = "Online CSV loaded.";
+    // Save URL to settings on success
+    settings.onlineCsvUrl = url;
+    saveSettings();
+
+    parseCsvText(text);
+
+    if (onlineStat) onlineStat.textContent = "Online CSV loaded OK.";
     if (statusTotal) {
       statusTotal.classList.remove("bad");
       statusTotal.classList.add("good");
       statusTotal.innerHTML =
-        '<span class="status-dot"></span><span>Total performance: Loaded (online) ✔</span>';
+        '<span class="status-dot"></span><span>CSV loaded from online ✔</span>';
     }
   } catch (e) {
-    console.error("Online CSV load failed:", e);
-    if (statusSpan) statusSpan.textContent = "Failed to load online CSV.";
+    console.error("Online CSV load failed", e);
+    if (onlineStat) onlineStat.textContent = "Failed to load online CSV.";
     if (statusTotal) {
       statusTotal.classList.remove("good");
       statusTotal.classList.add("bad");
@@ -1814,53 +1992,129 @@ async function loadAdvisorOnlineCsv() {
   }
 }
 
-// ---- WIRE DOM EVENTS ----
-document.addEventListener("DOMContentLoaded", () => {
-  const s = getAdvisorState();
+// ---------- GLOBAL INSIGHTS (BUTTON) ----------
 
-const fileInput       = document.getElementById("fileInput");
-const btnUploadTotal  = document.getElementById("btnUpload");
-  const btnOnlineLoad   = document.getElementById("btnOnlineLoad");
-  const reloadOnlineBtn = document.getElementById("reloadOnlineBtn");
-  const advisorFilter   = document.getElementById("advisorFilter");
-  const datePicker      = document.getElementById("datePicker");
-  const dataSourceMode  = document.getElementById("dataSourceMode");
+function openGlobalInsights() {
+  const modal   = byId("advisorModal");
+  const body    = byId("advisorModalBody");
+  const closeBtn = byId("advisorModalClose");
 
-  // Upload button -> open file dialog
-  if (btnUploadTotal && fileInput) {
-    btnUploadTotal.addEventListener("click", () => fileInput.click());
+  if (!modal || !body) return;
+  if (!state.loaded || !state.rows.length) {
+    body.innerHTML = "<p>Load CSV to see insights.</p>";
+  } else {
+    const today = computeTodayMetrics();
+    const mtd   = computeMtdMetrics();
+    const mix   = computeMtdMixAllAdvisors();
+
+    const todayAvg = today.roCount ? today.totalGross / today.roCount : 0;
+    const mtdAvg   = mtd.roCount   ? mtd.totalGross   / mtd.roCount   : 0;
+
+    const lines = [];
+
+    // Gross vs targets
+    if (toNumber(settings.dailyLabourTarget)) {
+      if (today.totalGross >= toNumber(settings.dailyLabourTarget)) {
+        lines.push(`• Today is on or above target – ${formatCurrency(today.totalGross)} vs daily target ${formatCurrency(settings.dailyLabourTarget)}.`);
+      } else {
+        lines.push(`• Today is behind gross target – ${formatCurrency(today.totalGross)} vs daily target ${formatCurrency(settings.dailyLabourTarget)}.`);
+      }
+    }
+
+    if (toNumber(settings.mtdLabourTarget)) {
+      if (mtd.totalGross >= toNumber(settings.mtdLabourTarget)) {
+        lines.push(`• MTD gross is on/above target – ${formatCurrency(mtd.totalGross)} vs MTD target ${formatCurrency(settings.mtdLabourTarget)}.`);
+      } else {
+        lines.push(`• MTD gross is behind – ${formatCurrency(mtd.totalGross)} vs target ${formatCurrency(settings.mtdLabourTarget)}.`);
+      }
+    }
+
+    // Mix comments
+    if (mix.total) {
+      if (mix.retailPct < 50) {
+        lines.push(`• Retail mix soft – customer ROs ${mix.retailPct.toFixed(1)}% of total. Push customer-pay opportunities & declined work.`);
+      }
+      if (mix.warrantyPct > 25) {
+        lines.push(`• Warranty share high at ${mix.warrantyPct.toFixed(1)}%. Check coding and ensure warranty isn't crowding out retail.`);
+      }
+      if (mix.internalPct > 20) {
+        lines.push(`• Internal ROs ${mix.internalPct.toFixed(1)}%. Watch that reconditioning isn't consuming prime capacity.`);
+      }
+    }
+
+    if (!lines.length) {
+      lines.push("• Performance steady. Maintain rhythm and follow-up discipline.");
+    }
+
+    body.innerHTML = `
+      <h2>Service Department – Insights</h2>
+      <p><strong>Today:</strong> ${today.roCount} ROs · ${formatCurrency(today.totalGross)} · Avg RO ${formatCurrency(todayAvg)}</p>
+      <p><strong>Month-to-date:</strong> ${mtd.roCount} ROs · ${formatCurrency(mtd.totalGross)} · Avg RO ${formatCurrency(mtdAvg)} · GP% ${mtd.gpPct.toFixed(1)}%</p>
+      <h3>Highlights</h3>
+      <p>${lines.join("<br>")}</p>
+    `;
   }
 
-  // File chosen -> parse
+  modal.classList.remove("hidden");
+  if (closeBtn) closeBtn.onclick = () => modal.classList.add("hidden");
+  modal.addEventListener("click", e => {
+    if (e.target === modal) modal.classList.add("hidden");
+  });
+}
+
+// ---------- INIT / EVENT WIRING ----------
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Load saved settings
+  loadSettings();
+
+  // Pre-fill online URL field from settings
+  const urlInput = byId("onlineCsvUrl");
+  if (urlInput && settings.onlineCsvUrl) {
+    urlInput.value = settings.onlineCsvUrl;
+  }
+
+  const fileInput      = byId("fileInput");
+  const btnUpload      = byId("btnUpload");
+  const btnOnlineLoad  = byId("btnOnlineLoad");
+  const reloadOnline   = byId("reloadOnlineBtn");
+  const advisorFilter  = byId("advisorFilter");
+  const datePicker     = byId("datePicker");
+  const insightsBtn    = byId("insightsBtn");
+
+  // Upload button opens file dialog
+  if (btnUpload && fileInput) {
+    btnUpload.addEventListener("click", () => fileInput.click());
+  }
+
+  // File selected
   if (fileInput) {
     fileInput.addEventListener("change", () => {
       if (fileInput.files && fileInput.files[0]) {
-        handleAdvisorFileUpload(fileInput.files[0]);
+        handleFileUpload(fileInput.files[0]);
       }
     });
   }
 
-  // Online CSV test/load button (in Settings)
+  // Online CSV load (bottom bar)
   if (btnOnlineLoad) {
     btnOnlineLoad.addEventListener("click", () => {
-      loadAdvisorOnlineCsv();
+      loadOnlineCsv();
     });
   }
 
-  // Reload Online Data button in header
-  if (reloadOnlineBtn) {
-    reloadOnlineBtn.addEventListener("click", () => {
-      loadAdvisorOnlineCsv();
+  // Reload Online Data (header)
+  if (reloadOnline) {
+    reloadOnline.addEventListener("click", () => {
+      loadOnlineCsv();
     });
   }
 
   // Advisor filter
   if (advisorFilter) {
     advisorFilter.addEventListener("change", () => {
-      s.filters.advisor = advisorFilter.value || "all";
-      if (s.loaded) {
-        renderDashboard();
-      }
+      state.filters.advisor = advisorFilter.value || "all";
+      if (state.loaded) renderDashboard();
     });
   }
 
@@ -1869,210 +2123,26 @@ const btnUploadTotal  = document.getElementById("btnUpload");
     datePicker.addEventListener("change", () => {
       if (datePicker.value) {
         const d = new Date(datePicker.value);
-        s.filters.date = new Date(
+        state.filters.date = new Date(
           d.getFullYear(),
           d.getMonth(),
           d.getDate()
         );
       } else {
-        s.filters.date = null;
+        state.filters.date = null;
       }
-      if (s.loaded) {
-        renderDashboard();
-      }
+      if (state.loaded) renderDashboard();
     });
   }
 
-  // If mode is "online", try auto-load at startup (optional)
-  if (dataSourceMode && dataSourceMode.value === "online") {
-    const urlInput = document.getElementById("onlineCsvUrl");
-    if (urlInput && urlInput.value.trim()) {
-      loadAdvisorOnlineCsv();
-    }
+  // Insights button
+  if (insightsBtn) {
+    insightsBtn.addEventListener("click", openGlobalInsights);
   }
+
+  // If you want auto-load from Google on open, uncomment:
+  // if (settings.onlineCsvUrl) {
+  //   loadOnlineCsv();
+  // }
 });
-</script>
-<script>
-// === BLOCK 6 – INSIGHTS ENGINE + MODAL + GLOBAL INSIGHTS ===
-
-// ---------- INSIGHTS LOGIC ----------
-
-function buildAdvisorInsights(advisor, stats, today, mtd, mix) {
-  const {
-    mtdGross,
-    mtdAvg,
-    mtdROs,
-    leakage,
-    gp,
-    todayGross,
-    todayROs,
-    todayAvg
-  } = stats;
-
-  const dealershipAvgRo = mtd.avgRo || 0;
-  const dealershipLeak  = mtd.avgLeak || 0;
-  const dealershipGp    = mtd.avgGpPct || 0;
-
-  const items = [];
-
-  // --- Strengths ---
-  if (mtdAvg > dealershipAvgRo) {
-    items.push(`• Strong RO average (${formatCurrency(mtdAvg)} vs store ${formatCurrency(dealershipAvgRo)}).`);
-  }
-  if (gp >= dealershipGp) {
-    items.push(`• GP% is above store average (${formatPercent(gp)} vs ${formatPercent(dealershipGp)}).`);
-  }
-  if (leakage < dealershipLeak) {
-    items.push(`• Excellent hour control (leakage ${formatPercent(leakage)} vs ${formatPercent(dealershipLeak)}).`);
-  }
-  if (mtdGross > 10000) {
-    items.push(`• Solid overall contribution with ${formatCurrency(mtdGross)} MTD.`);
-  }
-
-  // --- Opportunities ---
-  if (mtdAvg < dealershipAvgRo) {
-    items.push(`• Raise Avg RO — currently ${formatCurrency(mtdAvg)}, store is ${formatCurrency(dealershipAvgRo)}.`);
-  }
-  if (gp < dealershipGp) {
-    items.push(`• Lift GP% — currently ${formatPercent(gp)}, store is ${formatPercent(dealershipGp)}.`);
-  }
-  if (leakage > 20) {
-    items.push(`• Hours leakage high at ${formatPercent(leakage)} — aim under 20%.`);
-  }
-  if (mtdROs < 15) {
-    items.push(`• Low RO count (${mtdROs}). Increase throughput on customer-pay work.`);
-  }
-
-  // --- Today vs MTD comparison ---
-  if (todayGross && todayGross < todayAvg) {
-    items.push(`• Today’s RO average is soft — ${formatCurrency(todayAvg)}. Push additional items/declined work follow-up.`);
-  }
-
-  // --- Mix-based insights ---
-  if (mix.retailPct < 40) {
-    items.push(`• Retail mix low (${mix.retailPct.toFixed(1)}%). More customer-pay opportunities needed.`);
-  }
-  if (mix.warrantyPct > 25) {
-    items.push(`• Warranty ratio high (${mix.warrantyPct.toFixed(1)}%). Confirm labour ops coded correctly.`);
-  }
-
-  // If nothing meaningful, fallback:
-  if (!items.length) {
-    items.push("• Performance steady and consistent. Maintain rhythm.");
-  }
-
-  return items.join("<br>");
-}
-
-// ---------- PER-ADVISOR MODAL ----------
-
-function openInsightsModal(advisorName) {
-  const modal  = document.getElementById("advisorModal");
-  const body   = document.getElementById("advisorModalBody");
-  const close  = document.getElementById("advisorModalClose");
-
-  const today = computeTodayMetrics();
-  const mtd   = computeMtdMetrics();
-  const mix   = computeMtdMixAllAdvisors();
-
-  // Find advisor stats
-  const statsToday = today.advisorStats.find(a => a.advisor === advisorName) || {
-    labourGross: 0, roCount: 0, avgRo: 0
-  };
-  const statsMtd = mtd.advisorStats.find(a => a.advisor === advisorName) || {
-    labourGross: 0, roCount: 0, avgRo: 0, leakagePct: 0, gpPct: 0
-  };
-
-  const insights = buildAdvisorInsights(
-    advisorName,
-    {
-      todayGross: statsToday.labourGross,
-      todayAvg: statsToday.avgRo,
-      todayROs: statsToday.roCount,
-      mtdGross: statsMtd.labourGross,
-      mtdAvg: statsMtd.avgRo,
-      mtdROs: statsMtd.roCount,
-      leakage: statsMtd.leakagePct,
-      gp: statsMtd.gpPct
-    },
-    today,
-    mtd,
-    mix
-  );
-
-  body.innerHTML = `
-    <h2>${advisorName}</h2>
-    <div class="modal-section">
-      <h3>Performance Summary</h3>
-      <p><strong>Today:</strong> ${formatCurrency(statsToday.labourGross)} · ${statsToday.roCount} ROs · Avg ${formatCurrency(statsToday.avgRo)}</p>
-      <p><strong>MTD:</strong> ${formatCurrency(statsMtd.labourGross)} · ${statsMtd.roCount} ROs · Avg ${formatCurrency(statsMtd.avgRo)}</p>
-      <p><strong>Leakage:</strong> ${formatPercent(statsMtd.leakagePct)}</p>
-      <p><strong>GP%:</strong> ${formatPercent(statsMtd.gpPct)}</p>
-    </div>
-
-    <div class="modal-section">
-      <h3>Insights</h3>
-      <p>${insights}</p>
-    </div>
-  `;
-
-  modal.classList.remove("hidden");
-
-  close.onclick = () => modal.classList.add("hidden");
-}
-
-// ---------- GLOBAL INSIGHTS (WHOLE DEALERSHIP) ----------
-
-function renderGlobalInsights() {
-  const el = document.getElementById("insightsContent");
-  if (!el) return;
-
-  const today = computeTodayMetrics();
-  const mtd   = computeMtdMetrics();
-  const mix   = computeMtdMixAllAdvisors();
-
-  const lines = [];
-
-  // Daily summary
-  if (today.totalGross < toNumber(settings.dailyLabourTarget)) {
-    lines.push(`• Today’s gross ${formatCurrency(today.totalGross)} is behind target. Consider calling declined work.`);
-  } else {
-    lines.push(`• Today’s gross ${formatCurrency(today.totalGross)} is ahead of pace. Good job keeping RO flow moving.`);
-  }
-
-  // MTD Gross
-  if (mtd.totalGross < toNumber(settings.mtdLabourTarget)) {
-    lines.push(`• MTD Gross ${formatCurrency(mtd.totalGross)} is below target. Accelerate follow-up on open Customer-Pay work.`);
-  } else {
-    lines.push(`• MTD Gross ${formatCurrency(mtd.totalGross)} is tracking well.`);  
-  }
-
-  // Mix
-  if (mix.retailPct < 50) {
-    lines.push(`• Retail mix is soft (${mix.retailPct.toFixed(1)}%). Push menu presentation and declined work pickup.`);
-  }
-
-  if (mix.warrantyPct > 25) {
-    lines.push(`• Warranty %. Consider reviewing operation coding and ensure warranty isn't masking retail opportunities.`);
-  }
-
-  if (mix.internalPct > 20) {
-    lines.push(`• Internal work high (${mix.internalPct.toFixed(1)}%). Check if booking capacity is being eaten by reconditioning.`);
-  }
-
-  // Fallback
-  if (!lines.length) lines.push("• Performance steady. Maintain momentum.");
-
-  el.innerHTML = lines.join("<br>");
-}
-
-
-// ---------- FINAL RENDER HOOK ----------
-
-const __oldRenderDashboard = renderDashboard;
-renderDashboard = function() {
-  __oldRenderDashboard();
-  renderGlobalInsights();
-};
-
 </script>
