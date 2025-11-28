@@ -277,6 +277,7 @@
       border-color: var(--border);
       color: var(--muted);
     }
+
     .main-tabs {
       display: inline-flex;
       border-radius: 999px;
@@ -860,6 +861,7 @@
         <button id="reloadOnlineBtn">🔄 Reload Online Data</button>
       </div>
     </header>
+
     <!-- MAIN TABS -->
     <div class="main-tabs">
       <button class="main-tab active" data-page="dashboard">Dashboard</button>
@@ -882,6 +884,7 @@
           <span class="status-dot"></span>
           <span>Total performance: Not loaded</span>
         </div>
+        <span id="onlineStatus" class="inline-note"></span>
       </div>
     </div>
 
@@ -942,7 +945,6 @@
         </div>
       </section>
     </div>
-
     <!-- SETTINGS PAGE -->
     <div id="page-settings" class="hidden">
       <div class="section-title">Settings</div>
@@ -1011,22 +1013,19 @@
             <div class="field-group">
               <label for="onlineCsvUrl">Online CSV URL</label>
               <input
-  type="text"
-  id="onlineCsvUrl"
-  placeholder="https://docs.google.com/spreadsheets/d/1fiwosf8gXN6faN-LHQtvAIfMbAagEptqWkwiPE23Vbg/export?format=csv"
-/>
-
+                type="text"
+                id="onlineCsvUrl"
+                placeholder="https://docs.google.com/spreadsheets/.../export?format=csv"
+              />
             </div>
 
             <div class="inline-note">
-              For Google Sheets: use a share link with
-              <strong>'Anyone with link'</strong> and append
-              <code>export?format=csv</code>. Google Drive files must expose CSV.
+              For Google Sheets: share with <strong>'Anyone with link'</strong> and use a link that ends in
+              <code>export?format=csv</code> (not <code>/edit</code>).
             </div>
 
             <div class="field-group" style="margin-top:8px;">
               <button id="testOnlineLoadBtn" class="primary">🌐 Test &amp; load online data</button>
-              <span id="onlineStatus" class="inline-note"></span>
             </div>
           </div>
         </div>
@@ -1139,30 +1138,33 @@
       }
     };
 
-    const SETTINGS_STORAGE_KEY = "advisorDashSettings_v1";
+    // LIVE GOOGLE SHEETS CSV (Technician-style constant)
+    const LIVE_CSV_URL =
+      "https://docs.google.com/spreadsheets/d/1fiwosf8gXN6faN-LHQtvAIfMbAagEptqWkwiPE23Vbg/export?format=csv";
+
+    const SETTINGS_STORAGE_KEY = "advisorDashSettings_v2";
     const THEME_STORAGE_KEY   = "advisorDashTheme_v1";
 
     let currentTheme = "dark";
 
     const defaultSettings = {
-  dailyLabourTarget: 16000,
-  dailyBilledRatioTarget: 0.98,
-  mtdLabourTarget: 280000,
-  mtdUpsellPerROTarget: 75,
-  targetGrossPerRO: 450,
-  targetGpPct: 80,
-  nonRetailMaxPct: 20,
-  dataSourceMode: "online",
-  onlineCsvUrl: "https://docs.google.com/spreadsheets/d/1fiwosf8gXN6faN-LHQtvAIfMbAagEptqWkwiPE23Vbg/export?format=csv",
-  policyByBrand: [
-    { make: "Kia", policy: 0 },
-    { make: "Nissan", policy: 0 },
-    { make: "GWM", policy: 0 }
-  ],
-  unappliedHours: 0,
-  unappliedDollars: 0
-};
-
+      dailyLabourTarget: 16000,
+      dailyBilledRatioTarget: 0.98,
+      mtdLabourTarget: 280000,
+      mtdUpsellPerROTarget: 75,
+      targetGrossPerRO: 450,
+      targetGpPct: 80,
+      nonRetailMaxPct: 20,
+      dataSourceMode: "online",
+      onlineCsvUrl: LIVE_CSV_URL,
+      policyByBrand: [
+        { make: "Kia", policy: 0 },
+        { make: "Nissan", policy: 0 },
+        { make: "GWM", policy: 0 }
+      ],
+      unappliedHours: 0,
+      unappliedDollars: 0
+    };
 
     let settings = { ...defaultSettings };
 
@@ -1396,11 +1398,10 @@
         statusTotal.innerHTML = '<span class="status-dot"></span><span>Total performance: Not loaded</span>';
       }
     }
-
     // === DATA SOURCE: ONLINE CSV ===
     async function loadOnlineCsv() {
-      const url = (settings.onlineCsvUrl || "").trim();
       const statusEl = document.getElementById("onlineStatus");
+      const url = (settings.onlineCsvUrl || LIVE_CSV_URL).trim();
       if (!url) {
         if (statusEl) statusEl.textContent = "Please enter a URL in Settings.";
         return;
@@ -1626,6 +1627,7 @@
       `;
       return div;
     }
+
     function renderDailyView() {
       const gaugesEl = document.getElementById("dailyGauges");
       const cardsEl = document.getElementById("dailyAdvisorCards");
@@ -2278,7 +2280,6 @@
         loadOnlineCsv();
       });
     }
-
     // === BOOTSTRAP ===
     document.addEventListener("DOMContentLoaded", () => {
       loadSettings();
@@ -2442,7 +2443,8 @@
         renderAll();
         updateUploadStatus();
       } else {
-        if (settings.dataSourceMode === "online" && settings.onlineCsvUrl) {
+        // Auto-load online CSV on first load if configured
+        if (settings.dataSourceMode === "online" && (settings.onlineCsvUrl || LIVE_CSV_URL)) {
           loadOnlineCsv();
         }
       }
