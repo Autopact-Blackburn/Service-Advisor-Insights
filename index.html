@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Blackburn Kia Nissan GWM – Advisor Performance Dashboard</title>
+  <title>Advisor Performance – Service Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- PapaParse for CSV loading -->
@@ -12,55 +12,38 @@
     :root {
       --bg: #050510;
       --bg-alt: #0b0b1a;
-      --card: #141527;
+      --card: #111827;
+      --card-soft: radial-gradient(circle at top left, #1f2937 0, #020617 55%);
       --accent: #00bcd4;
       --accent-soft: #00bcd466;
-      --text: #f5f5f5;
-      --muted: #9ea4c6;
-      --border: #262a40;
-      --danger: #ff5252;
-      --success: #4caf50;
-      --warning: #ffc107;
-      --shadow: 0 10px 30px rgba(15, 23, 42, 0.9);
-      --bg-body: radial-gradient(circle at top left, #111827 0, #020617 55%);
-      --card-soft: radial-gradient(circle at top left, #1f2933 0, #141527 45%);
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+      --danger: #f97373;
+      --success: #22c55e;
+      --warning: #facc15;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.88);
     }
 
-    body.light {
-      --bg: #f3f4f6;
-      --bg-alt: #e5e7eb;
-      --card: #ffffff;
-      --accent: #0284c7;
-      --accent-soft: #0284c766;
-      --text: #0f172a;
-      --muted: #6b7280;
-      --border: #d1d5db;
-      --danger: #b91c1c;
-      --success: #16a34a;
-      --warning: #d97706;
-      --shadow: 0 8px 20px rgba(148, 163, 184, 0.45);
-      --bg-body: radial-gradient(circle at top left, #e5e7eb 0, #f9fafb 55%);
-      --card-soft: radial-gradient(circle at top left, #e5e7eb 0, #ffffff 45%);
+    * {
+      box-sizing: border-box;
     }
-
-    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       padding: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg-body);
+      background: radial-gradient(circle at top left, #111827 0, #020617 55%);
       color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      transition: background 0.25s ease, color 0.25s ease;
     }
 
     .shell {
-      width: min(1120px, 96%);
-      margin: 24px auto 40px;
+      width: min(1200px, 96%);
+      margin: 20px auto 40px;
     }
 
     header {
@@ -69,7 +52,7 @@
       gap: 12px;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
     .title-block {
@@ -83,8 +66,8 @@
       align-items: center;
       gap: 6px;
       font-size: 11px;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
       color: var(--muted);
     }
 
@@ -93,7 +76,7 @@
       height: 8px;
       border-radius: 999px;
       background: var(--accent);
-      box-shadow: 0 0 12px var(--accent-soft);
+      box-shadow: 0 0 14px var(--accent-soft);
     }
 
     h1 {
@@ -103,8 +86,9 @@
     }
 
     .subtitle {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--muted);
+      max-width: 560px;
     }
 
     .header-controls {
@@ -115,7 +99,8 @@
       justify-content: flex-end;
     }
 
-    select, input[type="date"], input[type="text"], input[type="number"], textarea {
+    select,
+    input[type="date"] {
       background: #020617;
       border-radius: 999px;
       border: 1px solid var(--border);
@@ -124,22 +109,6 @@
       color: var(--text);
       outline: none;
       min-width: 130px;
-    }
-
-    body.light select,
-    body.light input[type="date"],
-    body.light input[type="text"],
-    body.light input[type="number"],
-    body.light textarea {
-      background: #ffffff;
-      border-color: var(--border);
-      color: var(--text);
-    }
-
-    textarea {
-      border-radius: 12px;
-      min-height: 60px;
-      resize: vertical;
     }
 
     button {
@@ -154,39 +123,25 @@
       background: #020617;
       color: var(--text);
       border: 1px solid var(--border);
-      transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease, color 0.18s ease;
-    }
-
-    body.light button {
-      background: #ffffff;
-      color: var(--text);
-    }
-
-    button.primary {
-      background: linear-gradient(135deg, var(--accent), #38bdf8);
-      border-color: transparent;
-      color: #020617;
-      font-weight: 600;
-      box-shadow: 0 8px 18px rgba(0, 188, 212, 0.35);
-    }
-
-    button.primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 24px rgba(0, 188, 212, 0.5);
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
     }
 
     button:hover {
       background: #020617;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.9);
     }
 
-    body.light button:hover {
-      background: #e5e7eb;
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #38bdf8);
+      border-color: transparent;
+      color: #020617;
+      font-weight: 600;
+      box-shadow: 0 10px 22px rgba(0, 188, 212, 0.5);
     }
 
-    button:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      box-shadow: none;
+    .btn-primary:hover {
+      box-shadow: 0 14px 26px rgba(0, 188, 212, 0.7);
     }
 
     .icon-btn {
@@ -197,130 +152,50 @@
       font-size: 16px;
     }
 
-    .upload-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 12px;
-      margin-top: 18px;
-      border-radius: 14px;
-      background: radial-gradient(circle at top left, #1f2937 0, #020617 70%);
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      box-shadow: var(--shadow);
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    body.light .upload-bar {
-      background: radial-gradient(circle at top left, #e5e7eb 0, #f9fafb 70%);
-      border-color: #e5e7eb;
-    }
-
-    .upload-left {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .upload-title {
-      font-size: 12px;
-      color: #e5e7eb;
-      font-weight: 500;
-    }
-
-    body.light .upload-title {
-      color: #111827;
-    }
-
-    .upload-controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .status-pill {
-      font-size: 10px;
-      padding: 3px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      background: rgba(15, 23, 42, 0.9);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #64748b;
-    }
-
-    .status-pill.good .status-dot { background: #22c55e; }
-    .status-pill.bad .status-dot { background: #ef4444; }
-
-    .status-pill.good {
-      border-color: rgba(34, 197, 94, 0.7);
-      color: #bbf7d0;
-    }
-
-    .status-pill.bad {
-      border-color: rgba(248, 113, 113, 0.8);
-      color: #fecaca;
-    }
-
-    body.light .status-pill {
-      background: #ffffff;
-      border-color: var(--border);
-      color: var(--muted);
-    }
-
-    .main-tabs {
+    .top-tabs {
+      margin-top: 10px;
+      margin-bottom: 10px;
       display: inline-flex;
       border-radius: 999px;
       background: rgba(15, 23, 42, 0.9);
-      padding: 4px;
       border: 1px solid var(--border);
-      margin-bottom: 12px;
+      padding: 4px;
     }
 
-    body.light .main-tabs {
-      background: #e5e7eb;
-      border-color: #d1d5db;
-    }
-
-    .main-tab {
+    .top-tab {
       border-radius: 999px;
-      padding: 6px 16px;
+      padding: 6px 18px;
       font-size: 12px;
       cursor: pointer;
       color: var(--muted);
       border: none;
       background: transparent;
-      transition: background 0.18s ease, color 0.18s ease;
+      transition: background 0.15s ease, color 0.15s ease;
     }
 
-    .main-tab.active {
+    .top-tab.active {
       background: linear-gradient(135deg, #1e293b, #020617);
       color: #e5e7eb;
     }
 
-    body.light .main-tab.active {
-      background: #ffffff;
-      color: #111827;
+    .section-title {
+      margin: 16px 0 8px;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
 
-    .grid {
+    .gauge-row {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
     }
 
-    @media (max-width: 900px) {
-      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (max-width: 960px) {
+      .gauge-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
     @media (max-width: 640px) {
@@ -332,51 +207,38 @@
         width: 100%;
         justify-content: flex-start;
       }
-      .grid { grid-template-columns: minmax(0, 1fr); }
-      .upload-bar { align-items: flex-start; }
+      .gauge-row {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
 
     .card {
+      position: relative;
       background: var(--card-soft);
       border-radius: 18px;
       border: 1px solid var(--border);
       padding: 12px 12px 14px;
-      box-shadow: var(--shadow);
-      position: relative;
+      box-shadow: var(--shadow-soft);
       overflow: hidden;
     }
 
-    .card h3 {
-      margin: 0 0 2px;
-      font-size: 13px;
-      font-weight: 500;
+    .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 4px;
     }
 
-    .card-sub {
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
-    .metric-main {
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 2px;
-    }
-
-    .metric-target {
-      font-size: 11px;
-      color: var(--muted);
+    .card-title {
+      font-size: 13px;
+      font-weight: 500;
     }
 
     .pill {
       font-size: 10px;
       padding: 2px 8px;
       border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.7);
       color: var(--muted);
     }
 
@@ -392,92 +254,81 @@
       background: rgba(239, 68, 68, 0.16);
     }
 
-    .gauge {
+    .card-main-value {
+      font-size: 22px;
+      font-weight: 600;
+      margin: 4px 0 2px;
+    }
+
+    .card-subtext {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Circular gauge container */
+    .gauge-circle-wrapper {
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .gauge-circle {
+      width: 64px;
+      height: 64px;
+    }
+
+    .gauge-circle svg {
       width: 100%;
-      height: 9px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.95);
-      overflow: hidden;
-      margin: 6px 0 2px;
-      border: 1px solid rgba(30, 64, 175, 0.7);
-    }
-
-    body.light .gauge {
-      background: #e5e7eb;
-      border-color: #cbd5f5;
-    }
-
-    .gauge-fill {
       height: 100%;
-      width: var(--value, 40%);
-      border-radius: inherit;
-      background: linear-gradient(90deg, var(--accent), #22c55e);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+      transform: rotate(-90deg);
     }
 
     .gauge-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       font-size: 10px;
       color: var(--muted);
-      margin-top: 2px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
 
-    /* Mix bar for Customer/Warranty/Internal */
+    /* Mix bar */
     .mix-bar {
-      display: flex;
+      position: relative;
       width: 100%;
-      height: 10px;
+      height: 18px;
       border-radius: 999px;
       overflow: hidden;
-      border: 1px solid var(--border);
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(30, 64, 175, 0.7);
       margin-top: 4px;
-      margin-bottom: 2px;
-    }
-
-    body.light .mix-bar {
-      background: #e5e7eb;
     }
 
     .mix-segment {
       height: 100%;
+      display: inline-block;
     }
 
-    .mix-customer {
-      background: linear-gradient(90deg, #22c55e, #86efac);
-    }
-
-    .mix-warranty {
-      background: linear-gradient(90deg, #f97316, #fed7aa);
-    }
-
-    .mix-internal {
-      background: linear-gradient(90deg, #6366f1, #a5b4fc);
-    }
-
-    .section-title {
-      margin: 18px 0 8px;
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
+    .mix-legend {
+      margin-top: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 10px;
       color: var(--muted);
     }
 
-    .summary-row {
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 8px;
+    .mix-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-right: 4px;
     }
 
-    .summary-row strong {
-      color: var(--text);
-    }
-
-    .advisor-list {
+    .advisor-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 10px;
     }
 
@@ -486,21 +337,17 @@
       border-radius: 16px;
       border: 1px solid var(--border);
       padding: 10px 11px;
+      font-size: 11px;
       display: flex;
       flex-direction: column;
-      gap: 2px;
-    }
-
-    body.light .advisor-card {
-      background: #ffffff;
-      border-color: #e5e7eb;
+      gap: 4px;
     }
 
     .advisor-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .advisor-name {
@@ -513,12 +360,10 @@
       color: var(--muted);
     }
 
-    .advisor-metrics {
+    .chip-row {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      font-size: 10px;
-      color: var(--muted);
     }
 
     .chip {
@@ -526,16 +371,13 @@
       border-radius: 999px;
       background: rgba(15, 23, 42, 0.9);
       border: 1px solid rgba(51, 65, 85, 0.9);
+      font-size: 10px;
+      color: var(--muted);
     }
 
-    body.light .chip {
-      background: #f3f4f6;
-      border-color: #d1d5db;
-    }
-
-    .leaderboard {
+    .leaderboard-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
       gap: 10px;
     }
 
@@ -545,11 +387,6 @@
       border: 1px dashed rgba(148, 163, 184, 0.7);
       padding: 10px 11px;
       font-size: 11px;
-    }
-
-    body.light .lb-card {
-      background: #ffffff;
-      border-color: #d1d5db;
     }
 
     .lb-title {
@@ -564,272 +401,87 @@
       margin-bottom: 2px;
     }
 
-    .lb-row span:first-child { color: var(--muted); }
+    .lb-row span:first-child {
+      color: var(--muted);
+    }
 
-    .hidden { display: none !important; }
+    /* Data source panel */
+    .data-source-bar {
+      margin-top: 18px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: radial-gradient(circle at top left, #1f2937 0, #020617 75%);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .data-source-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .data-source-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: #e5e7eb;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .status-pill {
+      font-size: 10px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--muted);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #64748b;
+    }
+
+    .status-pill.good .status-dot {
+      background: #22c55e;
+    }
+
+    .status-pill.bad .status-dot {
+      background: #ef4444;
+    }
+
+    .status-pill.good {
+      border-color: rgba(34, 197, 94, 0.7);
+      color: #bbf7d0;
+    }
+
+    .status-pill.bad {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: #fecaca;
+    }
 
     .loading {
       font-size: 11px;
       color: var(--muted);
-      margin-top: 4px;
     }
 
     .error {
       font-size: 11px;
       color: #fecaca;
-      margin-top: 4px;
-    }
-
-    /* Modal */
-    #insightsModal {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.82);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 40;
-    }
-
-    .modal {
-      width: min(520px, 92%);
-      background: radial-gradient(circle at top left, #1f2933 0, #020617 55%);
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      padding: 14px 16px 14px;
-      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.95);
-    }
-
-    body.light .modal {
-      background: radial-gradient(circle at top left, #e5e7eb 0, #ffffff 55%);
-      border-color: #e5e7eb;
-      box-shadow: 0 18px 45px rgba(148, 163, 184, 0.9);
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .modal-header h2 {
-      margin: 0;
-      font-size: 14px;
-    }
-
-    .pill-soft {
-      font-size: 10px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      color: var(--muted);
-    }
-
-    body.light .pill-soft {
-      background: #ffffff;
-      border-color: #d1d5db;
-    }
-
-    .modal-body {
-      font-size: 11px;
-      color: var(--muted);
-      max-height: 380px;
-      overflow-y: auto;
-    }
-
-    .insight-item {
-      margin-bottom: 8px;
-      padding-bottom: 6px;
-      border-bottom: 1px dashed rgba(51, 65, 85, 0.7);
-    }
-
-    .insight-item:last-child { border-bottom: none; }
-
-    .insight-tag {
-      font-size: 10px;
-      color: #bfdbfe;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-    }
-
-    .insight-text { margin-top: 3px; }
-
-    /* Settings page */
-    #page-settings { margin-top: 10px; }
-
-    .settings-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 12px;
-    }
-
-    @media (max-width: 900px) {
-      .settings-grid {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    .settings-card {
-      background: #020617;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      padding: 10px 12px;
-      font-size: 11px;
-    }
-
-    body.light .settings-card {
-      background: #ffffff;
-      border-color: #e5e7eb;
-    }
-
-    .settings-card h3 {
-      margin: 0 0 6px;
-      font-size: 13px;
-    }
-
-    .field-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-      margin-bottom: 6px;
-    }
-
-    .field-group label {
-      font-size: 11px;
-      color: var(--muted);
-      min-width: 120px;
-    }
-
-    .field-group small {
-      font-size: 10px;
-      color: var(--muted);
-    }
-
-    .inline-note {
-      font-size: 10px;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-
-    .policy-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 11px;
-      margin-top: 4px;
-    }
-
-    .policy-table th,
-    .policy-table td {
-      border-bottom: 1px solid rgba(51, 65, 85, 0.7);
-      padding: 4px 4px;
-      text-align: left;
-    }
-
-    body.light .policy-table th,
-    body.light .policy-table td {
-      border-color: #e5e7eb;
-    }
-
-    .policy-table th {
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .policy-table input[type="text"],
-    .policy-table input[type="number"] {
-      width: 100%;
-      min-width: 0;
-      border-radius: 8px;
-      font-size: 11px;
-      padding: 4px 8px;
-    }
-
-    .pill-outline {
-      font-size: 10px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px dashed rgba(148, 163, 184, 0.7);
-      color: var(--muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    body.light .pill-outline {
-      border-color: #d1d5db;
-    }
-
-    /* Leaderboard side panel */
-    #leaderboardPanel {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      justify-content: flex-end;
-      align-items: stretch;
-      background: rgba(15, 23, 42, 0.65);
-      z-index: 45;
-    }
-
-    .lb-panel-inner {
-      width: min(360px, 90%);
-      background: #020617;
-      border-left: 1px solid var(--border);
-      box-shadow: -12px 0 30px rgba(15, 23, 42, 0.9);
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    body.light .lb-panel-inner {
-      background: #ffffff;
-      box-shadow: -12px 0 30px rgba(148, 163, 184, 0.8);
-    }
-
-    .lb-panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-
-    .lb-panel-header h2 {
-      margin: 0;
-      font-size: 14px;
-    }
-
-    .lb-panel-body {
-      font-size: 11px;
-      color: var(--muted);
-      overflow-y: auto;
-      max-height: calc(100vh - 80px);
-    }
-
-    .lb-section-title {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      margin-top: 8px;
-      margin-bottom: 4px;
-      color: var(--muted);
-    }
-
-    .lb-list-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 2px;
-    }
-
-    .lb-list-row span:first-child {
-      color: var(--muted);
-    }
-
-    .lb-summary {
-      font-size: 11px;
-      margin-bottom: 6px;
     }
   </style>
 </head>
@@ -843,471 +495,253 @@
         </div>
         <h1>Advisor Performance – Service Dashboard</h1>
         <div class="subtitle">
-          Single export only: consolidated advisor performance by unique RO. CustomerClosedDate drives
-          advisor metrics; internal / warranty open ROs are flagged separately.
+          One export only: Advisor Summary Performance. Metrics are RO-based (unique InvoiceID), not line-based.
+          Warranty / Internal / Customer mix is based on C / W / I closed dates.
         </div>
       </div>
 
       <div class="header-controls">
         <input type="date" id="datePicker" />
         <select id="advisorFilter">
-          <option value="all">All Advisors</option>
+          <option value="all">All Advisors (&gt;$1k MTD)</option>
         </select>
         <button id="leaderboardToggle">🏆 Leaderboard</button>
         <button id="insightsBtn">✨ Insights</button>
-        <button id="themeToggleBtn" class="icon-btn" title="Toggle theme">🌓</button>
         <button id="reloadOnlineBtn">🔄 Reload Online Data</button>
       </div>
     </header>
 
-    <!-- MAIN TABS -->
-    <div class="main-tabs">
-      <button class="main-tab active" data-page="dashboard">Dashboard</button>
-      <button class="main-tab" data-page="settings">Settings</button>
+    <div class="top-tabs">
+      <button class="top-tab active" data-page="dashboard">Dashboard</button>
+      <button class="top-tab" data-page="settings">Settings</button>
     </div>
-<!-- ========================= -->
-<!-- ===== DASHBOARD PAGE ==== -->
-<!-- ========================= -->
 
-<div id="page-dashboard">
+    <!-- DASHBOARD PAGE -->
+    <div id="page-dashboard">
+      <!-- TODAY GAUGES -->
+      <div class="section-title">Today's performance</div>
+      <div id="todaySummary" class="loading">Load CSV to see today's summary.</div>
+      <div class="gauge-row" id="todayGauges">
+        <!-- Today gauges injected -->
+      </div>
 
-  <!-- DAILY SECTION -->
-  <div class="section-title">Daily Performance</div>
+      <!-- MTD GAUGES -->
+      <div class="section-title">Month-to-date performance</div>
+      <div id="mtdSummary" class="loading">Load CSV to see MTD summary.</div>
+      <div class="gauge-row" id="mtdGauges">
+        <!-- MTD gauges injected -->
+      </div>
 
-  <!-- DAILY GAUGES -->
-  <div class="grid" id="dailyGaugeGrid">
-    <!-- JS will inject gauge cards here -->
+      <!-- MIX BAR -->
+      <div class="section-title">Customer / Warranty / Internal mix (MTD)</div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">RO Mix by type</span>
+          <span class="pill" id="mixStatusPill">Snapshot</span>
+        </div>
+        <div class="card-subtext" id="mixCountsLabel">
+          Retail 0 · Warranty 0 · Internal 0 · Total 0
+        </div>
+        <div class="mix-bar" id="mixBar">
+          <!-- segments -->
+        </div>
+        <div class="mix-legend" id="mixLegend">
+          <!-- legend -->
+        </div>
+      </div>
+
+      <!-- ADVISOR PERFORMANCE -->
+      <div class="section-title">Advisor performance</div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Advisor cards – Today &amp; MTD</span>
+          <span class="card-subtext" id="advisorFilterNote">
+            Filtered by advisors with &gt;$1k MTD labour.
+          </span>
+        </div>
+        <div class="advisor-grid" id="advisorCards">
+          <div class="loading">Load CSV to see advisor performance.</div>
+        </div>
+      </div>
+
+      <!-- LEADERBOARDS -->
+      <div class="section-title">Leaderboards &amp; key indicators</div>
+      <div class="leaderboard-grid" id="leaderboardCards">
+        <!-- populated by JS -->
+      </div>
+
+      <!-- DATA SOURCE -->
+      <div class="data-source-bar">
+        <div class="data-source-left">
+          <div class="data-source-title">Data source</div>
+          <div>Use the BI Summary export (one row per RO). CSV can be loaded from an online link or manual upload.</div>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+          <input type="file" id="fileInput" accept=".csv" class="hidden" />
+          <button id="btnUpload" class="btn-primary">DETAIL DATA (CSV)</button>
+          <button id="btnOnlineLoad">🌐 Load Online CSV</button>
+          <div id="statusTotal" class="status-pill bad">
+            <span class="status-dot"></span>
+            <span>CSV not loaded</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PAGE (placeholder, JS will wire fields) -->
+    <div id="page-settings" class="hidden">
+      <div class="section-title">Settings</div>
+      <!-- Settings content will be defined in later blocks -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Targets &amp; data source</span>
+        </div>
+        <div class="card-subtext">
+          Settings UI &amp; storage will be injected by script (Blocks 2–6).
+        </div>
+      </div>
+    </div>
+  </div>
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Online CSV Source</span>
   </div>
 
-  <!-- DAILY WORK MIX -->
-  <div class="section-title">Daily Work Mix</div>
-  <div id="dailyMixContainer">
-    <!-- JS will inject stacked bar + counts -->
+  <div style="margin-top:6px; font-size:11px; color:var(--muted);">
+    Paste Google Sheets CSV link (already in Settings & defaults)
   </div>
 
-  <!-- DAILY ADVISOR CARDS -->
-  <div class="section-title">Daily – Advisors</div>
-  <div class="advisor-list" id="dailyAdvisorList">
-    <!-- JS will inject advisor cards -->
-  </div>
+  <input
+    id="onlineCsvUrl"
+    type="text"
+    style="margin-top:8px; width:100%; padding:8px; border-radius:8px; border:1px solid var(--border); background:#020617; color:var(--text); font-size:11px;"
+    value="https://docs.google.com/spreadsheets/d/1fiwosf8gXN6faN-LHQtvAIfMbAagEptqWkwiPE23Vbg/export?format=csv"
+  />
 
-
-
-  <!-- MTD SECTION -->
-  <div class="section-title" style="margin-top:38px;">Month-To-Date Performance</div>
-
-  <!-- MTD GAUGES -->
-  <div class="grid" id="mtdGaugeGrid">
-    <!-- JS will inject gauge cards here -->
-  </div>
-
-  <!-- MTD WORK MIX -->
-  <div class="section-title">MTD Work Mix</div>
-  <div id="mtdMixContainer">
-    <!-- JS will inject stacked bar + counts -->
-  </div>
-
-  <!-- MTD ADVISOR CARDS -->
-  <div class="section-title">MTD – Advisors</div>
-  <div class="advisor-list" id="mtdAdvisorList">
-    <!-- JS will inject advisor cards -->
-  </div>
-
+  <div id="onlineStatus" style="margin-top:6px; font-size:11px; color:var(--muted);"></div>
 </div>
 
-
-
-
-
-<!-- ========================= -->
-<!-- ===== SETTINGS PAGE ===== -->
-<!-- ========================= -->
-
-<div id="page-settings" class="hidden">
-
-  <div class="settings-grid">
-
-    <!-- LEFT COLUMN -->
-    <div class="settings-card">
-      <h3>Data Source</h3>
-
-      <div class="field-group">
-        <label>Online CSV URL</label>
-        <input type="text" id="onlineCsvUrl" placeholder="https://docs.google.com/...export?format=csv">
+  <!-- INSIGHTS MODAL -->
+  <div id="advisorModal" class="hidden">
+  <div class="card" style="position:fixed; inset:50% auto auto 50%; transform:translate(-50%, -50%); width:min(520px, 94%); max-height:80vh; overflow-y:auto;">
+      <div class="card-header">
+        <span class="card-title">Service Advisor Insights</span>
+        <span class="pill" id="modalDateLabel">Snapshot</span>
       </div>
 
-      <div class="field-group">
-        <label>Try Online First?</label>
-        <select id="dataMode">
-          <option value="online">Try online first</option>
-          <option value="upload">Upload only</option>
-        </select>
+      <div id="advisorModalBody" style="font-size:11px; color:var(--muted); margin-top:4px;">
       </div>
 
-      <div class="field-group">
-        <label>Daily Labour Target ($)</label>
-        <input type="number" id="dailyLabourTarget" value="16000">
+      <div style="margin-top:10px; display:flex; justify-content:flex-end; gap:8px;">
+        <button id="advisorModalClose">Close</button>
       </div>
-
-      <div class="field-group">
-        <label>MTD Labour Target ($)</label>
-        <input type="number" id="mtdLabourTarget" value="280000">
-      </div>
-
-      <button id="saveSettingsBtn" class="primary" style="margin-top:10px;">Save Settings</button>
-    </div>
-
-
-
-    <!-- RIGHT COLUMN -->
-    <div class="settings-card">
-      <h3>Brand Policy Mix</h3>
-
-      <table class="policy-table">
-        <tr>
-          <th>Brand</th>
-          <th>Policy %</th>
-        </tr>
-        <tr>
-          <td>Kia</td>
-          <td><input type="number" class="policy-input" data-brand="Kia" value="0"></td>
-        </tr>
-        <tr>
-          <td>Nissan</td>
-          <td><input type="number" class="policy-input" data-brand="Nissan" value="0"></td>
-        </tr>
-        <tr>
-          <td>GWM</td>
-          <td><input type="number" class="policy-input" data-brand="GWM" value="0"></td>
-        </tr>
-      </table>
-
-      <div class="inline-note">
-        These values adjust the “policy” portion of GP calculations.
-      </div>
-    </div>
-
-  </div>
-
-</div>
-
-
-
-
-
-<!-- ========================= -->
-<!-- ===== FOOTER UPLOAD ===== -->
-<!-- ========================= -->
-
-<div class="upload-bar" id="uploadBar">
-
-  <div class="upload-left">
-    <div class="upload-title">CSV Import & Online Sync</div>
-    <span id="uploadStatus" class="loading">Awaiting upload or online pull…</span>
-  </div>
-
-  <div class="upload-controls">
-    <input type="file" id="csvInput" accept=".csv" />
-    <button id="uploadBtn">📂 Upload CSV</button>
-    <button id="loadOnlineBtn">🌐 Load Online CSV</button>
-  </div>
-
-</div>
-
-
-
-
-
-<!-- ========================= -->
-<!-- ===== INSIGHTS MODAL ==== -->
-<!-- ========================= -->
-
-<div id="insightsModal" class="hidden">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>Advisor Insights</h2>
-      <button id="closeInsights" class="icon-btn">✖</button>
-    </div>
-
-    <div class="modal-body" id="insightsBody">
-      <!-- JS will inject insights here -->
-    </div>
   </div>
 </div>
 
 
-
-
-
-<!-- ============================== -->
-<!-- ===== LEADERBOARD PANEL ====== -->
-<!-- ============================== -->
-
-<div id="leaderboardPanel" class="hidden">
-  <div class="lb-panel-inner">
-    <div class="lb-panel-header">
-      <h2>Advisor Leaderboard</h2>
-      <button id="closeLeaderboard" class="icon-btn">✖</button>
-    </div>
-
-    <div class="lb-panel-body" id="leaderboardBody">
-      <!-- JS will inject results -->
+  <!-- LEADERBOARD SIDE PANEL -->
+  <div id="leaderboardPanel" class="hidden">
+    <div style="position:fixed; inset:0; background:rgba(15,23,42,0.7); display:flex; justify-content:flex-end;">
+      <div style="width:min(360px, 90%); background:#020617; border-left:1px solid var(--border); padding:12px 14px; display:flex; flex-direction:column; gap:8px;">
+        <div class="card-header" style="padding:0;">
+          <span class="card-title">Advisor Leaderboard</span>
+          <button id="closeLeaderboard" class="icon-btn">✕</button>
+        </div>
+        <div id="leaderboardPanelBody" style="font-size:11px; color:var(--muted); overflow-y:auto; max-height:calc(100vh - 80px);">
+          <!-- content injected -->
+        </div>
+      </div>
     </div>
   </div>
-</div>
+
+  <!-- SCRIPT WILL START IN BLOCK 2 -->
+  <script>
+    // Block 2 will insert JS here
+  </script>
+</body>
+</html>
 <script>
-// ======================================================
-// =============== GLOBAL STATE ==========================
-// ======================================================
+// === BLOCK 2 – STATE, SETTINGS, UTILITIES, METRIC BUILDERS ===
 
-let RAW_ROWS = [];            // Raw CSV rows
-let CONSOLIDATED = [];        // Unique RO-level rows
-let SETTINGS = {};            // Loaded from localStorage
-let ADVISORS = [];            // Unique advisor names after consolidation
-let LOAD_MODE = "online";     // online / upload
-let ONLINE_URL = "";          // Google Sheets CSV URL
+// ----- STATE -----
+const state = {
+  rows: [],
+  loaded: false,
+  error: null,
+  filters: {
+    date: null,      // JS Date used for daily + MTD month
+    advisor: "all",  // "all" or specific advisor
+  }
+};
 
+const SETTINGS_STORAGE_KEY = "advisorDashSettings_v3";
 
-// ======================================================
-// =============== SETTINGS ENGINE =======================
-// ======================================================
+const defaultSettings = {
+  // Targets
+  dailyLabourTarget: 17000,
+  dailyAvgRoTarget: 410,
+  dailyHoursRatioTarget: 1.0,     // Charged / Clocked
 
+  mtdLabourTarget: 390000,
+  mtdAvgRoTarget: 430,
+  mtdGpPctTarget: 80,
+  nonRetailMaxPct: 20,            // Max W+I % of total ROs
+
+  // Data source
+  dataSourceMode: "online",       // "online" or "manual"
+  onlineCsvUrl:
+    "https://docs.google.com/spreadsheets/d/1fiwosf8gXN6faN-LHQtvAIfMbAagEptqWkwiPE23Vbg/export?format=csv"
+};
+
+let settings = { ...defaultSettings };
+
+// ----- SETTINGS LOAD / SAVE -----
 function loadSettings() {
   try {
-    const s = JSON.parse(localStorage.getItem("advisor-settings"));
-    SETTINGS = s || {
-      dailyLabourTarget: 16000,
-      mtdLabourTarget: 280000,
-      policy: { Kia: 0, Nissan: 0, GWM: 0 },
-      mode: "online",
-      onlineUrl: "https://docs.google.com/spreadsheets/d/1fiwosf8gXN6faN-LHQtvAIfMbAagEptqWkwiPE23Vbg/export?format=csv"
-    };
-  } catch {
-    SETTINGS = {
-      dailyLabourTarget: 16000,
-      mtdLabourTarget: 280000,
-      policy: { Kia: 0, Nissan: 0, GWM: 0 },
-      mode: "online",
-      onlineUrl: "https://docs.google.com/spreadsheets/d/1fiwosf8gXN6faN-LHQtvAIfMbAagEptqWkwiPE23Vbg/export?format=csv"
-    };
+    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    settings = { ...defaultSettings, ...parsed };
+  } catch (e) {
+    console.warn("Failed to load settings, using defaults", e);
+    settings = { ...defaultSettings };
   }
-
-  LOAD_MODE = SETTINGS.mode;
-  ONLINE_URL = SETTINGS.onlineUrl;
 }
 
 function saveSettings() {
-  localStorage.setItem("advisor-settings", JSON.stringify(SETTINGS));
-}
-
-
-
-// ======================================================
-// =============== CSV LOADING ===========================
-// ======================================================
-
-async function loadOnlineCsv() {
-  setUploadStatus("Loading online…");
-
   try {
-    const res = await fetch(ONLINE_URL);
-    if (!res.ok) throw new Error("HTTP " + res.status);
-
-    const text = await res.text();
-    parseCsv(text);
-    setUploadStatus("Online CSV loaded ✔");
-  } catch (err) {
-    console.error(err);
-    setUploadStatus("Failed to load online CSV");
+    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+  } catch (e) {
+    console.warn("Failed to save settings", e);
   }
 }
 
-function handleCsvUpload(file) {
-  setUploadStatus("Reading file…");
-
-  const reader = new FileReader();
-  reader.onload = e => {
-    parseCsv(e.target.result);
-    setUploadStatus("CSV loaded ✔");
-  };
-  reader.readAsText(file);
-}
-
-function parseCsv(text) {
-  Papa.parse(text, {
-    header: true,
-    skipEmptyLines: true,
-    complete: results => {
-      RAW_ROWS = results.data || [];
-      consolidateROs();
-    }
-  });
-}
-
-
-
-// ======================================================
-// =============== NORMALISATION HELPERS =================
-// ======================================================
-
-function toNum(x) {
-  if (x === null || x === undefined) return 0;
-  if (typeof x === "number") return x;
-  const n = parseFloat(String(x).replace(/[^0-9.\-]/g, ""));
-  return isNaN(n) ? 0 : n;
-}
-
+// ----- UTILITIES -----
 function parseAuDate(str) {
-  if (!str) return null;
-  const p = str.split(/[\/\-]/).map(n => parseInt(n));
-  if (p.length < 3) return null;
-  return new Date(p[2], p[1] - 1, p[0]);
-}
+  if (!str || typeof str !== "string") return null;
+  const trimmed = str.trim();
+  if (!trimmed) return null;
 
-function classifyType(row) {
-  const t = (row["Type"] || row["RO Type"] || "").toLowerCase();
+  // Accept dd/mm/yyyy, d/m/yy, yyyy-mm-dd etc.
+  const parts = trimmed.split(/[\/\-]/);
+  if (parts.length < 3) return null;
 
-  if (t.startsWith("w")) return "warranty";
-  if (t.startsWith("i")) return "internal";
-  return "retail"; // customer
-}
-
-
-
-// ======================================================
-// =============== RO CONSOLIDATION ENGINE ===============
-// ======================================================
-// Your rule: “Option B – advisor with MOST FREQUENT appearances per RO”
-
-function consolidateROs() {
-  const map = {}; // roNumber → array of rows
-
-  RAW_ROWS.forEach(r => {
-    const ro = String(r["RO#"] || r["RO Number"] || r["RO"] || "").trim();
-    if (!ro) return;
-
-    if (!map[ro]) map[ro] = [];
-    map[ro].push(r);
-  });
-
-  const finalList = [];
-
-  Object.keys(map).forEach(ro => {
-    const lines = map[ro];
-
-    // Pick MOST FREQUENT advisor
-    const advisorCounts = {};
-    lines.forEach(l => {
-      const a = String(l["Advisor Name"] || "").trim();
-      if (!a) return;
-      advisorCounts[a] = (advisorCounts[a] || 0) + 1;
-    });
-
-    let finalAdvisor = "Unknown";
-    let maxCount = 0;
-    Object.keys(advisorCounts).forEach(a => {
-      if (advisorCounts[a] > maxCount) {
-        maxCount = advisorCounts[a];
-        finalAdvisor = a;
-      }
-    });
-
-    // Aggregate all financial/time fields
-    let gross = 0;
-    let cost = 0;
-    let billed = 0;
-    let tech = 0;
-
-    let roType = "retail";
-
-    lines.forEach(l => {
-      gross += toNum(l["Gross Amt"]) || toNum(l["Labour Gross"]);
-      cost += toNum(l["Cost"]) || toNum(l["Labour Cost"]);
-      billed += toNum(l["Charged Hrs"]);
-      tech += toNum(l["TotalTimeHours"]);
-
-      const type = classifyType(l);
-      if (type !== "retail") roType = type; // warranty/internal override
-    });
-
-    finalList.push({
-      roNumber: ro,
-      advisor: finalAdvisor,
-      gross,
-      cost,
-      billed,
-      tech,
-      type: roType,
-      closeDate: parseAuDate(
-        lines[0]["CustomerClosedDate"] ||
-        lines[0]["Closed Date"] ||
-        lines[0]["Date"]
-      )
-    });
-  });
-
-  // Filter out ghost advisors: < $1000 labour
-  CONSOLIDATED = finalList.filter(x => x.gross >= 1000);
-
-  // Update advisor list
-  ADVISORS = [...new Set(CONSOLIDATED.map(x => x.advisor))];
-
-  console.log("Consolidated ROs:", CONSOLIDATED);
-
-  // Trigger next step: render
-  if (typeof renderAll === "function") {
-    renderAll();
+  let d, m, y;
+  // If first part is 4 digits, treat as yyyy-mm-dd
+  if (parts[0].length === 4) {
+    y = parseInt(parts[0], 10);
+    m = parseInt(parts[1], 10);
+    d = parseInt(parts[2], 10);
+  } else {
+    d = parseInt(parts[0], 10);
+    m = parseInt(parts[1], 10);
+    y = parseInt(parts[2], 10);
+    if (y < 100) y += 2000;
   }
-}
 
-
-
-// ======================================================
-// =============== STATUS HELPER ==========================
-// ======================================================
-
-function setUploadStatus(msg) {
-  const el = document.getElementById("uploadStatus");
-  if (el) el.textContent = msg;
-}
-
-</script>
-<script>
-// ======================================================
-// =============== FILTERS + DATE HELPERS ===============
-// ======================================================
-
-let FILTERS = {
-  date: null,       // JS Date for focus day
-  advisor: "all"    // "all" or advisor name
-};
-
-function setFilterDate(dateObj) {
-  FILTERS.date = dateObj instanceof Date && !isNaN(dateObj) ? dateObj : null;
-}
-
-function setFilterAdvisor(name) {
-  FILTERS.advisor = name && name !== "all" ? String(name).trim() : "all";
-}
-
-function getLatestCloseDate() {
-  if (!CONSOLIDATED.length) return null;
-  let latest = null;
-
-  CONSOLIDATED.forEach(r => {
-    if (!r.closeDate) return;
-    if (!latest || r.closeDate > latest) latest = r.closeDate;
-  });
-
-  return latest;
-}
-
-function ensureFilterDate() {
-  if (!FILTERS.date) {
-    const latest = getLatestCloseDate();
-    if (latest) FILTERS.date = latest;
-  }
-  return FILTERS.date;
+  if (!y || !m || !d) return null;
+  const dt = new Date(y, m - 1, d);
+  return isNaN(dt.getTime()) ? null : dt;
 }
 
 function sameDay(d1, d2) {
@@ -1325,747 +759,1320 @@ function sameMonth(d1, d2) {
   );
 }
 
+function toNumber(value) {
+  if (typeof value === "number") return isFinite(value) ? value : 0;
+  if (value === null || value === undefined || value === "") return 0;
+  const cleaned = String(value).replace(/[^0-9.\-]/g, "");
+  const n = parseFloat(cleaned);
+  return isNaN(n) ? 0 : n;
+}
 
-
-// ======================================================
-// =============== ROW FILTERS (DAILY / MTD) ============
-// ======================================================
-
-function getDailyRows() {
-  if (!CONSOLIDATED.length) return [];
-  const baseDate = ensureFilterDate();
-  if (!baseDate) return [];
-
-  return CONSOLIDATED.filter(r => {
-    if (!r.closeDate) return false;
-    if (!sameDay(r.closeDate, baseDate)) return false;
-    if (FILTERS.advisor !== "all" && r.advisor !== FILTERS.advisor) return false;
-    return true;
+function formatCurrency(v) {
+  return "$" + toNumber(v).toLocaleString("en-AU", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
   });
 }
 
-function getMtdRowsFiltered() {
-  if (!CONSOLIDATED.length) return [];
-  const baseDate = ensureFilterDate();
-  if (!baseDate) return [];
+function formatPercent(v) {
+  return toNumber(v).toFixed(1) + "%";
+}
 
-  return CONSOLIDATED.filter(r => {
-    if (!r.closeDate) return false;
-    if (!sameMonth(r.closeDate, baseDate)) return false;
-    if (FILTERS.advisor !== "all" && r.advisor !== FILTERS.advisor) return false;
-    return true;
+function uniq(arr) {
+  return [...new Set(arr)];
+}
+
+// ----- COLUMN HELPERS FOR SUMMARY EXPORT -----
+function getCloseDate(row) {
+  // Use whichever closed date exists (C, W, I) as the RO close date.
+  const c = parseAuDate(row["C Closed Date"]);
+  const w = parseAuDate(row["W Closed Date"]);
+  const i = parseAuDate(row["I Closed Date"]);
+  // If multiple are somehow present, preference C, then W, then I.
+  return c || w || i || null;
+}
+
+// C / W / I mix
+function classifyRoType(row) {
+  const c = row["C Closed Date"];
+  const w = row["W Closed Date"];
+  const i = row["I Closed Date"];
+  if (i && String(i).trim() !== "") return "internal";
+  if (w && String(w).trim() !== "") return "warranty";
+  if (c && String(c).trim() !== "") return "customer";
+  return "unknown";
+}
+
+function getGross(row) {
+  // Adam: you said column B in your view is the sale / labour gross.
+  // In this summary export we’ll treat "Gross" as primary, with "Sale" fallback.
+  const gross = toNumber(row["Gross"]);
+  if (gross !== 0) return gross;
+  // Fallback to Sale - Cost if needed
+  const sale = toNumber(row["Sale"]);
+  const cost = toNumber(row["Cost"]);
+  if (sale || cost) return sale - cost;
+  return 0;
+}
+
+function getCost(row) {
+  // Prefer explicit "Cost" then build from components.
+  const cost = toNumber(row["Cost"]);
+  if (cost !== 0) return cost;
+  const cOpen   = toNumber(row["Cost (Open)"]);
+  const cLabour = toNumber(row["Cost (Labour)"]);
+  const cParts  = toNumber(row["Cost (Parts)"]);
+  return cOpen + cLabour + cParts;
+}
+
+function getChargedHours(row) {
+  return toNumber(row["Charged Hrs"]);
+}
+
+function getClockedHours(row) {
+  return toNumber(row["Clocked Hrs"]);
+}
+
+// ----- DATA PREP AFTER CSV LOAD -----
+function initDateFromData() {
+  const datePicker = document.getElementById("datePicker");
+  if (!state.rows.length || !datePicker) return;
+
+  const dates = state.rows
+    .map(r => getCloseDate(r))
+    .filter(d => d instanceof Date && !isNaN(d));
+
+  if (!dates.length) return;
+
+  let minD = dates[0];
+  let maxD = dates[0];
+  dates.forEach(d => {
+    if (d < minD) minD = d;
+    if (d > maxD) maxD = d;
+  });
+
+  // Default filter date = most recent close date
+  state.filters.date = new Date(
+    maxD.getFullYear(),
+    maxD.getMonth(),
+    maxD.getDate()
+  );
+
+  function toInputDate(d) {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  datePicker.min = toInputDate(minD);
+  datePicker.max = toInputDate(maxD);
+  datePicker.value = toInputDate(maxD);
+}
+
+function initAdvisorFilter() {
+  const select = document.getElementById("advisorFilter");
+  if (!select) return;
+
+  const names = uniq(
+    state.rows
+      .map(r => String(r["Advisor Name"] || "").trim())
+      .filter(Boolean)
+  ).sort((a, b) => a.localeCompare(b));
+
+  select.innerHTML =
+    `<option value="all">All Advisors (&gt;$1k MTD)</option>` +
+    names.map(n => `<option value="${n}">${n}</option>`).join("");
+}
+
+// ----- FILTERED ROW HELPERS -----
+function getRowsForToday() {
+  const baseDate = state.filters.date || new Date();
+  return state.rows.filter(r => {
+    const closed = getCloseDate(r);
+    if (!closed) return false;
+    return sameDay(closed, baseDate);
   });
 }
 
-function getMtdRowsAllAdvisors() {
-  if (!CONSOLIDATED.length) return [];
-  const baseDate = ensureFilterDate();
-  if (!baseDate) return [];
-
-  return CONSOLIDATED.filter(r => {
-    if (!r.closeDate) return false;
-    return sameMonth(r.closeDate, baseDate);
+function getRowsForMtd() {
+  const baseDate = state.filters.date || new Date();
+  return state.rows.filter(r => {
+    const closed = getCloseDate(r);
+    if (!closed) return false;
+    return sameMonth(closed, baseDate);
   });
 }
 
+function getRowsForMtdByAdvisor(advisorName) {
+  const baseDate = state.filters.date || new Date();
+  return state.rows.filter(r => {
+    const closed = getCloseDate(r);
+    if (!closed) return false;
+    if (!sameMonth(closed, baseDate)) return false;
+    if (!advisorName) return true;
+    const a = String(r["Advisor Name"] || "").trim();
+    return a === advisorName;
+  });
+}
 
-
-// ======================================================
-// =============== ADVISOR STAT BUILDERS ================
-// ======================================================
-
+// ----- ADVISOR STATS (PER ROW SET) -----
 function buildAdvisorStats(rows) {
-  const map = {};
+  const byAdvisor = {};
 
   rows.forEach(r => {
-    const name = r.advisor || "Unknown";
-    if (!map[name]) {
-      map[name] = {
+    const name = String(r["Advisor Name"] || "").trim() || "Unknown";
+    if (!byAdvisor[name]) {
+      byAdvisor[name] = {
         advisor: name,
         labourGross: 0,
         cost: 0,
         roCount: 0,
-        billedHrs: 0,
-        techHrs: 0
+        chargedHrs: 0,
+        clockedHrs: 0
       };
     }
 
-    map[name].labourGross += toNum(r.gross);
-    map[name].cost       += toNum(r.cost);
-    map[name].roCount    += 1;
-    map[name].billedHrs  += toNum(r.billed);
-    map[name].techHrs    += toNum(r.tech);
+    const g = getGross(r);
+    const c = getCost(r);
+    const ch = getChargedHours(r);
+    const cl = getClockedHours(r);
+
+    byAdvisor[name].labourGross += g;
+    byAdvisor[name].cost += c;
+    byAdvisor[name].roCount += 1;
+    byAdvisor[name].chargedHrs += ch;
+    byAdvisor[name].clockedHrs += cl;
   });
 
-  const list = Object.values(map);
+  const arr = Object.values(byAdvisor);
 
-  list.forEach(a => {
-    a.avgRO = a.roCount ? a.labourGross / a.roCount : 0;
-    const billed = a.billedHrs || 0;
-    const tech   = a.techHrs   || 0;
-
-    a.leakagePct = tech > 0 ? (1 - billed / tech) * 100 : 0;
-
-    if (a.labourGross > 0) {
-      a.gpPct = ((a.labourGross - a.cost) / a.labourGross) * 100;
-    } else {
-      a.gpPct = 0;
-    }
+  arr.forEach(a => {
+    a.avgRo = a.roCount ? a.labourGross / a.roCount : 0;
+    a.gpPct = a.labourGross
+      ? ((a.labourGross - a.cost) / a.labourGross) * 100
+      : 0;
+    a.hoursRatio = a.clockedHrs ? (a.chargedHrs / a.clockedHrs) : 0;
   });
 
-  // Sort by labour gross (desc)
-  list.sort((a, b) => b.labourGross - a.labourGross);
-  return list;
+  // Sort by labour gross desc by default
+  arr.sort((a, b) => b.labourGross - a.labourGross);
+  return arr;
 }
 
+// ----- METRICS: TODAY -----
+function computeTodayMetrics() {
+  const allRows = getRowsForToday();
+  const { advisor } = state.filters;
 
-
-// ======================================================
-// =============== DAILY METRICS ========================
-// ======================================================
-
-function buildDailyMetrics() {
-  const rows = getDailyRows();
-
-  let roCount = 0;
-  let retail = 0;
-  let warranty = 0;
-  let internal = 0;
+  const rows = advisor === "all"
+    ? allRows
+    : allRows.filter(r => String(r["Advisor Name"] || "").trim() === advisor);
 
   let totalGross = 0;
-  let totalCost  = 0;
-  let totalTech  = 0;
-  let totalBilled = 0;
+  let totalCost = 0;
+  let roCount = 0;
+  let chargedHrs = 0;
+  let clockedHrs = 0;
+
+  let retailCount = 0;
+  let warrantyCount = 0;
+  let internalCount = 0;
 
   rows.forEach(r => {
-    roCount++;
-    totalGross  += toNum(r.gross);
-    totalCost   += toNum(r.cost);
-    totalTech   += toNum(r.tech);
-    totalBilled += toNum(r.billed);
+    const g = getGross(r);
+    const c = getCost(r);
+    const ch = getChargedHours(r);
+    const cl = getClockedHours(r);
 
-    if (r.type === "warranty") warranty++;
-    else if (r.type === "internal") internal++;
-    else retail++;
+    totalGross += g;
+    totalCost += c;
+    roCount += 1;
+    chargedHrs += ch;
+    clockedHrs += cl;
+
+    const t = classifyRoType(r);
+    if (t === "customer") retailCount++;
+    else if (t === "warranty") warrantyCount++;
+    else if (t === "internal") internalCount++;
   });
 
   const advisorStats = buildAdvisorStats(rows);
-  const avgGrossPerRO = roCount ? totalGross / roCount : 0;
-  const billedRatio   = totalTech > 0 ? totalBilled / totalTech : 1;
-
-  let gpPct = 0;
-  if (totalGross > 0) {
-    gpPct = ((totalGross - totalCost) / totalGross) * 100;
-  }
 
   return {
     rows,
-    roCount,
-    retail,
-    warranty,
-    internal,
+    advisorStats,
     totalGross,
     totalCost,
-    totalTech,
-    totalBilled,
-    avgGrossPerRO,
-    billedRatio,
-    gpPct,
-    advisorStats
+    roCount,
+    chargedHrs,
+    clockedHrs,
+    retailCount,
+    warrantyCount,
+    internalCount
   };
 }
 
+// ----- METRICS: MTD -----
+function computeMtdMetrics() {
+  const allRows = getRowsForMtd();
+  const { advisor } = state.filters;
 
-
-// ======================================================
-// =============== MTD METRICS ==========================
-// ======================================================
-
-function buildMtdMetrics() {
-  const rows = getMtdRowsFiltered();
-
-  let roCount = 0;
-  let retail = 0;
-  let warranty = 0;
-  let internal = 0;
+  const rows = advisor === "all"
+    ? allRows
+    : allRows.filter(r => String(r["Advisor Name"] || "").trim() === advisor);
 
   let totalGross = 0;
-  let totalCost  = 0;
-  let totalTech  = 0;
-  let totalBilled = 0;
+  let totalCost = 0;
+  let roCount = 0;
+  let chargedHrs = 0;
+  let clockedHrs = 0;
+
+  let retailCount = 0;
+  let warrantyCount = 0;
+  let internalCount = 0;
 
   rows.forEach(r => {
-    roCount++;
-    totalGross  += toNum(r.gross);
-    totalCost   += toNum(r.cost);
-    totalTech   += toNum(r.tech);
-    totalBilled += toNum(r.billed);
+    const g = getGross(r);
+    const c = getCost(r);
+    const ch = getChargedHours(r);
+    const cl = getClockedHours(r);
 
-    if (r.type === "warranty") warranty++;
-    else if (r.type === "internal") internal++;
-    else retail++;
+    totalGross += g;
+    totalCost += c;
+    roCount += 1;
+    chargedHrs += ch;
+    clockedHrs += cl;
+
+    const t = classifyRoType(r);
+    if (t === "customer") retailCount++;
+    else if (t === "warranty") warrantyCount++;
+    else if (t === "internal") internalCount++;
   });
 
-  const advisorStats = buildAdvisorStats(rows);
-  const avgGrossPerRO = roCount ? totalGross / roCount : 0;
-  const billedRatio   = totalTech > 0 ? totalBilled / totalTech : 1;
+  const advisorStatsRaw = buildAdvisorStats(rows);
 
-  let gpPct = 0;
-  if (totalGross > 0) {
-    gpPct = ((totalGross - totalCost) / totalGross) * 100;
-  }
+  // Filter out "ghost advisors" – only keep ≥ $1k MTD labour
+  const advisorStats = advisorStatsRaw.filter(a => a.labourGross >= 1000);
 
-  const nonRetail = warranty + internal;
-  const totalROs  = retail + nonRetail;
-  const nonRetailPct = totalROs > 0 ? (nonRetail / totalROs) * 100 : 0;
-
-  return {
-    rows,
-    roCount,
-    retail,
-    warranty,
-    internal,
-    nonRetail,
-    nonRetailPct,
-    totalGross,
-    totalCost,
-    totalTech,
-    totalBilled,
-    avgGrossPerRO,
-    billedRatio,
-    gpPct,
-    advisorStats
-  };
-}
-
-
-
-// ======================================================
-// =============== WORK MIX (STACKED BAR) ===============
-// ======================================================
-
-function buildMtdWorkMixAll() {
-  const rows = getMtdRowsAllAdvisors();
-
-  let retail = 0;
-  let warranty = 0;
-  let internal = 0;
-
-  rows.forEach(r => {
-    if (r.type === "warranty") warranty++;
-    else if (r.type === "internal") internal++;
-    else retail++;
-  });
-
-  const total = retail + warranty + internal;
-  const pctRetail   = total > 0 ? (retail   / total) * 100 : 0;
-  const pctWarranty = total > 0 ? (warranty / total) * 100 : 0;
-  const pctInternal = total > 0 ? (internal / total) * 100 : 0;
-
-  return {
-    retail,
-    warranty,
-    internal,
-    total,
-    pctRetail,
-    pctWarranty,
-    pctInternal
-  };
-}
-
-
-
-// ======================================================
-// =============== MTD RANKING MAP (GLOBAL) =============
-// ======================================================
-
-function buildMtdRankMap() {
-  const allRows = getMtdRowsAllAdvisors();
-  const allStats = buildAdvisorStats(allRows);  // all advisors regardless of filter
-
+  // Build rank map for MTD (for cards + leaderboard side panel)
   const rankMap = {};
-  allStats.forEach((a, idx) => {
-    rankMap[a.advisor] = idx + 1;
-  });
+  advisorStats
+    .slice() // ensure we don't mutate original
+    .sort((a, b) => b.labourGross - a.labourGross)
+    .forEach((a, idx) => {
+      rankMap[a.advisor] = idx + 1;
+    });
+
+  const gpPct = totalGross
+    ? ((totalGross - totalCost) / totalGross) * 100
+    : 0;
+
+  // Non-retail mix
+  const nonRetailCount = warrantyCount + internalCount;
+  const totalCount = retailCount + warrantyCount + internalCount;
+  const nonRetailPct = totalCount
+    ? (nonRetailCount / totalCount) * 100
+    : 0;
 
   return {
-    allStats,
-    rankMap
+    rows,
+    advisorStats,
+    rankMap,
+    totalGross,
+    totalCost,
+    roCount,
+    chargedHrs,
+    clockedHrs,
+    retailCount,
+    warrantyCount,
+    internalCount,
+    gpPct,
+    nonRetailPct
   };
 }
 
+// ----- MIX METRICS (MTD, all advisors) -----
+function computeMtdMixAllAdvisors() {
+  const rows = getRowsForMtd();
+  let retailCount = 0;
+  let warrantyCount = 0;
+  let internalCount = 0;
+
+  rows.forEach(r => {
+    const t = classifyRoType(r);
+    if (t === "customer") retailCount++;
+    else if (t === "warranty") warrantyCount++;
+    else if (t === "internal") internalCount++;
+  });
+
+  const total = retailCount + warrantyCount + internalCount;
+  const retailPct = total ? (retailCount / total) * 100 : 0;
+  const warrantyPct = total ? (warrantyCount / total) * 100 : 0;
+  const internalPct = total ? (internalCount / total) * 100 : 0;
+
+  return {
+    retailCount,
+    warrantyCount,
+    internalCount,
+    total,
+    retailPct,
+    warrantyPct,
+    internalPct
+  };
+}
 </script>
 <script>
-/* ======================================================
-   BLOCK 5 — RENDER ENGINE
-   ====================================================== */
+// === BLOCK 3 – CIRCULAR GAUGES + MIX BAR RENDERING ===
 
+// Small helper to clamp a value
+function clamp(val, min, max) {
+  return Math.max(min, Math.min(max, val));
+}
 
-/* ---------------- GAUGE GENERATOR ---------------- */
-function renderGauge(parent, value, max, label) {
-  const pct = max > 0 ? Math.min(value / max, 1) : 0;
-  const dash = 565.48; // circumference of 180° arc
-  const offset = dash * (1 - pct);
+// Renders a circular gauge into a card container
+// containerId: element ID (e.g. "todayLabourGauge")
+// opts: { title, subtitle, valueLabel, targetLabel, ratio, status }
+function renderGaugeCard(containerId, opts) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
 
-  parent.innerHTML = `
-    <div class="gauge">
-      <svg viewBox="0 0 200 100">
-        <path class="bg-circle"
-          d="M10 100 A90 90 0 0 1 190 100" />
-        <path class="progress-circle"
-          stroke-dasharray="${dash}"
-          stroke-dashoffset="${offset}"
-          d="M10 100 A90 90 0 0 1 190 100" />
-      </svg>
+  const {
+    title,
+    subtitle,
+    valueLabel,
+    targetLabel,
+    ratio,
+    status // "good" | "attention" | "snapshot"
+  } = opts;
 
-      <div class="value-text">${value.toLocaleString("en-AU")}</div>
-      <div class="label-text">${label}</div>
+  const pct = clamp((ratio || 0) * 100, 0, 200); // allow up to 200% for over-achievement
+
+  let statusLabel = "Snapshot";
+  let statusClass = "pill-snapshot";
+  if (status === "good") {
+    statusLabel = "On track";
+    statusClass = "pill-good";
+  } else if (status === "attention") {
+    statusLabel = "Attention";
+    statusClass = "pill-bad";
+  }
+
+  el.innerHTML = `
+    <div class="gauge-card-inner">
+      <div class="gauge-header">
+        <div class="gauge-title">${title}</div>
+        <div class="gauge-pill ${statusClass}">${statusLabel}</div>
+      </div>
+      <div class="gauge-sub">${subtitle || ""}</div>
+      <div class="gauge-body">
+        <div class="circle-gauge" style="--value:${pct};">
+          <div class="circle-gauge-outer">
+            <div class="circle-gauge-fill"></div>
+            <div class="circle-gauge-inner">
+              <div class="circle-gauge-value">${valueLabel}</div>
+              <div class="circle-gauge-pct">${pct.toFixed(0)}%</div>
+            </div>
+          </div>
+        </div>
+        <div class="gauge-target">
+          ${targetLabel || ""}
+        </div>
+      </div>
     </div>
   `;
 }
 
+// TODAY GAUGES
+function renderTopGaugesToday(today) {
+  const {
+    totalGross,
+    roCount,
+    chargedHrs,
+    clockedHrs
+  } = today;
 
-/* ---------------- MIX BAR ---------------- */
-function renderMixBar(container, mix) {
-  container.innerHTML = `
-    <div class="mix-bar-container">
-      <div class="mix-segment mix-customer" style="width:${mix.pctRetail}%;"></div>
-      <div class="mix-segment mix-warranty" style="width:${mix.pctWarranty}%;"></div>
-      <div class="mix-segment mix-internal" style="width:${mix.pctInternal}%;"></div>
-    </div>
+  const dailyGrossTarget = toNumber(settings.dailyLabourTarget);
+  const dailyAvgRoTarget = toNumber(settings.dailyAvgRoTarget);
+  const dailyHoursTarget = toNumber(settings.dailyHoursRatioTarget) || 1.0;
 
-    <div class="mix-legend">
-      <div>Retail: ${mix.retail} (${mix.pctRetail.toFixed(1)}%)</div>
-      <div>Warranty: ${mix.warranty} (${mix.pctWarranty.toFixed(1)}%)</div>
-      <div>Internal: ${mix.internal} (${mix.pctInternal.toFixed(1)}%)</div>
-    </div>
-  `;
+  const avgRo = roCount ? totalGross / roCount : 0;
+  const hoursRatio = clockedHrs ? (chargedHrs / clockedHrs) : 0;
+
+  // Gauge 1: Today Labour Gross
+  renderGaugeCard("todayLabourGauge", {
+    title: "Today Labour Gross",
+    subtitle: "All advisors · closed ROs (InvoiceID)",
+    valueLabel: formatCurrency(totalGross),
+    targetLabel: dailyGrossTarget
+      ? `Target: ${formatCurrency(dailyGrossTarget)}`
+      : "Target not set",
+    ratio: dailyGrossTarget ? totalGross / dailyGrossTarget : 0,
+    status:
+      dailyGrossTarget && totalGross >= dailyGrossTarget && roCount
+        ? "good"
+        : "snapshot"
+  });
+
+  // Gauge 2: Today Avg RO
+  renderGaugeCard("todayAvgRoGauge", {
+    title: "Today Avg RO",
+    subtitle: roCount
+      ? `Approx labour per RO · ${roCount} RO(s)`
+      : "No ROs for selected date",
+    valueLabel: formatCurrency(avgRo),
+    targetLabel: dailyAvgRoTarget
+      ? `Target: ${formatCurrency(dailyAvgRoTarget)}`
+      : "Target not set",
+    ratio: dailyAvgRoTarget ? avgRo / dailyAvgRoTarget : 0,
+    status:
+      dailyAvgRoTarget && avgRo >= dailyAvgRoTarget && roCount
+        ? "good"
+        : "snapshot"
+  });
+
+  // Gauge 3: Hours Sold / Clocked
+  const hoursPctLabel =
+    clockedHrs > 0
+      ? `${formatPercent(hoursRatio * 100)}`
+      : "0.0%";
+
+  renderGaugeCard("todayHoursGauge", {
+    title: "Hours Sold / Clocked",
+    subtitle: clockedHrs
+      ? `Charged ${chargedHrs.toFixed(1)}h · Clocked ${clockedHrs.toFixed(1)}h`
+      : "No technician hours recorded for today",
+    valueLabel: hoursPctLabel,
+    targetLabel: `Goal: ${(dailyHoursTarget * 100).toFixed(0)}% billed`,
+    ratio: dailyHoursTarget ? hoursRatio / dailyHoursTarget : 0,
+    status:
+      hoursRatio >= dailyHoursTarget && clockedHrs
+        ? "good"
+        : "attention"
+  });
 }
 
+// MTD GAUGES
+function renderTopGaugesMtd(mtd) {
+  const {
+    totalGross,
+    roCount,
+    gpPct,
+    chargedHrs,
+    clockedHrs
+  } = mtd;
 
-/* ---------------- ADVISOR CARDS ---------------- */
-function renderAdvisorCards(container, list, rankingMap) {
+  const mtdGrossTarget   = toNumber(settings.mtdLabourTarget);
+  const mtdAvgRoTarget   = toNumber(settings.mtdAvgRoTarget);
+  const mtdGpTarget      = toNumber(settings.mtdGpPctTarget) || 80;
+
+  const avgRo = roCount ? totalGross / roCount : 0;
+
+  // Gauge 1: MTD Labour Gross
+  renderGaugeCard("mtdLabourGauge", {
+    title: "MTD Labour Gross",
+    subtitle: roCount
+      ? `All advisors · ${roCount} RO(s) this month`
+      : "No ROs for selected month",
+    valueLabel: formatCurrency(totalGross),
+    targetLabel: mtdGrossTarget
+      ? `Target: ${formatCurrency(mtdGrossTarget)}`
+      : "Target not set",
+    ratio: mtdGrossTarget ? totalGross / mtdGrossTarget : 0,
+    status:
+      mtdGrossTarget && totalGross >= mtdGrossTarget
+        ? "good"
+        : "snapshot"
+  });
+
+  // Gauge 2: MTD Avg RO
+  renderGaugeCard("mtdAvgRoGauge", {
+    title: "MTD Avg RO",
+    subtitle: roCount
+      ? `Approx labour per RO`
+      : "No ROs for selected month",
+    valueLabel: formatCurrency(avgRo),
+    targetLabel: mtdAvgRoTarget
+      ? `Target: ${formatCurrency(mtdAvgRoTarget)}`
+      : "Target not set",
+    ratio: mtdAvgRoTarget ? avgRo / mtdAvgRoTarget : 0,
+    status:
+      mtdAvgRoTarget && avgRo >= mtdAvgRoTarget && roCount
+        ? "good"
+        : "snapshot"
+  });
+
+  // Gauge 3: MTD GP%
+  const gpRatio = mtdGpTarget ? gpPct / mtdGpTarget : 0;
+  renderGaugeCard("mtdGpGauge", {
+    title: "MTD GP%",
+    subtitle: clockedHrs
+      ? `Margin on labour gross`
+      : "Margin based on Gross / Cost",
+    valueLabel: formatPercent(gpPct),
+    targetLabel: `Target: ${mtdGpTarget.toFixed(0)}%`,
+    ratio: gpRatio,
+    status: gpPct >= mtdGpTarget ? "good" : "attention"
+  });
+}
+
+// CUSTOMER / WARRANTY / INTERNAL MIX
+function renderMixCard(mixMetrics) {
+  const barEl   = document.getElementById("mixBar");
+  const labelEl = document.getElementById("mixCountsLabel");
+  if (!barEl || !labelEl) return;
+
+  const {
+    retailCount,
+    warrantyCount,
+    internalCount,
+    total,
+    retailPct,
+    warrantyPct,
+    internalPct
+  } = mixMetrics;
+
+  if (!total) {
+    barEl.innerHTML = `<div class="mix-empty">No MTD ROs available for mix.</div>`;
+    labelEl.textContent = "Retail 0 · Warranty 0 · Internal 0 · Total 0";
+    return;
+  }
+
+  const retailWidth   = clamp(retailPct,   0, 100);
+  const warrantyWidth = clamp(warrantyPct, 0, 100);
+  const internalWidth = clamp(internalPct, 0, 100);
+
+  barEl.innerHTML = `
+    <div class="mix-segment mix-retail"
+         style="flex-basis:${retailWidth}%;"
+         title="Retail ${retailCount} (${retailPct.toFixed(1)}%)"></div>
+    <div class="mix-segment mix-warranty"
+         style="flex-basis:${warrantyWidth}%;"
+         title="Warranty ${warrantyCount} (${warrantyPct.toFixed(1)}%)"></div>
+    <div class="mix-segment mix-internal"
+         style="flex-basis:${internalWidth}%;"
+         title="Internal ${internalCount} (${internalPct.toFixed(1)}%)"></div>
+  `;
+
+  labelEl.textContent =
+    `Retail ${retailCount} (${retailPct.toFixed(1)}%) · ` +
+    `Warranty ${warrantyCount} (${warrantyPct.toFixed(1)}%) · ` +
+    `Internal ${internalCount} (${internalPct.toFixed(1)}%) · ` +
+    `Total ${total}`;
+}
+</script>
+<script>
+// === BLOCK 4 – ADVISOR CARDS + LEADERBOARDS + RENDER ENGINE ===
+
+// ----- ADVISOR CARDS -----
+function renderAdvisorCards(today, mtd) {
+  const container = document.getElementById("advisorCards");
+  if (!container) return;
+
   container.innerHTML = "";
 
-  list.forEach(a => {
+  // Merge advisor stats (today + MTD)
+  const map = {};
+
+  // Today stats
+  today.advisorStats.forEach(a => {
+    const name = a.advisor;
+    if (!map[name]) {
+      map[name] = {
+        advisor: name,
+        todayGross: 0,
+        todayROs: 0,
+        todayAvg: 0,
+        mtdGross: 0,
+        mtdROs: 0,
+        mtdAvg: 0,
+        leakage: 0,
+        gp: 0,
+        rank: null
+      };
+    }
+    map[name].todayGross = a.labourGross;
+    map[name].todayROs   = a.roCount;
+    map[name].todayAvg   = a.avgRo;
+  });
+
+  // MTD stats (only advisors > $1k MTD)
+  mtd.advisorStats.forEach(a => {
+    const name = a.advisor;
+    if (!map[name]) {
+      map[name] = {
+        advisor: name,
+        todayGross: 0,
+        todayROs: 0,
+        todayAvg: 0,
+        mtdGross: 0,
+        mtdROs: 0,
+        mtdAvg: 0,
+        leakage: 0,
+        gp: 0,
+        rank: null
+      };
+    }
+    map[name].mtdGross = a.labourGross;
+    map[name].mtdROs   = a.roCount;
+    map[name].mtdAvg   = a.avgRo;
+    map[name].leakage  = a.hoursRatio ? (1 - a.hoursRatio) * 100 : 0;
+    map[name].gp       = a.gpPct;
+    map[name].rank     = mtd.rankMap[a.advisor] || null;
+  });
+
+  const advisors = Object.values(map)
+    .filter(a => a.mtdGross >= 1000)   // Ghost advisor filter
+    .sort((a, b) => b.mtdGross - a.mtdGross);
+
+  if (!advisors.length) {
+    container.innerHTML =
+      `<div class="loading">No advisors meet the MTD >$1,000 requirement.</div>`;
+    return;
+  }
+
+  advisors.forEach(a => {
     const card = document.createElement("div");
     card.className = "advisor-card";
 
-    const trueRank = rankingMap[a.advisor] || "-";
-
     card.innerHTML = `
-      <div class="advisor-name">${trueRank}. ${a.advisor}</div>
-
-      <div class="advisor-stat">
-        <span>Labour $</span>
-        <span>$${a.labourGross.toLocaleString("en-AU")}</span>
+      <div class="advisor-header">
+        <div class="advisor-name">${a.advisor}</div>
+        <div class="advisor-rank">${a.rank ? `Rank #${a.rank}` : ""}</div>
       </div>
 
-      <div class="advisor-stat">
-        <span>Avg $/RO</span>
-        <span>$${a.avgRO.toFixed(0)}</span>
+      <div class="chip-row">
+        <div class="chip">Today: ${formatCurrency(a.todayGross)}</div>
+        <div class="chip">MTD: ${formatCurrency(a.mtdGross)}</div>
+        <div class="chip">Avg RO: ${formatCurrency(a.mtdAvg)}</div>
       </div>
 
-      <div class="advisor-stat">
-        <span>RO Count</span>
-        <span>${a.roCount}</span>
+      <div class="chip-row">
+        <div class="chip">ROs: ${a.mtdROs}</div>
+        <div class="chip">Leakage: ${formatPercent(a.leakage)}</div>
+        <div class="chip">GP%: ${formatPercent(a.gp)}</div>
       </div>
-
-      <div class="advisor-stat">
-        <span>GP%</span>
-        <span>${a.gpPct.toFixed(1)}%</span>
-      </div>
-
-      <div class="advisor-stat">
-        <span>Leakage</span>
-        <span>${a.leakagePct.toFixed(1)}%</span>
-      </div>
-
-      <button class="btn" onclick="openInsights('${a.advisor}')">
-        View Insights
-      </button>
     `;
+
+    // Clicking card opens insights modal
+    card.addEventListener("click", () => {
+      openInsightsModal(a.advisor); // will be defined in Block 6
+    });
 
     container.appendChild(card);
   });
 }
 
+// ----- LEADERBOARDS -----
+function renderLeaderboards(mtd) {
+  const container = document.getElementById("leaderboardCards");
+  if (!container) return;
 
-/* ---------------- INSIGHTS MODAL ---------------- */
-function openInsights(name) {
-  const m = document.getElementById("insightsModal");
-  const body = document.getElementById("insightsBody");
+  container.innerHTML = "";
 
-  const baseDate = ensureFilterDate();
+  const advisors = mtd.advisorStats.slice();
 
-  body.innerHTML = `
-    <p><strong>Advisor:</strong> ${name}</p>
-    <p><strong>For period:</strong> ${baseDate.toDateString()}</p>
-    <hr>
-    <p>Nova-generated insights coming dynamically (Block 6).</p>
+  if (!advisors.length) {
+    container.innerHTML = `<div class="loading">No advisor data available.</div>`;
+    return;
+  }
+
+  // Sorts
+  const topGross = advisors.slice().sort((a,b) => b.labourGross - a.labourGross).slice(0,5);
+  const topAvgRo = advisors.slice().sort((a,b) => b.avgRo - a.avgRo).slice(0,5);
+  const lowestLeak = advisors.slice().sort((a,b) => a.leakagePct - b.leakagePct).slice(0,5);
+
+  // Convert to simple rows
+  function lbCard(title, rows) {
+    const card = document.createElement("div");
+    card.className = "lb-card";
+
+    let html = `<div class="lb-title">${title}</div>`;
+    rows.forEach(r => {
+      html += `
+        <div class="lb-row">
+          <span>${r.advisor}</span>
+          <span>${formatCurrency(r.labourGross)}</span>
+        </div>
+      `;
+    });
+
+    card.innerHTML = html;
+    return card;
+  }
+
+  // Add cards
+  container.appendChild(lbCard("Top 5 Labour Gross", topGross));
+
+  const lbAvg = document.createElement("div");
+  lbAvg.className = "lb-card";
+  lbAvg.innerHTML = `
+    <div class="lb-title">Top Avg RO</div>
+    ${topAvgRo
+      .map(r => `<div class="lb-row"><span>${r.advisor}</span><span>${formatCurrency(r.avgRo)}</span></div>`).join("")}
   `;
+  container.appendChild(lbAvg);
 
-  m.classList.remove("hidden");
+  const lbLeak = document.createElement("div");
+  lbLeak.className = "lb-card";
+  lbLeak.innerHTML = `
+    <div class="lb-title">Lowest Leakage</div>
+    ${lowestLeak
+      .map(r => `<div class="lb-row"><span>${r.advisor}</span><span>${formatPercent(r.leakagePct)}</span></div>`).join("")}
+  `;
+  container.appendChild(lbLeak);
+
+  // Warranty & Internal Open ROs
+  const openWarranty = mtd.rows.filter(r => classifyRoType(r) === "warranty");
+  const openInternal = mtd.rows.filter(r => classifyRoType(r) === "internal");
+
+  const lbWarranty = document.createElement("div");
+  lbWarranty.className = "lb-card";
+  lbWarranty.innerHTML = `
+    <div class="lb-title">Warranty ROs</div>
+    <div>${openWarranty.length} total</div>
+  `;
+  container.appendChild(lbWarranty);
+
+  const lbInternal = document.createElement("div");
+  lbInternal.className = "lb-card";
+  lbInternal.innerHTML = `
+    <div class="lb-title">Internal ROs</div>
+    <div>${openInternal.length} total</div>
+  `;
+  container.appendChild(lbInternal);
 }
 
-document.getElementById("closeInsights").onclick = () => {
-  document.getElementById("insightsModal").classList.add("hidden");
-};
-
-
-/* ---------------- LEADERBOARD PANEL ---------------- */
-function openLeaderboard(stats) {
+// ----- LEADERBOARD PANEL -----
+function openLeaderboardPanel(mtd) {
   const panel = document.getElementById("leaderboardPanel");
-  const body = document.getElementById("leaderboardBody");
+  const body  = document.getElementById("leaderboardPanelBody");
+  const close = document.getElementById("closeLeaderboard");
 
-  body.innerHTML = stats
-    .map((a, i) => `
-      <div class="advisor-stat">
-        <span>${i + 1}. ${a.advisor}</span>
-        <span>$${a.labourGross.toLocaleString("en-AU")}</span>
+  if (!panel || !body || !close) return;
+
+  const advisors = mtd.advisorStats.slice().sort((a,b) => b.labourGross - a.labourGross);
+
+  body.innerHTML = advisors
+    .map(a => `
+      <div class="lb-row">
+        <span>${a.rank ? "#" + a.rank : ""} ${a.advisor}</span>
+        <span>${formatCurrency(a.labourGross)}</span>
       </div>
     `)
     .join("");
 
   panel.classList.remove("hidden");
-}
-
-document.getElementById("closeLeaderboard").onclick = () => {
-  document.getElementById("leaderboardPanel").classList.add("hidden");
-};
-
-
-/* ======================================================
-   MAIN RENDER PIPELINE
-   ====================================================== */
-
-function renderAll() {
-  const daily = buildDailyMetrics();
-  const mtd = buildMtdMetrics();
-  const mix = buildMtdWorkMixAll();
-  const rankmap = buildMtdRankMap();
-
-  // GAUGES
-  renderDailyGauges(daily);
-  renderMtdGauges(mtd);
-
-  // MIX TILES
-  renderMixBar(document.getElementById("dailyMixContainer"), {
-    retail: daily.retail,
-    warranty: daily.warranty,
-    internal: daily.internal,
-    pctRetail:   daily.roCount ? (daily.retail / daily.roCount) * 100 : 0,
-    pctWarranty: daily.roCount ? (daily.warranty / daily.roCount) * 100 : 0,
-    pctInternal: daily.roCount ? (daily.internal / daily.roCount) * 100 : 0,
+  close.addEventListener("click", () => {
+    panel.classList.add("hidden");
   });
-
-  renderMixBar(document.getElementById("mtdMixContainer"), mix);
-
-  // ADVISOR CARDS
-  renderAdvisorCards(
-    document.getElementById("dailyAdvisorList"),
-    daily.advisorStats,
-    rankmap.rankMap
-  );
-
-  renderAdvisorCards(
-    document.getElementById("mtdAdvisorList"),
-    mtd.advisorStats,
-    rankmap.rankMap
-  );
 }
 
-
-/* ---------------- DAILY GAUGE RENDER ---------------- */
-function renderDailyGauges(d) {
-  const grid = document.getElementById("dailyGaugeGrid");
-
-  grid.innerHTML = `
-    <div class="card gauge-card"><div id="dg1"></div></div>
-    <div class="card gauge-card"><div id="dg2"></div></div>
-    <div class="card gauge-card"><div id="dg3"></div></div>
-    <div class="card gauge-card"><div id="dg4"></div></div>
-  `;
-
-  renderGauge(document.getElementById("dg1"), d.totalGross, SETTINGS.dailyLabourTarget, "Labour $");
-  renderGauge(document.getElementById("dg2"), d.gpPct, 100, "GP%");
-  renderGauge(document.getElementById("dg3"), d.avgGrossPerRO, 500, "Avg $/RO");
-  renderGauge(document.getElementById("dg4"), d.billedRatio * 100, 100, "Charge Rate %");
-}
-
-
-/* ---------------- MTD GAUGE RENDER ---------------- */
-function renderMtdGauges(d) {
-  const grid = document.getElementById("mtdGaugeGrid");
-
-  grid.innerHTML = `
-    <div class="card gauge-card"><div id="mg1"></div></div>
-    <div class="card gauge-card"><div id="mg2"></div></div>
-    <div class="card gauge-card"><div id="mg3"></div></div>
-    <div class="card gauge-card"><div id="mg4"></div></div>
-  `;
-
-  renderGauge(document.getElementById("mg1"), d.totalGross, SETTINGS.mtdLabourTarget, "Labour $");
-  renderGauge(document.getElementById("mg2"), d.gpPct, 100, "GP%");
-  renderGauge(document.getElementById("mg3"), d.avgGrossPerRO, 500, "Avg $/RO");
-  renderGauge(document.getElementById("mg4"), d.billedRatio * 100, 100, "Charge Rate %");
-}
-
-
-/* ======================================================
-   BUTTONS + UI WIRING
-   ====================================================== */
-
-// Tabs
-document.getElementById("tabDashboard").onclick = () => {
-  document.getElementById("page-dashboard").classList.remove("hidden");
-  document.getElementById("page-settings").classList.add("hidden");
-};
-
-document.getElementById("tabSettings").onclick = () => {
-  document.getElementById("page-dashboard").classList.add("hidden");
-  document.getElementById("page-settings").classList.remove("hidden");
-};
-
-
-// Upload
-document.getElementById("uploadBtn").onclick = () => {
-  const input = document.getElementById("csvInput");
-  if (input.files.length) {
-    handleCsvUpload(input.files[0]);
+// ----- DASHBOARD RENDER PROCESS -----
+function renderDashboard() {
+  if (!state.loaded) {
+    document.getElementById("todaySummary").textContent = "CSV not loaded.";
+    document.getElementById("mtdSummary").textContent   = "CSV not loaded.";
+    return;
   }
-};
 
-document.getElementById("loadOnlineBtn").onclick = () => {
-  loadOnlineCsv();
-};
+  const today = computeTodayMetrics();
+  const mtd   = computeMtdMetrics();
+  const mix   = computeMtdMixAllAdvisors();
 
+  // Today summary line
+  document.getElementById("todaySummary").textContent =
+    `ROs Today: ${today.roCount} · Gross: ${formatCurrency(today.totalGross)}`;
 
-// Settings save
-document.getElementById("saveSettingsBtn").onclick = () => {
-  SETTINGS.dailyLabourTarget = Number(document.getElementById("dailyLabourTarget").value);
-  SETTINGS.mtdLabourTarget   = Number(document.getElementById("mtdLabourTarget").value);
-  SETTINGS.onlineUrl = document.getElementById("onlineCsvUrl").value;
+  // MTD summary line
+  document.getElementById("mtdSummary").textContent =
+    `MTD ROs: ${mtd.roCount} · Gross: ${formatCurrency(mtd.totalGross)}`;
 
-  SETTINGS.mode = document.getElementById("dataMode").value;
+  // Gauges
+  renderTopGaugesToday(today);
+  renderTopGaugesMtd(mtd);
 
-  // policy %
-  document.querySelectorAll(".policy-input").forEach(x => {
-    SETTINGS.policy[x.dataset.brand] = Number(x.value);
+  // Mix
+  renderMixCard(mix);
+
+  // Advisor cards
+  renderAdvisorCards(today, mtd);
+
+  // Leaderboards
+  renderLeaderboards(mtd);
+
+  // Wire leaderboard button
+  const leaderboardBtn = document.getElementById("leaderboardToggle");
+  if (leaderboardBtn) {
+    leaderboardBtn.onclick = () => openLeaderboardPanel(mtd);
+  }
+}
+
+// ----- PAGE SWITCHING -----
+document.querySelectorAll(".top-tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".top-tab").forEach(b =>
+      b.classList.remove("active")
+    );
+    btn.classList.add("active");
+
+    const page = btn.dataset.page;
+    document.getElementById("page-dashboard").classList.add("hidden");
+    document.getElementById("page-settings").classList.add("hidden");
+    document.getElementById(`page-${page}`).classList.remove("hidden");
   });
-
-  saveSettings();
-  renderAll();
-};
-
-
-// Theme toggle
-document.getElementById("toggleTheme").onclick = () => {
-  document.body.classList.toggle("light");
-};
-
+});
 </script>
 <script>
-/* ======================================================
-   BLOCK 6 — DYNAMIC INSIGHTS ENGINE
-   Uses: buildDailyMetrics(), buildMtdMetrics(), buildMtdRankMap()
-   DOM:  #insightsModal, #insightsBody
-   ====================================================== */
+// === BLOCK 5 – CSV LOADING + FILTER WIRING ===
 
-(function () {
-  function fmtMoney(v) {
-    const n = Number(v) || 0;
-    return "$" + n.toLocaleString("en-AU", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    });
-  }
-
-  function fmtMoney0(v) {
-    const n = Number(v) || 0;
-    return "$" + n.toLocaleString("en-AU", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    });
-  }
-
-  function fmtPercent(v) {
-    const n = Number(v) || 0;
-    return n.toFixed(1) + "%";
-  }
-
-  function safeFind(arr, name) {
-    if (!Array.isArray(arr)) return null;
-    return arr.find(a => a && a.advisor === name) || null;
-  }
-
-  function buildAdvisorInsightModel(name) {
-    const daily = buildDailyMetrics();
-    const mtd = buildMtdMetrics();
-    const { rankMap, allStats } = buildMtdRankMap ? buildMtdRankMap() : { rankMap: {}, allStats: [] };
-
-    const advDaily = safeFind(daily.advisorStats || [], name);
-    const advMtd   = safeFind(mtd.advisorStats   || [], name);
-
-    return {
-      name,
-      daily,
-      mtd,
-      advDaily,
-      advMtd,
-      rank: rankMap && rankMap[name] ? rankMap[name] : null,
-      allStats: allStats || []
+// Safe accessor for global state
+function getAdvisorState() {
+  if (typeof state !== "undefined") return state;
+  if (!window.__advisorState) {
+    window.__advisorState = {
+      rows: [],
+      loaded: false,
+      filters: { date: null, advisor: "all" }
     };
   }
+  return window.__advisorState;
+}
 
-  function buildStory(model) {
-    const { name, daily, mtd, advDaily, advMtd, rank, allStats } = model;
-    const lines = [];
+// Local helper: parse AU date (for C Closed Date default)
+function parseCClosedDate(raw) {
+  if (!raw) return null;
+  // Try DD/MM/YYYY first
+  const m1 = String(raw).match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (m1) {
+    const d = parseInt(m1[1], 10);
+    const m = parseInt(m1[2], 10);
+    let y = parseInt(m1[3], 10);
+    if (y < 100) y += 2000;
+    const dt = new Date(y, m - 1, d);
+    return isNaN(dt.getTime()) ? null : dt;
+  }
+  // Fallback to Date()
+  const dt = new Date(raw);
+  return isNaN(dt.getTime()) ? null : dt;
+}
 
-    // --- High-level status ---
-    if (!advMtd && !advDaily) {
-      lines.push(`<li>No recent activity found for <strong>${name}</strong> in the current period. Check if they are on leave, or if ROs are being allocated under a different advisor code.</li>`);
-      return lines;
+// ---- INGEST CSV ROWS INTO STATE ----
+function ingestAdvisorCsvRows(rows) {
+  const s = getAdvisorState();
+
+  // Filter out empty rows: keep ones with InvoiceID or Advisor Name
+  const clean = (rows || []).filter(r =>
+    r &&
+    (r["InvoiceID"] || r["Advisor Name"])
+  );
+
+  s.rows = clean;
+  s.loaded = true;
+
+  // Build advisor dropdown (unique names)
+  const advisorSelect = document.getElementById("advisorFilter");
+  if (advisorSelect) {
+    const names = [...new Set(
+      clean
+        .map(r => String(r["Advisor Name"] || "").trim())
+        .filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b));
+
+    advisorSelect.innerHTML =
+      `<option value="all">All Advisors</option>` +
+      names.map(n => `<option value="${n}">${n}</option>`).join("");
+  }
+
+  // Determine min/max C Closed Date
+  const cDates = clean
+    .map(r => parseCClosedDate(r["C Closed Date"]))
+    .filter(d => d instanceof Date && !isNaN(d));
+
+  const datePicker = document.getElementById("datePicker");
+  if (cDates.length && datePicker) {
+    let minD = cDates[0];
+    let maxD = cDates[0];
+    cDates.forEach(d => {
+      if (d < minD) minD = d;
+      if (d > maxD) maxD = d;
+    });
+
+    function toInput(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${dd}`;
     }
 
-    if (advMtd) {
-      // MTD context vs team
-      const teamAvgRO = mtd.roCount ? mtd.totalGross / mtd.roCount : 0;
-      const teamAvgGp = mtd.gpPct || 0;
+    datePicker.min = toInput(minD);
+    datePicker.max = toInput(maxD);
+    datePicker.value = toInput(maxD);
 
-      // Rank / contribution
-      if (rank) {
-        lines.push(
-          `<li><strong>MTD Position:</strong> ${name} is currently ranked <strong>#${rank}</strong> for labour gross with ` +
-          `<strong>${fmtMoney(advMtd.labourGross)}</strong> across <strong>${advMtd.roCount}</strong> ROs.</li>`
+    // Set filter date in state
+    s.filters.date = new Date(
+      maxD.getFullYear(),
+      maxD.getMonth(),
+      maxD.getDate()
+    );
+  }
+
+  // Update status pill
+  const statusTotal = document.getElementById("statusTotal");
+  if (statusTotal) {
+    statusTotal.classList.remove("bad");
+    statusTotal.classList.add("good");
+    statusTotal.innerHTML =
+      '<span class="status-dot"></span><span>Total performance: Loaded ✔</span>';
+  }
+
+  // Finally, re-render dashboard
+  try {
+    renderDashboard();
+  } catch (e) {
+    console.error("renderDashboard error:", e);
+  }
+}
+
+// ---- PARSE CSV TEXT ----
+function parseAdvisorCsvText(text) {
+  try {
+    const result = Papa.parse(text, {
+      header: true,
+      dynamicTyping: true,
+      skipEmptyLines: true
+    });
+    ingestAdvisorCsvRows(result.data || []);
+  } catch (e) {
+    console.error("CSV parse failed:", e);
+    const statusTotal = document.getElementById("statusTotal");
+    if (statusTotal) {
+      statusTotal.classList.remove("good");
+      statusTotal.classList.add("bad");
+      statusTotal.innerHTML =
+        '<span class="status-dot"></span><span>Failed to parse CSV</span>';
+    }
+  }
+}
+
+// ---- FILE UPLOAD HANDLER ----
+function handleAdvisorFileUpload(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    parseAdvisorCsvText(ev.target.result);
+  };
+  reader.onerror = () => {
+    console.error("File read error");
+    const statusTotal = document.getElementById("statusTotal");
+    if (statusTotal) {
+      statusTotal.classList.remove("good");
+      statusTotal.classList.add("bad");
+      statusTotal.innerHTML =
+        '<span class="status-dot"></span><span>Error reading file</span>';
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ---- ONLINE CSV LOAD ----
+async function loadAdvisorOnlineCsv() {
+  const urlInput = document.getElementById("onlineCsvUrl");
+  const statusSpan = document.getElementById("onlineStatus");
+  const statusTotal = document.getElementById("statusTotal");
+
+  const url = urlInput ? urlInput.value.trim() : "";
+  if (!url) {
+    if (statusSpan) statusSpan.textContent = "Please enter an online CSV URL.";
+    return;
+  }
+
+  if (statusSpan) statusSpan.textContent = "Loading online CSV…";
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const text = await res.text();
+    parseAdvisorCsvText(text);
+
+    if (statusSpan) statusSpan.textContent = "Online CSV loaded.";
+    if (statusTotal) {
+      statusTotal.classList.remove("bad");
+      statusTotal.classList.add("good");
+      statusTotal.innerHTML =
+        '<span class="status-dot"></span><span>Total performance: Loaded (online) ✔</span>';
+    }
+  } catch (e) {
+    console.error("Online CSV load failed:", e);
+    if (statusSpan) statusSpan.textContent = "Failed to load online CSV.";
+    if (statusTotal) {
+      statusTotal.classList.remove("good");
+      statusTotal.classList.add("bad");
+      statusTotal.innerHTML =
+        '<span class="status-dot"></span><span>Online load failed</span>';
+    }
+  }
+}
+
+// ---- WIRE DOM EVENTS ----
+document.addEventListener("DOMContentLoaded", () => {
+  const s = getAdvisorState();
+
+const fileInput       = document.getElementById("fileInput");
+const btnUploadTotal  = document.getElementById("btnUpload");
+  const btnOnlineLoad   = document.getElementById("btnOnlineLoad");
+  const reloadOnlineBtn = document.getElementById("reloadOnlineBtn");
+  const advisorFilter   = document.getElementById("advisorFilter");
+  const datePicker      = document.getElementById("datePicker");
+  const dataSourceMode  = document.getElementById("dataSourceMode");
+
+  // Upload button -> open file dialog
+  if (btnUploadTotal && fileInput) {
+    btnUploadTotal.addEventListener("click", () => fileInput.click());
+  }
+
+  // File chosen -> parse
+  if (fileInput) {
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files && fileInput.files[0]) {
+        handleAdvisorFileUpload(fileInput.files[0]);
+      }
+    });
+  }
+
+  // Online CSV test/load button (in Settings)
+  if (btnOnlineLoad) {
+    btnOnlineLoad.addEventListener("click", () => {
+      loadAdvisorOnlineCsv();
+    });
+  }
+
+  // Reload Online Data button in header
+  if (reloadOnlineBtn) {
+    reloadOnlineBtn.addEventListener("click", () => {
+      loadAdvisorOnlineCsv();
+    });
+  }
+
+  // Advisor filter
+  if (advisorFilter) {
+    advisorFilter.addEventListener("change", () => {
+      s.filters.advisor = advisorFilter.value || "all";
+      if (s.loaded) {
+        renderDashboard();
+      }
+    });
+  }
+
+  // Date filter
+  if (datePicker) {
+    datePicker.addEventListener("change", () => {
+      if (datePicker.value) {
+        const d = new Date(datePicker.value);
+        s.filters.date = new Date(
+          d.getFullYear(),
+          d.getMonth(),
+          d.getDate()
         );
       } else {
-        lines.push(
-          `<li><strong>MTD Position:</strong> ${name} has MTD labour of <strong>${fmtMoney(advMtd.labourGross)}</strong> across ` +
-          `<strong>${advMtd.roCount}</strong> ROs (not ranked in the main set).</li>`
-        );
+        s.filters.date = null;
       }
-
-      // Avg RO vs team
-      if (teamAvgRO > 0) {
-        const deltaRO = advMtd.avgRO - teamAvgRO;
-        if (deltaRO >= 50) {
-          lines.push(
-            `<li><strong>Average RO value:</strong> ${name}'s average gross per RO is <strong>${fmtMoney0(advMtd.avgRO)}</strong>, ` +
-            `which is about <strong>${fmtMoney0(deltaRO)}</strong> <em>above</em> the team average. Good opportunity to capture their upsell wording and menu structure.</li>`
-          );
-        } else if (deltaRO <= -50) {
-          lines.push(
-            `<li><strong>Average RO value:</strong> ${name}'s average gross per RO is <strong>${fmtMoney0(advMtd.avgRO)}</strong>, ` +
-            `around <strong>${fmtMoney0(Math.abs(deltaRO))}</strong> <em>below</em> the team average. Focus coaching on pre-authorisation, option-building, and value-based recommendations.</li>`
-          );
-        } else {
-          lines.push(
-            `<li><strong>Average RO value:</strong> ${name}'s average gross per RO is <strong>${fmtMoney0(advMtd.avgRO)}</strong>, roughly in line with team average. ` +
-            `Small tweaks to menu structure and tyre/battery/add-on conversations can unlock extra dollars.</li>`
-          );
-        }
+      if (s.loaded) {
+        renderDashboard();
       }
-
-      // GP% vs team
-      if (teamAvgGp > 0) {
-        const deltaGp = advMtd.gpPct - teamAvgGp;
-        if (deltaGp >= 2) {
-          lines.push(
-            `<li><strong>Margin control:</strong> GP% at <strong>${fmtPercent(advMtd.gpPct)}</strong> is above team average. ` +
-            `This suggests good discount control and/or labour mix. Encourage them to share how they handle price objections without going straight to discounting.</li>`
-          );
-        } else if (deltaGp <= -2) {
-          lines.push(
-            `<li><strong>Margin control:</strong> GP% at <strong>${fmtPercent(advMtd.gpPct)}</strong> is below team average. ` +
-            `Focus on scripts around 'labour is our expertise', avoiding premature discounts, and presenting value before price.</li>`
-          );
-        } else {
-          lines.push(
-            `<li><strong>Margin control:</strong> GP% at <strong>${fmtPercent(advMtd.gpPct)}</strong> is broadly in line with the department. ` +
-            `Work more on volume (number of quality ROs) and menu-based upsell rather than margin changes.</li>`
-          );
-        }
-      }
-
-      // Leakage vs typical
-      if (allStats.length > 0) {
-        const avgLeak = allStats.reduce((sum, a) => sum + (a.leakagePct || 0), 0) / allStats.length;
-        const leakDelta = advMtd.leakagePct - avgLeak;
-
-        if (leakDelta >= 3) {
-          lines.push(
-            `<li><strong>Leakage (hours not billed):</strong> ${name}'s leakage is <strong>${fmtPercent(advMtd.leakagePct)}</strong>, ` +
-            `around <strong>${fmtPercent(leakDelta)}</strong> higher than team typical. Highlight processes for ensuring all technician story-time and diag time is captured and authorised before work starts.</li>`
-          );
-        } else if (leakDelta <= -3) {
-          lines.push(
-            `<li><strong>Leakage (hours not billed):</strong> ${name}'s leakage is <strong>${fmtPercent(advMtd.leakagePct)}</strong>, ` +
-            `which is significantly <em>better</em> than team typical. Use them as an example for RO building and time capture discipline.</li>`
-          );
-        } else {
-          lines.push(
-            `<li><strong>Leakage (hours not billed):</strong> Leakage at <strong>${fmtPercent(advMtd.leakagePct)}</strong> is close to team typical. ` +
-            `Fine-tuning things like small additional operations, diagnosis time and clean-up can still free up a few extra billed hours.</li>`
-          );
-        }
-      }
-    }
-
-    // --- Daily pulse (if any activity today) ---
-    if (advDaily && daily.roCount > 0) {
-      lines.push(
-        `<li><strong>Today’s pulse:</strong> ${name} has closed <strong>${advDaily.roCount}</strong> ROs today with labour of ` +
-        `<strong>${fmtMoney(advDaily.labourGross)}</strong> and average RO of <strong>${fmtMoney0(advDaily.avgRO)}</strong>. ` +
-        `Use this in the huddle as a quick check-in: 'What worked well today? Where did you feel you left money on the table?'</li>`
-      );
-
-      if (advDaily.leakagePct > 10) {
-        lines.push(
-          `<li><strong>Immediate coaching opportunity:</strong> Today's leakage at <strong>${fmtPercent(advDaily.leakagePct)}</strong> ` +
-          `suggests some technician time is not being converted to billed hours. Have a 5-minute debrief on one RO where time was lost and agree a better script for next time.</li>`
-        );
-      }
-    }
-
-    // --- Generic next actions ---
-    lines.push(
-      `<li><strong>Next steps with ${name}:</strong> Pick <em>one</em> primary focus for the next week (either average $/RO, leakage, or GP%) and build a micro-goal ` +
-      `with them (e.g. <em>'3 extra meaningful recommendations per day'</em> or <em>'no unrecovered diag time'</em>). Review results in the dashboard each morning.</li>`
-    );
-
-    return lines;
+    });
   }
 
-  // Override global openInsights used by the cards
-  window.openInsights = function (name) {
-    const modal = document.getElementById("insightsModal");
-    const body  = document.getElementById("insightsBody");
+  // If mode is "online", try auto-load at startup (optional)
+  if (dataSourceMode && dataSourceMode.value === "online") {
+    const urlInput = document.getElementById("onlineCsvUrl");
+    if (urlInput && urlInput.value.trim()) {
+      loadAdvisorOnlineCsv();
+    }
+  }
+});
+</script>
+<script>
+// === BLOCK 6 – INSIGHTS ENGINE + MODAL + GLOBAL INSIGHTS ===
 
-    if (!modal || !body) return;
+// ---------- INSIGHTS LOGIC ----------
 
-    const model = buildAdvisorInsightModel(name);
-    const lines = buildStory(model);
+function buildAdvisorInsights(advisor, stats, today, mtd, mix) {
+  const {
+    mtdGross,
+    mtdAvg,
+    mtdROs,
+    leakage,
+    gp,
+    todayGross,
+    todayROs,
+    todayAvg
+  } = stats;
 
-    body.innerHTML = `
-      <p><strong>Advisor:</strong> ${name}</p>
-      <p>This summary looks at <strong>today</strong> and <strong>month-to-date</strong> performance using the current data set.</p>
-      <ul>${lines.join("")}</ul>
-      <p style="margin-top:8px; font-size:11px; opacity:0.8;">
-        Use these points for your one-on-ones and morning huddles. Re-run the insights after key days to track behaviour change.
-      </p>
-    `;
+  const dealershipAvgRo = mtd.avgRo || 0;
+  const dealershipLeak  = mtd.avgLeak || 0;
+  const dealershipGp    = mtd.avgGpPct || 0;
 
-    modal.classList.remove("hidden");
+  const items = [];
+
+  // --- Strengths ---
+  if (mtdAvg > dealershipAvgRo) {
+    items.push(`• Strong RO average (${formatCurrency(mtdAvg)} vs store ${formatCurrency(dealershipAvgRo)}).`);
+  }
+  if (gp >= dealershipGp) {
+    items.push(`• GP% is above store average (${formatPercent(gp)} vs ${formatPercent(dealershipGp)}).`);
+  }
+  if (leakage < dealershipLeak) {
+    items.push(`• Excellent hour control (leakage ${formatPercent(leakage)} vs ${formatPercent(dealershipLeak)}).`);
+  }
+  if (mtdGross > 10000) {
+    items.push(`• Solid overall contribution with ${formatCurrency(mtdGross)} MTD.`);
+  }
+
+  // --- Opportunities ---
+  if (mtdAvg < dealershipAvgRo) {
+    items.push(`• Raise Avg RO — currently ${formatCurrency(mtdAvg)}, store is ${formatCurrency(dealershipAvgRo)}.`);
+  }
+  if (gp < dealershipGp) {
+    items.push(`• Lift GP% — currently ${formatPercent(gp)}, store is ${formatPercent(dealershipGp)}.`);
+  }
+  if (leakage > 20) {
+    items.push(`• Hours leakage high at ${formatPercent(leakage)} — aim under 20%.`);
+  }
+  if (mtdROs < 15) {
+    items.push(`• Low RO count (${mtdROs}). Increase throughput on customer-pay work.`);
+  }
+
+  // --- Today vs MTD comparison ---
+  if (todayGross && todayGross < todayAvg) {
+    items.push(`• Today’s RO average is soft — ${formatCurrency(todayAvg)}. Push additional items/declined work follow-up.`);
+  }
+
+  // --- Mix-based insights ---
+  if (mix.retailPct < 40) {
+    items.push(`• Retail mix low (${mix.retailPct.toFixed(1)}%). More customer-pay opportunities needed.`);
+  }
+  if (mix.warrantyPct > 25) {
+    items.push(`• Warranty ratio high (${mix.warrantyPct.toFixed(1)}%). Confirm labour ops coded correctly.`);
+  }
+
+  // If nothing meaningful, fallback:
+  if (!items.length) {
+    items.push("• Performance steady and consistent. Maintain rhythm.");
+  }
+
+  return items.join("<br>");
+}
+
+// ---------- PER-ADVISOR MODAL ----------
+
+function openInsightsModal(advisorName) {
+  const modal  = document.getElementById("advisorModal");
+  const body   = document.getElementById("advisorModalBody");
+  const close  = document.getElementById("advisorModalClose");
+
+  const today = computeTodayMetrics();
+  const mtd   = computeMtdMetrics();
+  const mix   = computeMtdMixAllAdvisors();
+
+  // Find advisor stats
+  const statsToday = today.advisorStats.find(a => a.advisor === advisorName) || {
+    labourGross: 0, roCount: 0, avgRo: 0
+  };
+  const statsMtd = mtd.advisorStats.find(a => a.advisor === advisorName) || {
+    labourGross: 0, roCount: 0, avgRo: 0, leakagePct: 0, gpPct: 0
   };
 
-  // Close handler (in case Block 5 hasn't already wired it)
-  const closeBtn = document.getElementById("closeInsights");
-  if (closeBtn && !closeBtn._novaBound) {
-    closeBtn.addEventListener("click", () => {
-      document.getElementById("insightsModal").classList.add("hidden");
-    });
-    closeBtn._novaBound = true;
+  const insights = buildAdvisorInsights(
+    advisorName,
+    {
+      todayGross: statsToday.labourGross,
+      todayAvg: statsToday.avgRo,
+      todayROs: statsToday.roCount,
+      mtdGross: statsMtd.labourGross,
+      mtdAvg: statsMtd.avgRo,
+      mtdROs: statsMtd.roCount,
+      leakage: statsMtd.leakagePct,
+      gp: statsMtd.gpPct
+    },
+    today,
+    mtd,
+    mix
+  );
+
+  body.innerHTML = `
+    <h2>${advisorName}</h2>
+    <div class="modal-section">
+      <h3>Performance Summary</h3>
+      <p><strong>Today:</strong> ${formatCurrency(statsToday.labourGross)} · ${statsToday.roCount} ROs · Avg ${formatCurrency(statsToday.avgRo)}</p>
+      <p><strong>MTD:</strong> ${formatCurrency(statsMtd.labourGross)} · ${statsMtd.roCount} ROs · Avg ${formatCurrency(statsMtd.avgRo)}</p>
+      <p><strong>Leakage:</strong> ${formatPercent(statsMtd.leakagePct)}</p>
+      <p><strong>GP%:</strong> ${formatPercent(statsMtd.gpPct)}</p>
+    </div>
+
+    <div class="modal-section">
+      <h3>Insights</h3>
+      <p>${insights}</p>
+    </div>
+  `;
+
+  modal.classList.remove("hidden");
+
+  close.onclick = () => modal.classList.add("hidden");
+}
+
+// ---------- GLOBAL INSIGHTS (WHOLE DEALERSHIP) ----------
+
+function renderGlobalInsights() {
+  const el = document.getElementById("insightsContent");
+  if (!el) return;
+
+  const today = computeTodayMetrics();
+  const mtd   = computeMtdMetrics();
+  const mix   = computeMtdMixAllAdvisors();
+
+  const lines = [];
+
+  // Daily summary
+  if (today.totalGross < toNumber(settings.dailyLabourTarget)) {
+    lines.push(`• Today’s gross ${formatCurrency(today.totalGross)} is behind target. Consider calling declined work.`);
+  } else {
+    lines.push(`• Today’s gross ${formatCurrency(today.totalGross)} is ahead of pace. Good job keeping RO flow moving.`);
   }
-})();
+
+  // MTD Gross
+  if (mtd.totalGross < toNumber(settings.mtdLabourTarget)) {
+    lines.push(`• MTD Gross ${formatCurrency(mtd.totalGross)} is below target. Accelerate follow-up on open Customer-Pay work.`);
+  } else {
+    lines.push(`• MTD Gross ${formatCurrency(mtd.totalGross)} is tracking well.`);  
+  }
+
+  // Mix
+  if (mix.retailPct < 50) {
+    lines.push(`• Retail mix is soft (${mix.retailPct.toFixed(1)}%). Push menu presentation and declined work pickup.`);
+  }
+
+  if (mix.warrantyPct > 25) {
+    lines.push(`• Warranty %. Consider reviewing operation coding and ensure warranty isn't masking retail opportunities.`);
+  }
+
+  if (mix.internalPct > 20) {
+    lines.push(`• Internal work high (${mix.internalPct.toFixed(1)}%). Check if booking capacity is being eaten by reconditioning.`);
+  }
+
+  // Fallback
+  if (!lines.length) lines.push("• Performance steady. Maintain momentum.");
+
+  el.innerHTML = lines.join("<br>");
+}
+
+
+// ---------- FINAL RENDER HOOK ----------
+
+const __oldRenderDashboard = renderDashboard;
+renderDashboard = function() {
+  __oldRenderDashboard();
+  renderGlobalInsights();
+};
+
 </script>
